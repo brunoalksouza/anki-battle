@@ -33,3 +33,11 @@ Instalação física no celular, cobertura das fontes gratuitas, independência 
 - Dias selecionáveis por toque e teclado, suporte ao fuso do perfil, anos bissextos e virada de ano. Dias futuros não entram nas estatísticas; atividade de estudo permanece separada de acessos.
 - Painel ocupa a largura do dashboard; no celular há rolagem lateral do mapa, sem transbordamento da página. Temas claro/escuro conferidos com o histórico importado em uma conta local de teste.
 - 26 testes aprovados (cinco novos casos de calendário/estatísticas), além de TypeScript e build. Navegação entre anos, estado vazio, detalhes de dia, teclado e filtro de acessos verificados no navegador.
+
+## English interface and phone layouts — 2026-11-03
+
+- All app-owned copy is now English: navigation, dashboard/calendar, review flow, word/deck editors, battles/groups, profile/goals, login/recovery, PWA metadata, installation instructions, validation and API errors. Dates and numbers use English formatting.
+- English example requests no longer request Portuguese translations based on a user's native language. English explanations are used for other study languages; the provider cache namespace changed to avoid old translated responses.
+- An idempotent startup migration translates exact importer/default labels and tags. Existing English definitions, sentences, images, audio, original APKG source, schedules, and reviews are preserved. Future imports use English labels too.
+- Phone layouts use readable copy, 16px form fields, larger controls, stacked filters/forms, safe-area padding, and reachable sticky review ratings and dialog actions. Fixed the narrow dashboard overflow and modal dynamic viewport sizing.
+- Verified actual UI on 320/360/375px content widths and desktop, light/dark, including login, recovery, registration, dashboard/year navigation, deck selection, review answers, imported word details/editor, invitation and profile. Screenshots stay local because they contain private learning history.

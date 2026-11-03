@@ -51,54 +51,54 @@ export default function Dashboard() {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">SEU ESPAÇO DE APRENDIZADO</span>
+          <span className="eyebrow">YOUR LEARNING SPACE</span>
           <h1>
-            Olá, {s.user.nickname.split(" ")[0]}
+            Hi, {s.user.nickname.split(" ")[0]}
             <span className="wave">✳</span>
           </h1>
-          <p>Um pequeno passo hoje. Um mundo de possibilidades amanhã.</p>
+          <p>A small step today. A world of possibilities tomorrow.</p>
         </div>
         <Button variant="secondary" onClick={() => openWord()}>
           <Plus size={18} />
-          Nova palavra
+          New word
         </Button>
       </div>
       <div className="dashboard-top">
         <section className="study-hero">
           <div className="hero-content">
             <span className="hero-label">
-              <span className="status-dot" /> SEU MOMENTO DE FOCO
+              <span className="status-dot" /> YOUR MOMENT TO FOCUS
             </span>
             <h2>
-              Um pouco hoje.
+              A little today.
               <br />
-              Muito mais amanhã.
+              More tomorrow.
             </h2>
             <p>
               {due.length ? (
                 <>
-                  Você tem <strong>{fmt(due.length)} cards</strong> esperando
-                  por você.
+                  You have <strong>{fmt(due.length)} cards</strong> waiting for
+                  you.
                   <br />
-                  Vamos dar mais um passo?
+                  Ready for one more step?
                 </>
               ) : (
                 <>
-                  Seu próximo aprendizado começa com uma palavra.
+                  Your next discovery starts with a word.
                   <br />
-                  Qual vai ser a de hoje?
+                  What will you learn today?
                 </>
               )}
             </p>
             <Button onClick={() => (due.length ? study() : openWord())}>
-              {due.length ? "Começar a estudar" : "Adicionar uma palavra"}
+              {due.length ? "Start studying" : "Add a word"}
               <ArrowRight size={18} />
             </Button>
             <small>
               <Clock3 size={13} />
               {due.length
-                ? `Cerca de ${Math.max(1, Math.ceil(Math.min(due.length, 20) * 0.3))} minutos para uma sessão`
-                : "Aprenda no seu ritmo, sem pressa"}
+                ? `About ${Math.max(1, Math.ceil(Math.min(due.length, 20) * 0.3))} minutes per session`
+                : "Learn at your own pace"}
             </small>
           </div>
           <div className="hero-deck" aria-hidden="true">
@@ -109,7 +109,7 @@ export default function Dashboard() {
               </span>
               <strong>{s.user.studyLang === "ja" ? "学ぶ" : "Aa"}</strong>
               <div />
-              <small>Uma palavra. Novas conexões.</small>
+              <small>One word. New connections.</small>
               <i>✦</i>
             </div>
           </div>
@@ -121,14 +121,14 @@ export default function Dashboard() {
           <div>
             <strong>
               {daysStreak}
-              <span> {daysStreak === 1 ? "dia" : "dias"}</span>
+              <span> {daysStreak === 1 ? "day" : "days"}</span>
             </strong>
-            <h3>de constância</h3>
+            <h3>learning streak</h3>
           </div>
           <p>
             {daysStreak
-              ? "Seu esforço está virando hábito. Continue assim."
-              : "Seu primeiro dia de estudo pode ser hoje."}
+              ? "Your effort is becoming a habit. Keep going."
+              : "Today can be your first day of learning."}
           </p>
           <div className="week-dots">
             {Array.from({ length: 7 }, (_, i) => {
@@ -138,7 +138,7 @@ export default function Dashboard() {
                 done = s.days.some((d) => d.day === key && d.reviews > 0);
               return (
                 <div key={key} className={key === today ? "today" : ""}>
-                  <small>{["S", "T", "Q", "Q", "S", "S", "D"][i]}</small>
+                  <small>{["M", "T", "W", "T", "F", "S", "S"][i]}</small>
                   <span className={done ? "done" : ""}>
                     {done ? <Check size={14} /> : date.getUTCDate()}
                   </span>
@@ -155,7 +155,7 @@ export default function Dashboard() {
           </span>
           <span>
             <strong>{fmt(s.words.length)}</strong>
-            <small>palavras no seu mundo</small>
+            <small>words in your world</small>
           </span>
         </div>
         <div>
@@ -164,7 +164,7 @@ export default function Dashboard() {
           </span>
           <span>
             <strong>{todayStats?.reviews || 0}</strong>
-            <small>revisões hoje</small>
+            <small>reviews today</small>
           </span>
         </div>
         <div>
@@ -176,7 +176,7 @@ export default function Dashboard() {
               {Math.floor((todayStats?.activeMs || 0) / 60000)}
               <em> min</em>
             </strong>
-            <small>de foco hoje</small>
+            <small>focused today</small>
           </span>
         </div>
         <div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
           </span>
           <span>
             <strong>{rank?.points ? `#${rank.rank}` : "—"}</strong>
-            <small>no ranking semanal</small>
+            <small>weekly rank</small>
           </span>
         </div>
       </div>
@@ -193,8 +193,8 @@ export default function Dashboard() {
       <div className="dashboard-bottom">
         <section>
           <SectionHead
-            title="Seus baralhos"
-            action="Ver todos"
+            title="Your decks"
+            action="View all"
             onAction={() => navigate("study")}
           />
           <div className="deck-list">
@@ -224,7 +224,7 @@ export default function Dashboard() {
                     <h3>{deck.name}</h3>
                     <p>
                       {langName(deck.language)} <span>·</span> {words.length}{" "}
-                      palavras
+                      {words.length === 1 ? "word" : "words"}
                     </p>
                     <Progress
                       value={learned}
@@ -233,7 +233,7 @@ export default function Dashboard() {
                     />
                   </div>
                   <span className={"deck-due " + (!n ? "caught-up" : "")}>
-                    {n ? `${n} para estudar` : "Em dia"}
+                    {n ? `${n} due` : "Up to date"}
                     <ArrowUpRight size={16} />
                   </span>
                 </button>
@@ -241,32 +241,32 @@ export default function Dashboard() {
             })}
             <button className="add-deck" onClick={() => openDeck()}>
               <Plus size={18} />
-              Criar novo baralho
+              Create a deck
             </button>
           </div>
         </section>
         <aside>
           <section className="panel goals-panel">
             <SectionHead
-              title="Uma semana de evolução"
+              title="This week's progress"
               extra={<Target size={20} className="muted" />}
             />
-            <p className="section-sub">Pequenas metas. Grandes conquistas.</p>
+            <p className="section-sub">Small goals. Big achievements.</p>
             {[
               {
-                label: "Revisões",
+                label: "Reviews",
                 n: weeklyReviews.length,
                 max: goal.reviews,
                 color: "var(--accent)",
               },
               {
-                label: "Dias de estudo",
+                label: "Study days",
                 n: weeklyDays,
                 max: goal.days,
                 color: "var(--green)",
               },
               {
-                label: "Novas palavras",
+                label: "New words",
                 n: weeklyWords,
                 max: goal.words,
                 color: "var(--blue)",
@@ -284,7 +284,7 @@ export default function Dashboard() {
               </div>
             ))}
             <button className="text-button" onClick={() => navigate("profile")}>
-              Ajustar minhas metas
+              Adjust my goals
               <ArrowRight size={14} />
             </button>
           </section>
@@ -292,20 +292,20 @@ export default function Dashboard() {
             <span className="teaser-icon">
               <Swords size={22} />
             </span>
-            <h3>Aprender junto vai mais longe.</h3>
+            <h3>Go further together.</h3>
             <p>
               {invites.length
-                ? `${invites.length} convite${invites.length > 1 ? "s" : ""} esperando por você.`
-                : "Desafie alguém e coloque seu conhecimento em jogo."}
+                ? `${invites.length} invitation${invites.length > 1 ? "s" : ""} waiting for you.`
+                : "Challenge a friend and put your knowledge to the test."}
             </p>
             <Button
               variant="secondary full"
               onClick={() => navigate("battles")}
             >
-              {invites.length ? "Ver meus desafios" : "Explorar batalhas"}
+              {invites.length ? "View my challenges" : "Explore battles"}
               <ArrowRight size={16} />
             </Button>
-            {!online && <small>As batalhas precisam de conexão.</small>}
+            {!online && <small>Battles need an internet connection.</small>}
           </section>
         </aside>
       </div>

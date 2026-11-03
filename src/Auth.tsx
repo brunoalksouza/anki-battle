@@ -14,7 +14,7 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
     [error, setError] = useState(""),
     [codes, setCodes] = useState<string[]>([]),
     [account, setAccount] = useState("");
-  const [native, setNative] = useState("pt"),
+  const [native, setNative] = useState("en"),
     [study, setStudy] = useState("en");
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,7 +40,7 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
         setAccount(data.user.id);
       } else onLogin(data.user.id);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Falha de conexão.");
+      setError(e instanceof Error ? e.message : "Connection failed.");
     } finally {
       setBusy(false);
     }
@@ -56,24 +56,23 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
       <div className="auth-layout">
         <div className="auth-story">
           <span className="eyebrow">
-            <Sparkles size={14} /> UM POUCO TODOS OS DIAS
+            <Sparkles size={14} /> A LITTLE EVERY DAY
           </span>
           <h1>
-            Aprender é bom.
+            Learning feels good.
             <br />
-            <span>Lembrar é melhor.</span>
+            <span>Remembering feels better.</span>
           </h1>
           <p>
-            Suas palavras, no seu ritmo. Transforme pequenos momentos em
-            conhecimento que fica.
+            Your words, your pace. Turn small moments into lasting knowledge.
           </p>
           <div className="auth-art" aria-hidden="true">
             <div className="art-card back">あ</div>
             <div className="art-card middle">Aa</div>
             <div className="art-card front">
-              <span>UMA NOVA CONEXÃO</span>
+              <span>A NEW CONNECTION</span>
               <strong>remember</strong>
-              <small>lembrar · guardar na memória</small>
+              <small>to keep something in your memory</small>
               <div className="art-dots">
                 <i />
                 <i />
@@ -83,9 +82,9 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
             </div>
           </div>
           <div className="auth-features">
-            <span>Repetição espaçada</span>
-            <span>Estudo offline</span>
-            <span>Desafios entre amigos</span>
+            <span>Spaced repetition</span>
+            <span>Offline study</span>
+            <span>Challenges with friends</span>
           </div>
         </div>
         <div className="auth-form-card">
@@ -94,10 +93,10 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
               <span className="success-icon">
                 <ShieldCheck />
               </span>
-              <h2>Seu espaço está pronto.</h2>
+              <h2>Your space is ready.</h2>
               <p>
-                Guarde estes códigos. Cada um recupera seu acesso uma única vez,
-                se você esquecer a senha. Não enviamos recuperação por e-mail.
+                Save these codes. Each can restore access once if you forget
+                your password. Email recovery is not available.
               </p>
               <div className="recovery-codes">
                 {codes.map((c) => (
@@ -108,51 +107,51 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                 variant="secondary full"
                 onClick={() =>
                   exportFile(
-                    "anki-battle-recuperacao.txt",
+                    "anki-battle-recovery.txt",
                     codes.join("\n"),
                     "text/plain",
                   )
                 }
               >
-                Baixar códigos de recuperação
+                Download recovery codes
               </Button>
               <Button className="full" onClick={() => onLogin(account)}>
-                Guardei. Vamos começar
+                Saved. Let's get started
                 <ArrowRight size={18} />
               </Button>
             </>
           ) : (
             <>
-              <span className="eyebrow">SEU PRÓXIMO NÍVEL COMEÇA AQUI</span>
+              <span className="eyebrow">YOUR NEXT LEVEL STARTS HERE</span>
               <h2>
                 {mode === "register"
-                  ? "Crie o hábito."
+                  ? "Build the habit."
                   : mode === "recover"
-                    ? "Vamos recuperar seu acesso."
-                    : "Bom ter você de volta."}
+                    ? "Let's recover your account."
+                    : "Welcome back."}
               </h2>
               <p>
                 {mode === "register"
-                  ? "Uma conta, todos os seus aprendizados."
+                  ? "One account for everything you learn."
                   : mode === "recover"
-                    ? "Use um dos códigos guardados ao criar sua conta."
-                    : "Entre e continue de onde parou."}
+                    ? "Use a recovery code you saved when you created your account."
+                    : "Sign in and pick up where you left off."}
               </p>
               <form onSubmit={submit}>
                 {mode === "register" && (
-                  <Field label="Como você quer ser chamado?">
+                  <Field label="What should we call you?">
                     <input
                       name="nickname"
                       required
                       minLength={2}
                       maxLength={30}
-                      placeholder="Seu apelido"
+                      placeholder="Your nickname"
                       autoComplete="nickname"
                     />
                   </Field>
                 )}
                 <Field
-                  label={mode === "register" ? "E-mail" : "Usuário ou e-mail"}
+                  label={mode === "register" ? "Email" : "Username or email"}
                 >
                   <input
                     type={mode === "register" ? "email" : "text"}
@@ -160,21 +159,21 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                     required
                     placeholder={
                       mode === "register"
-                        ? "voce@exemplo.com"
-                        : "Seu usuário do Financeiro ou e-mail"
+                        ? "you@example.com"
+                        : "Your Finance username or email"
                     }
                     autoComplete="username"
                   />
                 </Field>
                 {mode === "recover" && (
-                  <Field label="Código de recuperação">
+                  <Field label="Recovery code">
                     <input name="code" required autoComplete="off" />
                   </Field>
                 )}
                 <Field
-                  label={mode === "recover" ? "Nova senha" : "Senha"}
+                  label={mode === "recover" ? "New password" : "Password"}
                   hint={
-                    mode !== "login" ? "Pelo menos 10 caracteres." : undefined
+                    mode !== "login" ? "At least 10 characters." : undefined
                   }
                 >
                   <input
@@ -183,7 +182,7 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                     required
                     minLength={mode === "login" ? 1 : 10}
                     maxLength={200}
-                    placeholder="Sua senha"
+                    placeholder="Your password"
                     autoComplete={
                       mode === "login" ? "current-password" : "new-password"
                     }
@@ -191,10 +190,10 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                 </Field>
                 {mode === "register" && (
                   <div className="form-grid">
-                    <Field label="Meu idioma">
+                    <Field label="My native language">
                       <LanguageSelect value={native} onChange={setNative} />
                     </Field>
-                    <Field label="Quero estudar">
+                    <Field label="I want to study">
                       <LanguageSelect value={study} onChange={setStudy} />
                     </Field>
                   </div>
@@ -202,10 +201,10 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                 <ErrorText error={error} />
                 <Button type="submit" busy={busy} className="full">
                   {mode === "register"
-                    ? "Criar minha conta"
+                    ? "Create my account"
                     : mode === "recover"
-                      ? "Redefinir senha"
-                      : "Entrar"}
+                      ? "Reset password"
+                      : "Sign in"}
                   <ArrowRight size={18} />
                 </Button>
               </form>
@@ -218,17 +217,17 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                       setError("");
                     }}
                   >
-                    Esqueci minha senha
+                    Forgot password?
                   </button>
                   <div className="auth-switch">
-                    Primeira vez aqui?{" "}
+                    New here?{" "}
                     <button
                       onClick={() => {
                         setMode("register");
                         setError("");
                       }}
                     >
-                      Criar conta
+                      Create account
                     </button>
                   </div>
                 </>
@@ -241,19 +240,19 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                   }}
                 >
                   <ArrowLeft size={15} />
-                  Voltar para entrar
+                  Back to sign in
                 </button>
               )}
               <small className="privacy-note">
-                <ShieldCheck size={14} /> Seus baralhos são privados.
-                Compartilhar é uma escolha.
+                <ShieldCheck size={14} /> Your decks are private. You choose
+                what to share.
               </small>
             </>
           )}
         </div>
       </div>
       <footer className="auth-footer">
-        ANKI BATTLE <span>Feito para aprender, um dia de cada vez.</span>
+        ANKI BATTLE <span>Made for learning, one day at a time.</span>
       </footer>
     </div>
   );

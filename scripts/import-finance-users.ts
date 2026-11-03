@@ -59,7 +59,7 @@ db.transaction(() => {
     svc.ensureGoal(id);
     if (u.username !== "bruno")
       svc.createDeck(id, {
-        name: "Meu primeiro baralho",
+        name: "My first deck",
         language: "en",
         color: "#8058d8",
         icon: "🌱",

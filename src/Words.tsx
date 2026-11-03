@@ -65,7 +65,7 @@ export default function Words() {
     const words = list.map(({ id, version, imageId, ...w }) => w);
     if (format === "json")
       exportFile(
-        "anki-battle-palavras.json",
+        "anki-battle-words.json",
         JSON.stringify(
           {
             format: "anki-battle-content-v1",
@@ -78,7 +78,7 @@ export default function Words() {
       );
     else
       exportFile(
-        "anki-battle-palavras.csv",
+        "anki-battle-words.csv",
         Papa.unparse(
           words.map((w) => ({
             term: w.term,
@@ -100,23 +100,23 @@ export default function Words() {
     try {
       if (file.size > 2000000)
         throw new Error(
-          "Importe arquivos de até 2 MB, com no máximo 1.000 palavras.",
+          "Import files up to 2 MB with no more than 1,000 words.",
         );
       const text = await file.text();
       let data: any[];
       if (file.name.toLowerCase().endsWith(".csv")) {
         const result = Papa.parse(text, { header: true, skipEmptyLines: true });
         if (result.errors.length)
-          throw new Error("CSV inválido: " + result.errors[0].message);
+          throw new Error("Invalid CSV: " + result.errors[0].message);
         data = result.data as any[];
       } else {
         const parsed = JSON.parse(text);
         data = Array.isArray(parsed) ? parsed : parsed.words;
       }
       if (!Array.isArray(data))
-        throw new Error("O JSON precisa conter uma lista words.");
+        throw new Error("The JSON must contain a words array.");
       const target = deck || s.decks[0]?.id;
-      if (!target) throw new Error("Crie um baralho antes de importar.");
+      if (!target) throw new Error("Create a deck before importing.");
       const words = data.map((w) => ({
         ...w,
         id: crypto.randomUUID(),
@@ -139,7 +139,7 @@ export default function Words() {
       });
       await refresh();
       toast(
-        `${r.imported} palavras importadas para ${s.decks.find((d) => d.id === target)?.name}.`,
+        `${r.imported} words imported into ${s.decks.find((d) => d.id === target)?.name}.`,
       );
     } catch (e) {
       toast((e as Error).message);
@@ -151,33 +151,33 @@ export default function Words() {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">SEU VOCABULÁRIO, GANHANDO VIDA</span>
-          <h1>Um mundo de palavras.</h1>
+          <span className="eyebrow">YOUR VOCABULARY, BROUGHT TO LIFE</span>
+          <h1>A world of words.</h1>
           <p>
-            {s.words.length} palavras e expressões. Cada uma, uma nova conexão.
+            {s.words.length} words and expressions. Each one, a new connection.
           </p>
         </div>
         <Button onClick={() => openWord()}>
           <Plus size={18} />
-          Nova palavra
+          New word
         </Button>
       </div>
       <div className="word-toolbar">
         <div className="search-input">
           <Search size={19} />
           <input
-            aria-label="Pesquisar palavras"
-            placeholder="Buscar palavra, significado ou tag…"
+            aria-label="Search words"
+            placeholder="Search word, meaning, or tag…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
         <select
-          aria-label="Filtrar baralho"
+          aria-label="Filter by deck"
           value={deck}
           onChange={(e) => setDeck(e.target.value)}
         >
-          <option value="">Todos os baralhos</option>
+          <option value="">All decks</option>
           {s.decks.map((d) => (
             <option value={d.id} key={d.id}>
               {d.name}
@@ -185,26 +185,26 @@ export default function Words() {
           ))}
         </select>
         <select
-          aria-label="Filtrar estado"
+          aria-label="Filter by status"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
-          <option value="all">Todos os estados</option>
-          <option value="due">Para revisar</option>
-          <option value="pending">Frase pendente</option>
-          <option value="suspended">Suspensos</option>
+          <option value="all">All statuses</option>
+          <option value="due">Due for review</option>
+          <option value="pending">Example pending</option>
+          <option value="suspended">Suspended</option>
         </select>
       </div>
       <div className="words-summary">
         <span>
-          {list.length} {list.length === 1 ? "palavra" : "palavras"}
+          {list.length} {list.length === 1 ? "word" : "words"}
         </span>
         <div>
           <label
             className={"text-button file-button " + (!online ? "disabled" : "")}
           >
             <Upload size={15} />
-            {importing ? "Importando…" : "Importar"}
+            {importing ? "Importing…" : "Import"}
             <input
               type="file"
               accept=".json,.csv"
@@ -255,12 +255,12 @@ export default function Words() {
               <span>{s.decks.find((d) => d.id === w.deckId)?.name}</span>
               <small>
                 {w.sentenceStatus === "pending"
-                  ? "Frase pendente"
+                  ? "Example pending"
                   : w.kind === "reverse"
-                    ? "Frente + inverso"
+                    ? "Basic + reverse"
                     : w.kind === "cloze"
-                      ? "Completar lacuna"
-                      : "Frente e verso"}
+                      ? "Cloze deletion"
+                      : "Basic"}
               </small>
             </div>
             <ArrowUpRight size={18} className="muted" />
@@ -269,22 +269,20 @@ export default function Words() {
       </div>
       {!list.length && (
         <Empty
-          title={
-            query ? "Nenhuma palavra encontrada." : "Sua coleção começa aqui."
-          }
+          title={query ? "No words found." : "Your collection starts here."}
           description={
             query
-              ? "Tente outro termo ou ajuste os filtros."
-              : "Palavras, expressões e ideias que você quer guardar."
+              ? "Try another search or adjust the filters."
+              : "Words, expressions, and ideas worth remembering."
           }
-          action={!query ? "Adicionar palavra" : undefined}
+          action={!query ? "Add word" : undefined}
           onAction={() => openWord()}
         />
       )}
       <p className="footnote">
-        Importação CSV/JSON: term, meaning, language, color, tags, sentence,
-        translation, kind. Os arquivos entram no baralho selecionado (ou no
-        primeiro). A exportação de conteúdo não inclui mídia nem agendamento.
+        CSV/JSON import: term, meaning, language, color, tags, sentence,
+        translation, kind. Files go into the selected deck, or the first deck.
+        Content exports exclude media and review schedules.
       </p>
     </>
   );
@@ -358,31 +356,28 @@ export function WordEditor({
     }
   }
   return (
-    <Modal
-      title={existing ? "Editar palavra" : "Uma nova palavra"}
-      onClose={onClose}
-    >
+    <Modal title={existing ? "Edit word" : "A new word"} onClose={onClose}>
       <form onSubmit={save}>
         <div className="form-grid">
-          <Field label="Palavra ou expressão">
+          <Field label="Word or expression">
             <input
               autoFocus
               required
               value={word.term}
               maxLength={160}
               onChange={(e) => update({ term: e.target.value })}
-              placeholder="Ex.: horse"
+              placeholder="e.g. horse"
               dir="auto"
             />
           </Field>
-          <Field label="Idioma estudado">
+          <Field label="Study language">
             <LanguageSelect
               value={word.language}
               onChange={(language) => update({ language })}
             />
           </Field>
         </div>
-        <Field label="Significado ou tradução">
+        <Field label="Meaning in English">
           <textarea
             required
             maxLength={1000}
@@ -396,7 +391,7 @@ export function WordEditor({
                   : null,
               })
             }
-            placeholder="O sentido que você quer aprender"
+            placeholder="The meaning you want to learn, in English"
             dir="auto"
           />
         </Field>
@@ -408,11 +403,11 @@ export function WordEditor({
           onClick={suggest}
         >
           <Search size={15} />
-          Sugerir significado
+          Suggest meaning
         </Button>
         {definitions.length > 0 && (
           <div className="definition-options">
-            <small>Escolha o sentido que você quer estudar:</small>
+            <small>Choose the meaning you want to study:</small>
             {definitions.map((d, i) => (
               <button
                 type="button"
@@ -435,7 +430,7 @@ export function WordEditor({
           </div>
         )}
         <div className="form-grid spaced">
-          <Field label="Baralho">
+          <Field label="Deck">
             <select
               required
               value={word.deckId}
@@ -448,26 +443,26 @@ export function WordEditor({
               ))}
             </select>
           </Field>
-          <Field label="Tipo de card">
+          <Field label="Card type">
             <select
               value={word.kind}
               onChange={(e) => update({ kind: e.target.value as Word["kind"] })}
             >
-              <option value="basic">Frente e verso</option>
-              <option value="reverse">Frente e verso + inverso</option>
-              <option value="cloze">Completar lacuna</option>
+              <option value="basic">Basic</option>
+              <option value="reverse">Basic + reverse</option>
+              <option value="cloze">Cloze deletion</option>
             </select>
           </Field>
         </div>
         <Field
-          label="Cor de destaque"
-          hint="A palavra também recebe sublinhado. A cor é compartilhada por ocorrências da mesma expressão."
+          label="Highlight color"
+          hint="The word is also underlined. The same expression uses the same color."
         >
           <div className="color-options">
             {colors.map((c) => (
               <button
                 type="button"
-                aria-label={"Cor " + c}
+                aria-label={"Color " + c}
                 aria-pressed={word.color === c}
                 className={word.color === c ? "selected" : ""}
                 key={c}
@@ -478,14 +473,14 @@ export function WordEditor({
               </button>
             ))}
             <input
-              aria-label="Cor personalizada"
+              aria-label="Custom color"
               type="color"
               value={word.color}
               onChange={(e) => update({ color: e.target.value })}
             />
           </div>
         </Field>
-        <Field label="Tags" hint="Separe por vírgula. Ex.: viagem, objetos">
+        <Field label="Tags" hint="Separate with commas, e.g. travel, objects">
           <input
             value={word.tags.join(", ")}
             onChange={(e) =>
@@ -497,8 +492,8 @@ export function WordEditor({
           className="form-details"
           open={!!existing || word.kind === "cloze"}
         >
-          <summary>Frase e tradução</summary>
-          <Field label="Frase de exemplo">
+          <summary>Example and English explanation</summary>
+          <Field label="Example sentence">
             <textarea
               value={word.sentence}
               onChange={(e) => update({ sentence: e.target.value })}
@@ -506,7 +501,7 @@ export function WordEditor({
               rows={3}
             />
           </Field>
-          <Field label="Tradução da frase">
+          <Field label="English explanation">
             <textarea
               value={word.translation}
               onChange={(e) => update({ translation: e.target.value })}
@@ -517,16 +512,16 @@ export function WordEditor({
         </details>
         <div className="notice small">
           {online
-            ? "Ao salvar sem frase, vamos buscar um exemplo real gratuito. Confira o sentido antes de estudar."
-            : "Sem conexão: a palavra ficará salva neste aparelho e a frase pendente."}
+            ? "Save without a sentence to find a free example. Check the meaning before studying."
+            : "Offline: the word will be saved on this device; the example will stay pending."}
         </div>
         <ErrorText error={error} />
         <div className="modal-actions">
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancelar
+            Cancel
           </Button>
           <Button type="submit" busy={busy} disabled={!word.deckId}>
-            Salvar palavra
+            Save word
             <Check size={16} />
           </Button>
         </div>
@@ -570,7 +565,7 @@ export function DeckEditor({
       );
       await refresh();
       onClose();
-      toast("Baralho salvo.");
+      toast("Deck saved.");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -583,7 +578,7 @@ export function DeckEditor({
       await api("/decks/" + deckId, "DELETE");
       await refresh();
       onClose();
-      toast("Baralho e cards removidos. O histórico permanece guardado.");
+      toast("Deck and cards removed. Your review history is kept.");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -591,19 +586,19 @@ export function DeckEditor({
     }
   }
   return (
-    <Modal title={existing ? "Seu baralho" : "Criar baralho"} onClose={onClose}>
+    <Modal title={existing ? "Your deck" : "Create deck"} onClose={onClose}>
       <form onSubmit={save}>
-        <Field label="Nome">
+        <Field label="Name">
           <input
             autoFocus
             required
             maxLength={80}
             value={form.name}
             onChange={(e) => update({ name: e.target.value })}
-            placeholder="Ex.: Inglês para a vida"
+            placeholder="e.g. Everyday English"
           />
         </Field>
-        <Field label="Descrição">
+        <Field label="Description">
           <textarea
             maxLength={500}
             value={form.description}
@@ -612,13 +607,13 @@ export function DeckEditor({
           />
         </Field>
         <div className="form-grid">
-          <Field label="Idioma">
+          <Field label="Language">
             <LanguageSelect
               value={form.language}
               onChange={(language) => update({ language })}
             />
           </Field>
-          <Field label="Ícone">
+          <Field label="Icon">
             <select
               value={form.icon}
               onChange={(e) => update({ icon: e.target.value })}
@@ -631,7 +626,7 @@ export function DeckEditor({
             </select>
           </Field>
         </div>
-        <Field label="Cor">
+        <Field label="Color">
           <input
             type="color"
             value={form.color}
@@ -645,20 +640,20 @@ export function DeckEditor({
             onChange={(e) => update({ shared: e.target.checked })}
           />
           <span>
-            Autorizar este baralho para batalhas
+            Allow this deck in battles
             <small>
-              Suas palavras e significados poderão compor perguntas para outras
-              pessoas. Seu histórico continua privado.
+              Your words and meanings may be used in questions for other
+              players. Your review history stays private.
             </small>
           </span>
         </label>
         <ErrorText error={error} />
         <div className="modal-actions">
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancelar
+            Cancel
           </Button>
           <Button busy={busy} disabled={!online} type="submit">
-            Salvar baralho
+            Save deck
           </Button>
         </div>
       </form>
@@ -666,12 +661,12 @@ export function DeckEditor({
         <div className="danger-zone">
           {confirmDelete ? (
             <>
-              <p>Remover “{existing.name}” e todos os seus cards?</p>
+              <p>Remove “{existing.name}” and all its cards?</p>
               <Button variant="danger" busy={busy} onClick={remove}>
-                Confirmar exclusão
+                Confirm delete
               </Button>
               <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
-                Manter baralho
+                Keep deck
               </Button>
             </>
           ) : (
@@ -680,7 +675,7 @@ export function DeckEditor({
               onClick={() => setConfirmDelete(true)}
             >
               <Trash2 size={15} />
-              Excluir baralho
+              Delete deck
             </button>
           )}
         </div>
@@ -732,20 +727,20 @@ export function WordDetail({
         <span>{s.decks.find((d) => d.id === word.deckId)?.name}</span>
         <button className="text-button" onClick={onEdit}>
           <Edit3 size={15} />
-          Editar
+          Edit
         </button>
       </div>
       <h3 className="word-meaning">{word.meaning}</h3>
       <Attribution credit={word.meaningCredit} />
       {word.sentence ? (
         <div className="sentence-box">
-          <span className="eyebrow">EM CONTEXTO</span>
+          <span className="eyebrow">IN CONTEXT</span>
           <blockquote dir="auto">
             <Highlight text={word.sentence} word={word} />
           </blockquote>
           {word.translation && (
             <details>
-              <summary>Ver tradução</summary>
+              <summary>Show English explanation</summary>
               <p>{word.translation}</p>
             </details>
           )}
@@ -753,14 +748,15 @@ export function WordDetail({
           <Attribution credit={word.translationCredit} />
           {word.sentenceStatus === "ready" && (
             <small>
-              Exemplo de uma fonte pública. Confira o sentido da expressão.
+              Example from a public source. Check that it uses the meaning you
+              want.
             </small>
           )}
         </div>
       ) : (
         <div className="notice">
-          Frase pendente. A palavra já está salva. Busque um exemplo ou escreva
-          sua frase em Editar.
+          Example pending. Your word is saved. Find an example or write your own
+          in Edit.
         </div>
       )}
       <div className="detail-actions">
@@ -778,7 +774,7 @@ export function WordDetail({
           }
         >
           <RefreshCw size={16} />
-          {word.sentence ? "Buscar outra frase" : "Buscar frase"}
+          {word.sentence ? "Find another example" : "Find example"}
         </Button>
         <Button
           variant="secondary small"
@@ -789,11 +785,11 @@ export function WordDetail({
           }}
         >
           <ImagePlus size={16} />
-          {word.imageId ? "Substituir imagem" : "Buscar imagem"}
+          {word.imageId ? "Replace image" : "Find image"}
         </Button>
         <button className="text-button" onClick={() => setHistory(!history)}>
           <History size={16} />
-          Histórico
+          History
         </button>
       </div>
       <WordImage word={word} user={s.user.id} />
@@ -814,15 +810,15 @@ export function WordDetail({
           }
         >
           <Trash2 size={14} />
-          Remover imagem
+          Remove image
         </button>
       )}
       {images !== null && (
         <section className="image-picker">
           <div className="section-head">
-            <h3>Uma imagem para lembrar</h3>
+            <h3>An image to remember</h3>
             <button className="text-button" onClick={() => setImages(null)}>
-              Fechar busca
+              Close search
             </button>
           </div>
           <form
@@ -836,19 +832,19 @@ export function WordDetail({
             }}
           >
             <input
-              aria-label="Termo da busca de imagens"
+              aria-label="Image search term"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               required
             />
             <Button type="submit" busy={busy === "search"}>
               <Search size={18} />
-              Buscar
+              Search
             </Button>
           </form>
           <p className="footnote">
-            Resultados do Wikimedia Commons. A imagem só será associada depois
-            da sua confirmação.
+            Results from Wikimedia Commons. Choose and confirm an image to add
+            it.
           </p>
           <div className="image-grid">
             {images.map((img) => (
@@ -880,7 +876,7 @@ export function WordDetail({
                 }
               >
                 <Check size={17} />
-                Usar esta imagem
+                Use this image
               </Button>
             </div>
           )}
@@ -888,23 +884,23 @@ export function WordDetail({
       )}
       {history && (
         <section className="history">
-          <h3>Uma memória em construção</h3>
+          <h3>Building a memory</h3>
           {cards.map((c) => (
             <div className="history-card" key={c.id}>
               <div>
                 <strong>
                   {c.direction === "reverse"
-                    ? "Card inverso"
+                    ? "Reverse card"
                     : c.direction === "cloze"
-                      ? "Lacuna"
-                      : "Frente e verso"}
+                      ? "Cloze"
+                      : "Basic"}
                 </strong>
                 <small>
-                  Próxima revisão: {fullDate(c.schedule.dueAt, s.user.timezone)}
+                  Next review: {fullDate(c.schedule.dueAt, s.user.timezone)}
                 </small>
                 <small>
-                  {c.schedule.reps} revisões ·{" "}
-                  {c.suspended ? "Suspenso" : "Ativo"}
+                  {c.schedule.reps} reviews ·{" "}
+                  {c.suspended ? "Suspended" : "Active"}
                 </small>
               </div>
               <Button
@@ -919,28 +915,28 @@ export function WordDetail({
                 }
               >
                 {c.suspended ? <Play size={15} /> : <Pause size={15} />}{" "}
-                {c.suspended ? "Retomar" : "Suspender"}
+                {c.suspended ? "Resume" : "Suspend"}
               </Button>
             </div>
           ))}
           {!records.length ? (
-            <p>Ainda sem revisões.</p>
+            <p>No reviews yet.</p>
           ) : (
             records.map((r) => (
               <div className="history-row" key={r.id}>
                 <span>{fullDate(r.reviewedAt, s.user.timezone)}</span>
                 <strong>
-                  {["Errei", "Difícil", "Bom", "Fácil"][r.rating - 1]}
+                  {["Again", "Hard", "Good", "Easy"][r.rating - 1]}
                 </strong>
                 <small>
                   {r.status === "applied"
-                    ? "Salva"
+                    ? "Saved"
                     : r.status === "pending"
-                      ? "Pendente"
+                      ? "Pending"
                       : r.status === "imported"
-                        ? "Importada"
+                        ? "Imported"
                         : r.status === "conflict"
-                          ? "Conflito preservado"
+                          ? "Conflict saved"
                           : r.status}
                 </small>
               </div>
@@ -952,7 +948,7 @@ export function WordDetail({
       <div className="danger-zone">
         {confirmDelete ? (
           <>
-            <p>Remover esta palavra e os cards associados?</p>
+            <p>Remove this word and its cards?</p>
             <Button
               variant="danger"
               disabled={!online}
@@ -964,10 +960,10 @@ export function WordDetail({
                 })
               }
             >
-              Confirmar exclusão
+              Confirm delete
             </Button>
             <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
-              Cancelar
+              Cancel
             </Button>
           </>
         ) : (
@@ -976,7 +972,7 @@ export function WordDetail({
             onClick={() => setConfirmDelete(true)}
           >
             <Trash2 size={14} />
-            Excluir palavra
+            Delete word
           </button>
         )}
       </div>

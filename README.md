@@ -80,3 +80,7 @@ Batalhas exigem aceite e baralho autorizado com ao menos quatro pares distintos.
 - [Registro de execução](docs/PROGRESS.md)
 
 Referências visuais examinadas: [Apple design](https://github.com/topics/apple-design), [Apple Bento Grid](https://github.com/hubeiqiao/apple-bento-grid) e [Simple Liquid Glass](https://github.com/lucaperullo/simple-liquid-glass). Os dois projetos são MIT; usados como inspiração visual, sem copiar implementação. Ícones Lucide, fontes nativas, CSS e arte vetorial próprios.
+
+## Interface language and mobile use
+
+The app interface is English throughout, including validation, server errors, PWA metadata, and date/number formatting. English learning examples do not generate Portuguese translations. Existing imported English content is preserved; legacy importer labels and default deck metadata are migrated idempotently to English. Phone layouts use larger touch targets and text, stacked forms/filters, safe areas, and sticky review and dialog actions.

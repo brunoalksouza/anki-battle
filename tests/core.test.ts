@@ -301,7 +301,7 @@ test("offline word then review preserves original dates and does not score close
         ...review(c),
         reviewedAt: new Date(+time + 120000).toISOString(),
       }),
-    /Data/,
+    /Review date/,
   );
   assert.equal(
     (
@@ -348,11 +348,11 @@ test("access is separate from study, timezones and competitive weeks are consist
 test("battle invitation requires explicit deck consent and rejects self challenges", () => {
   assert.throws(
     () => svc.invite(alice.user.id, bob.user.id, deck.id, randomUUID()),
-    /autorizar/,
+    /enable this deck/,
   );
   assert.throws(
     () => svc.invite(alice.user.id, alice.user.id, deck.id, randomUUID()),
-    /outra pessoa/,
+    /another person/,
   );
   svc.editDeck(alice.user.id, deck.id, { ...deck, shared: true });
 });

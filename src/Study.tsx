@@ -143,7 +143,7 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
     try {
       await downloadDeck(local, id);
       await refresh();
-      toast("Baralho e imagens disponíveis offline neste dispositivo.");
+      toast("Deck and media are available offline on this device.");
     } catch (e) {
       toast((e as Error).message);
     } finally {
@@ -157,16 +157,16 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
           <div className="finish-icon">
             <Check size={45} />
           </div>
-          <span className="eyebrow">MAIS UM PASSO DADO</span>
-          <h1>Seu futuro eu agradece.</h1>
+          <span className="eyebrow">ONE MORE STEP FORWARD</span>
+          <h1>Your future self thanks you.</h1>
           <p>
-            {done} {done === 1 ? "card revisado" : "cards revisados"}. O próximo
-            encontro com cada palavra já está agendado.
+            {done} {done === 1 ? "card reviewed" : "cards reviewed"}. Your next
+            review of each word is already scheduled.
           </p>
           <div className="finish-note">
             {local.pending.length
-              ? `${local.pending.length} ações salvas neste aparelho, aguardando sincronização.`
-              : "Seu progresso está salvo e sincronizado."}
+              ? `${local.pending.length} changes saved on this device, waiting to sync.`
+              : "Your progress is saved and synced."}
           </div>
           <Button
             onClick={() => {
@@ -174,7 +174,7 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
               setDone(0);
             }}
           >
-            Voltar aos baralhos
+            Back to decks
             <ArrowRight size={18} />
           </Button>
         </div>
@@ -191,10 +191,10 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
         <div className="review-top">
           <button className="text-button" onClick={() => setSession(null)}>
             <ChevronLeft size={18} />
-            Encerrar sessão
+            End session
           </button>
           <span>
-            {done + 1} de {done + session.length}
+            {done + 1} of {done + session.length}
           </span>
         </div>
         <Progress value={done} max={done + session.length} />
@@ -202,27 +202,27 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
           <span>{s.decks.find((d) => d.id === word.deckId)?.name}</span>
           <span>
             {card.schedule.reps === 0
-              ? "Novo"
+              ? "New"
               : card.schedule.state === 2
-                ? "Revisão"
-                : "Em aprendizado"}
+                ? "Review"
+                : "Learning"}
           </span>
         </div>
         <div className="review-card">
           <span className="eyebrow">
             {card.direction === "cloze"
-              ? "COMPLETE A LACUNA"
+              ? "FILL IN THE BLANK"
               : card.direction === "reverse"
-                ? "COMO VOCÊ DIZ?"
-                : "O QUE SIGNIFICA?"}
+                ? "HOW DO YOU SAY IT?"
+                : "WHAT DOES IT MEAN?"}
           </span>
           <h1 dir="auto">{prompt}</h1>
           {!revealed ? (
             <>
-              <p className="review-hint">Dê um instante para sua memória.</p>
+              <p className="review-hint">Give your memory a moment.</p>
               <Button variant="secondary" onClick={() => setRevealed(true)}>
                 <Eye size={18} />
-                Revelar resposta
+                Show answer
               </Button>
             </>
           ) : (
@@ -238,7 +238,7 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
               )}
               {word.translation && (
                 <details>
-                  <summary>Ver tradução da frase</summary>
+                  <summary>Show English explanation</summary>
                   <p>{word.translation}</p>
                 </details>
               )}
@@ -259,10 +259,10 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
         {revealed && (
           <>
             <p className="rating-question">
-              Como foi lembrar? <span>Esta é sua autoavaliação.</span>
+              How well did you remember? <span>Rate your recall.</span>
             </p>
             <div className="rating-buttons">
-              {["Errei", "Difícil", "Bom", "Fácil"].map((label, i) => (
+              {["Again", "Hard", "Good", "Easy"].map((label, i) => (
                 <button
                   disabled={saving}
                   key={label}
@@ -277,8 +277,8 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
           </>
         )}
         <p className="review-footer">
-          FSRS · A próxima revisão acompanha a sua memória.
-          {!online && " · Salvo neste dispositivo"}
+          FSRS · Your next review adapts to your memory.
+          {!online && " · Saved on this device"}
         </p>
       </section>
     );
@@ -287,20 +287,20 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">ESPAÇO PARA FOCAR</span>
-          <h1>Seu próximo aprendizado.</h1>
-          <p>Escolha um baralho. O resto é um card de cada vez.</p>
+          <span className="eyebrow">ROOM TO FOCUS</span>
+          <h1>Your next discovery.</h1>
+          <p>Pick a deck. Take it one card at a time.</p>
         </div>
         <Button onClick={() => openDeck()}>
           <Plus size={18} />
-          Novo baralho
+          New deck
         </Button>
       </div>
       <div className="study-toolbar">
         <label>
-          Estudar
+          Study
           <select value={deck} onChange={(e) => setDeck(e.target.value)}>
-            <option value="">Todos os baralhos</option>
+            <option value="">All decks</option>
             {s.decks.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
@@ -309,7 +309,7 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
           </select>
         </label>
         <div>
-          <strong>{eligible.length}</strong> cards disponíveis agora
+          <strong>{eligible.length}</strong> cards available now
         </div>
         <Button
           disabled={!eligible.length}
@@ -318,24 +318,24 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
             setDone(0);
           }}
         >
-          Começar sessão
+          Start session
           <ArrowRight size={18} />
         </Button>
       </div>
       {!online && (
         <div className="notice">
           <CloudOff size={18} />
-          Você pode revisar os baralhos baixados. Suas respostas serão
-          sincronizadas quando a conexão voltar.
+          You can review downloaded decks. Your answers will sync when you
+          reconnect.
         </div>
       )}
       <label className="deck-search">
-        Pesquisar baralhos
+        Search decks
         <input
           type="search"
           value={deckQuery}
           onChange={(e) => setDeckQuery(e.target.value)}
-          placeholder="Nome ou descrição do baralho"
+          placeholder="Deck name or description"
         />
       </label>
       <div className="deck-grid">
@@ -376,7 +376,7 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
                   </span>
                   <button
                     className="icon-button"
-                    aria-label={"Editar " + d.name}
+                    aria-label={"Edit " + d.name}
                     onClick={() => openDeck(d.id)}
                   >
                     <Settings2 size={18} />
@@ -385,10 +385,10 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
                 <h2>{d.name}</h2>
                 <p>
                   {d.description ||
-                    `${langName(d.language)} · ${words.length} palavras para explorar`}
+                    `${langName(d.language)} · ${words.length} ${words.length === 1 ? "word" : "words"} to explore`}
                 </p>
                 <div className="deck-counts">
-                  {["Novos", "Aprendendo", "Para revisar"].map((label, i) => (
+                  {["New", "Learning", "Due for review"].map((label, i) => (
                     <div key={label}>
                       <strong>{counts[i]}</strong>
                       <small>{label}</small>
@@ -416,7 +416,7 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
                       setDone(0);
                     }}
                   >
-                    Estudar
+                    Study
                     <ArrowRight size={16} />
                   </Button>
                   <button
@@ -425,24 +425,22 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
                     onClick={() => download(d.id)}
                   >
                     {downloading === d.id ? (
-                      "Baixando…"
+                      "Downloading…"
                     ) : local.downloaded.includes(d.id) ? (
                       <>
                         <Check size={16} />
-                        Atualizar offline
+                        Refresh download
                       </>
                     ) : (
                       <>
                         <Download size={16} />
-                        Baixar
+                        Download
                       </>
                     )}
                   </button>
                 </div>
                 {d.shared && (
-                  <small className="shared-label">
-                    Disponível para batalhas
-                  </small>
+                  <small className="shared-label">Available for battles</small>
                 )}
               </article>
             );
@@ -450,16 +448,16 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
       </div>
       {!s.words.length && (
         <Empty
-          title="Toda jornada começa com uma palavra."
-          description="Adicione uma expressão, escolha uma cor e dê vida ao seu primeiro card."
-          action="Adicionar palavra"
+          title="Every journey starts with a word."
+          description="Add an expression, choose a color, and bring your first card to life."
+          action="Add word"
           onAction={() => openWord()}
         />
       )}
       <p className="footnote">
-        Limite diário: {s.user.dailyNew} novos cards e {s.user.dailyReview}{" "}
-        revisões. Ajuste no Perfil. Cards de lacuna precisam de uma frase que
-        contenha a expressão.
+        Daily limit: {s.user.dailyNew} new cards and {s.user.dailyReview}{" "}
+        reviews. Adjust these in Profile. Cloze cards need a sentence containing
+        the expression.
       </p>
     </>
   );

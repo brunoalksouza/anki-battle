@@ -176,7 +176,7 @@ test("a stale content edit is kept as a recoverable draft, not silently overwrit
   await syncAccount(alice.id);
   const local = (await loadLocal(alice.id))!;
   assert.equal(local.pending.length, 1);
-  assert.match(local.pending[0].error!, /outro dispositivo/);
+  assert.match(local.pending[0].error!, /another device/);
   assert.equal(local.pending[0].word!.meaning, "Meu rascunho offline");
   assert.equal(
     local.snapshot.words.find((x) => x.id === w.id)!.meaning,
@@ -185,7 +185,7 @@ test("a stale content edit is kept as a recoverable draft, not silently overwrit
 });
 test("a different signed-in account cannot synchronize another account queue", async () => {
   cookie = bob.cookie;
-  await assert.rejects(syncAccount(alice.id), /conta original/);
+  await assert.rejects(syncAccount(alice.id), /original account/);
   assert.equal(svc.list("words", bob.id).length, 0);
   assert.equal((await loadLocal(alice.id))!.pending.length, 1);
 });

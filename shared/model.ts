@@ -157,18 +157,18 @@ export type Snapshot = {
   points: number;
 };
 export const languages = [
-  { code: "en", name: "Inglês", flag: "🇬🇧", tatoeba: "eng" },
-  { code: "ja", name: "Japonês", flag: "🇯🇵", tatoeba: "jpn" },
-  { code: "es", name: "Espanhol", flag: "🇪🇸", tatoeba: "spa" },
-  { code: "fr", name: "Francês", flag: "🇫🇷", tatoeba: "fra" },
-  { code: "de", name: "Alemão", flag: "🇩🇪", tatoeba: "deu" },
-  { code: "it", name: "Italiano", flag: "🇮🇹", tatoeba: "ita" },
-  { code: "pt", name: "Português", flag: "🇧🇷", tatoeba: "por" },
-  { code: "zh", name: "Chinês", flag: "🇨🇳", tatoeba: "cmn" },
-  { code: "ko", name: "Coreano", flag: "🇰🇷", tatoeba: "kor" },
-  { code: "ru", name: "Russo", flag: "🇷🇺", tatoeba: "rus" },
-  { code: "ar", name: "Árabe", flag: "🇸🇦", tatoeba: "ara" },
-  { code: "nl", name: "Holandês", flag: "🇳🇱", tatoeba: "nld" },
+  { code: "en", name: "English", flag: "🇬🇧", tatoeba: "eng" },
+  { code: "ja", name: "Japanese", flag: "🇯🇵", tatoeba: "jpn" },
+  { code: "es", name: "Spanish", flag: "🇪🇸", tatoeba: "spa" },
+  { code: "fr", name: "French", flag: "🇫🇷", tatoeba: "fra" },
+  { code: "de", name: "German", flag: "🇩🇪", tatoeba: "deu" },
+  { code: "it", name: "Italian", flag: "🇮🇹", tatoeba: "ita" },
+  { code: "pt", name: "Portuguese", flag: "🇧🇷", tatoeba: "por" },
+  { code: "zh", name: "Chinese", flag: "🇨🇳", tatoeba: "cmn" },
+  { code: "ko", name: "Korean", flag: "🇰🇷", tatoeba: "kor" },
+  { code: "ru", name: "Russian", flag: "🇷🇺", tatoeba: "rus" },
+  { code: "ar", name: "Arabic", flag: "🇸🇦", tatoeba: "ara" },
+  { code: "nl", name: "Dutch", flag: "🇳🇱", tatoeba: "nld" },
 ];
 export const colors = [
   "#8058d8",

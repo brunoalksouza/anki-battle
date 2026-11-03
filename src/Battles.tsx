@@ -24,12 +24,12 @@ import {
 import { api } from "./offline";
 import { type Battle, type Ranking } from "../shared/model";
 const statusNames: Record<string, string> = {
-  invited: "Convite enviado",
-  active: "Em andamento",
-  completed: "Finalizada",
-  declined: "Convite recusado",
-  expired: "Expirada",
-  abandoned: "Abandono",
+  invited: "Invitation sent",
+  active: "In progress",
+  completed: "Completed",
+  declined: "Invitation declined",
+  expired: "Expired",
+  abandoned: "Abandoned",
 };
 export default function Battles() {
   const { s, online, refresh, toast } = useApp(),
@@ -67,13 +67,13 @@ export default function Battles() {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">CONHECIMENTO QUE CONECTA</span>
-          <h1>Juntos, um nível acima.</h1>
-          <p>Um desafio saudável. Um motivo a mais para aprender.</p>
+          <span className="eyebrow">KNOWLEDGE THAT CONNECTS</span>
+          <h1>Level up together.</h1>
+          <p>A friendly challenge. One more reason to learn.</p>
         </div>
         <Button disabled={!online} onClick={() => setInvite(true)}>
           <Swords size={18} />
-          Desafiar alguém
+          Challenge a friend
         </Button>
       </div>
       <div className="tabs">
@@ -82,7 +82,7 @@ export default function Battles() {
           onClick={() => setTab("battles")}
         >
           <Swords size={17} />
-          Batalhas
+          Battles
         </button>
         <button
           className={tab === "ranking" ? "active" : ""}
@@ -96,13 +96,13 @@ export default function Battles() {
           onClick={() => setTab("groups")}
         >
           <Users size={17} />
-          Meus grupos
+          My groups
         </button>
       </div>
       {!online && (
         <div className="notice">
-          Batalhas, convites e rankings atualizados precisam de conexão. Abaixo
-          está seu último estado sincronizado.
+          Connect to get the latest battles, invitations, and rankings. Your
+          last synced activity is shown below.
         </div>
       )}
       {tab === "battles" && (
@@ -110,13 +110,13 @@ export default function Battles() {
           {!s.battles.length ? (
             <Empty
               icon={<Swords size={32} />}
-              title="Sua primeira batalha está por vir."
-              description="Convide uma pessoa e use um baralho autorizado. As mesmas perguntas, uma oportunidade para cada um."
-              action="Criar desafio"
+              title="Your first battle awaits."
+              description="Invite a friend and choose a shared deck. The same questions, one chance each."
+              action="Create challenge"
               onAction={() =>
                 online
                   ? setInvite(true)
-                  : toast("Conecte-se para desafiar alguém.")
+                  : toast("Connect to challenge a friend.")
               }
             />
           ) : (
@@ -132,10 +132,10 @@ export default function Battles() {
                           "badge " + (b.status === "active" ? "green" : "")
                         }
                       >
-                        {received ? "Convite para você" : statusNames[b.status]}
+                        {received ? "You're invited" : statusNames[b.status]}
                       </span>
                       <small>
-                        {b.deckName} · {b.rounds} rodadas
+                        {b.deckName} · {b.rounds} rounds
                       </small>
                     </div>
                     <div className="versus">
@@ -143,12 +143,12 @@ export default function Battles() {
                         <span className="avatar">{b.hostAvatar}</span>
                         <strong>{b.hostName}</strong>
                         <small>
-                          {b.hostCorrect} acertos
+                          {b.hostCorrect} correct
                           {b.status === "completed" && (
                             <>
                               {" "}
                               ·{" "}
-                              {(b.hostTime / 1000).toLocaleString("pt-BR", {
+                              {(b.hostTime / 1000).toLocaleString("en-US", {
                                 maximumFractionDigits: 2,
                               })}{" "}
                               s
@@ -161,12 +161,12 @@ export default function Battles() {
                         <span className="avatar">{b.guestAvatar}</span>
                         <strong>{b.guestName}</strong>
                         <small>
-                          {b.guestCorrect} acertos
+                          {b.guestCorrect} correct
                           {b.status === "completed" && (
                             <>
                               {" "}
                               ·{" "}
-                              {(b.guestTime / 1000).toLocaleString("pt-BR", {
+                              {(b.guestTime / 1000).toLocaleString("en-US", {
                                 maximumFractionDigits: 2,
                               })}{" "}
                               s
@@ -182,13 +182,13 @@ export default function Battles() {
                           disabled={busy || !online}
                           onClick={() => respond(b, false)}
                         >
-                          Recusar
+                          Decline
                         </Button>
                         <Button
                           disabled={busy || !online}
                           onClick={() => respond(b, true)}
                         >
-                          Aceitar desafio
+                          Accept challenge
                           <Check size={17} />
                         </Button>
                       </div>
@@ -199,29 +199,30 @@ export default function Battles() {
                         onClick={() => setPlaying(b.id)}
                       >
                         {b.myAnswered >= b.rounds
-                          ? "Ver andamento"
-                          : "Continuar batalha"}
+                          ? "View progress"
+                          : "Continue battle"}
                         <ArrowRight size={17} />
                       </Button>
                     ) : b.status === "completed" ? (
                       <p className="battle-result">
                         {b.winnerId === null
-                          ? "Empate. Conhecimento para os dois."
+                          ? "A tie. You both learned something."
                           : b.winnerId === s.user.id
-                            ? "Você venceu esta batalha!"
-                            : `${b.winnerId === b.hostId ? b.hostName : b.guestName} venceu esta batalha.`}
+                            ? "You won this battle!"
+                            : `${b.winnerId === b.hostId ? b.hostName : b.guestName} won this battle.`}
                       </p>
                     ) : b.status === "invited" ? (
                       <p className="footnote">
-                        Aguardando aceite. Prazo:{" "}
-                        {new Date(b.expiresAt).toLocaleString("pt-BR")}.
+                        Waiting for acceptance. Expires:{" "}
+                        {new Date(b.expiresAt).toLocaleString("en-US")}.
                       </p>
                     ) : null}
                     {b.status === "completed" &&
                       b.winnerId &&
                       b.hostCorrect === b.guestCorrect && (
                         <p className="footnote centered">
-                          Desempate pelo menor tempo nas respostas corretas.
+                          Tie broken by the fastest total time on correct
+                          answers.
                         </p>
                       )}
                   </article>
@@ -235,7 +236,7 @@ export default function Battles() {
             onClick={() => refresh()}
           >
             <RefreshCw size={16} />
-            Atualizar desafios
+            Refresh challenges
           </Button>
         </>
       )}
@@ -247,21 +248,21 @@ export default function Battles() {
                 className={period === "weekly" ? "active" : ""}
                 onClick={() => setPeriod("weekly")}
               >
-                Esta semana
+                This week
               </button>
               <button
                 className={period === "all" ? "active" : ""}
                 onClick={() => setPeriod("all")}
               >
-                Geral
+                All time
               </button>
             </div>
             <select
-              aria-label="Grupo do ranking"
+              aria-label="Leaderboard group"
               value={group}
               onChange={(e) => setGroup(e.target.value)}
             >
-              <option value="">Todos os participantes</option>
+              <option value="">All participants</option>
               {s.groups.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
@@ -272,8 +273,8 @@ export default function Battles() {
           <section className="panel ranking-panel">
             <div className="ranking-title">
               <Trophy size={30} />
-              <h2>Cada passo conta.</h2>
-              <p>O ranking valoriza atividade válida e constância.</p>
+              <h2>Every step counts.</h2>
+              <p>The leaderboard rewards consistent, valid activity.</p>
             </div>
             <div className="ranking-table">
               {ranking.map((r) => (
@@ -288,12 +289,12 @@ export default function Battles() {
                   <div>
                     <strong>
                       {r.nickname}
-                      {r.id === s.user.id && <small> você</small>}
+                      {r.id === s.user.id && <small> you</small>}
                     </strong>
                     <small>
                       {r.points
-                        ? "Aprendendo um pouco todos os dias"
-                        : "Ainda sem pontos"}
+                        ? "Learning a little every day"
+                        : "No points yet"}
                     </small>
                   </div>
                   <strong>
@@ -304,15 +305,15 @@ export default function Battles() {
             </div>
           </section>
           <p className="footnote">
-            A semana competitiva começa segunda-feira às 00:00 UTC (domingo, 21h
-            em Brasília). O histórico de pontos é mantido.
+            The leaderboard week starts Monday at 00:00 UTC. Your points history
+            is always kept.
           </p>
         </>
       )}
       {tab === "groups" && (
         <>
           <SectionHead
-            title="Seu círculo de aprendizado"
+            title="Your learning circle"
             extra={
               <Button
                 variant="secondary"
@@ -320,23 +321,23 @@ export default function Battles() {
                 disabled={!online}
               >
                 <Plus size={17} />
-                Criar ou entrar
+                Create or join
               </Button>
             }
           />
           {!s.groups.length ? (
             <Empty
               icon={<Users size={30} />}
-              title="Melhor com companhia."
-              description="Crie um grupo para comparar seu progresso com amigos. Compartilhe o código apenas com quem você quer convidar."
+              title="Better with company."
+              description="Create a group to compare progress with friends. Share the code only with people you want to invite."
             />
           ) : (
             <div className="deck-grid">
               {s.groups.map((g) => (
                 <section key={g.id} className="panel">
                   <h2>{g.name}</h2>
-                  <p>{g.members} participantes</p>
-                  <Field label="Código para entrar">
+                  <p>{g.members} participants</p>
+                  <Field label="Join code">
                     <input
                       readOnly
                       value={g.code}
@@ -350,7 +351,7 @@ export default function Battles() {
                       setTab("ranking");
                     }}
                   >
-                    Ver ranking
+                    View leaderboard
                     <ArrowRight size={16} />
                   </Button>
                 </section>
@@ -360,7 +361,7 @@ export default function Battles() {
         </>
       )}
       <button className="text-button spaced" onClick={() => setRules(true)}>
-        Como funcionam os pontos e as batalhas?
+        How do points and battles work?
       </button>
       {invite && <Invite onClose={() => setInvite(false)} />}{" "}
       {playing && (
@@ -374,40 +375,40 @@ export default function Battles() {
       )}
       {groupModal && <GroupForm onClose={() => setGroupModal(false)} />}{" "}
       {rules && (
-        <Modal title="Uma competição justa" onClose={() => setRules(false)}>
+        <Modal title="A fair competition" onClose={() => setRules(false)}>
           <div className="rules">
-            <h3>Pontos de estudo</h3>
+            <h3>Study points</h3>
             <p>
-              5 pontos pela primeira revisão válida de uma palavra no dia UTC,
-              até 100 palavras/dia. É preciso estudar por pelo menos 2 segundos.
-              “Errei”, “Difícil”, “Bom” e “Fácil” valem exatamente o mesmo.
-              Login, recarregar e repetir requisições não rendem pontos.
+              Earn 5 points for the first valid review of a word each UTC day,
+              up to 100 words per day. Study for at least 2 seconds. Again,
+              Hard, Good, and Easy all earn the same points. Signing in,
+              refreshing, and duplicate requests earn no points.
             </p>
-            <h3>Batalhas</h3>
+            <h3>Battles</h3>
             <p>
-              Até 10 perguntas de múltipla escolha do mesmo baralho autorizado.
-              Cada pessoa tem 60 segundos por pergunta, contados no servidor.
-              Acertos decidem; em igualdade, vence o menor tempo somado das
-              respostas corretas. Tempos iguais, arredondados em segundos,
-              empatam.
-            </p>
-            <p>
-              Convites e partidas expiram após 48 horas. Sair da tela permite
-              reconectar; o relógio continua. Abandono encerra a partida sem
-              recompensa. 20 pontos para a vitória e 10 para quem completar com
-              ao menos um acerto; em empate, 10 para cada. Limite de 3
-              recompensas/dia e uma por adversário/semana.
+              Answer up to 10 multiple-choice questions from the same shared
+              deck. Each player has 60 seconds per question, timed by the
+              server. Most correct answers wins; ties are broken by total time
+              on correct answers. Equal times, rounded to seconds, result in a
+              tie.
             </p>
             <p>
-              As batalhas não modificam o agendamento pessoal. Autoavaliação de
-              flashcards e acertos objetivos de batalha são métricas separadas.
+              Invitations and battles expire after 48 hours. You can return
+              after leaving the screen, but the timer keeps running. Abandoning
+              ends the battle without rewards. A win earns 20 points; finishing
+              with at least one correct answer earns 10. A tie earns 10 each.
+              Rewards are limited to 3 per day and one per opponent per week.
             </p>
-            <h3>Semanas e offline</h3>
             <p>
-              Fechamento: segunda às 00:00 UTC para todos. Revisões offline
-              guardam sua data original; só rendem pontos se sincronizadas
-              dentro da mesma semana competitiva. Conflitos entre dispositivos
-              são preservados no histórico, sem pontuação duplicada.
+              Battles do not change your personal review schedule. Flashcard
+              self-ratings and verified battle answers are tracked separately.
+            </p>
+            <h3>Weeks and offline study</h3>
+            <p>
+              The week resets Monday at 00:00 UTC for everyone. Offline reviews
+              keep their original dates and earn points when synced within that
+              leaderboard week. Conflicts between devices stay in your history
+              without duplicate points.
             </p>
           </div>
         </Modal>
@@ -438,19 +439,19 @@ function Invite({ onClose }: { onClose: () => void }) {
     }
   }
   return (
-    <Modal title="Um convite para evoluir" onClose={onClose}>
-      <p>Escolha outra pessoa e um baralho autorizado para ambos.</p>
+    <Modal title="An invitation to grow" onClose={onClose}>
+      <p>Choose a friend and a deck shared with both of you.</p>
       <form className="image-search" onSubmit={search}>
         <input
-          aria-label="Buscar pessoa"
-          placeholder="Buscar pelo apelido…"
+          aria-label="Find a person"
+          placeholder="Search by nickname…"
           minLength={2}
           required
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
         <Button type="submit" variant="secondary">
-          Buscar
+          Search
         </Button>
       </form>
       <div className="people-list">
@@ -466,21 +467,21 @@ function Invite({ onClose }: { onClose: () => void }) {
           </button>
         ))}
       </div>
-      <Field label="Baralho da disputa">
+      <Field label="Battle deck">
         <select value={deck} onChange={(e) => setDeck(e.target.value)} required>
-          <option value="">Selecione um baralho</option>
+          <option value="">Choose a deck</option>
           {decks
             .filter((d) => d.words >= 4)
             .map((d) => (
               <option value={d.id} key={d.id}>
-                {d.name} · {d.owner} · {d.words} palavras
+                {d.name} · {d.owner} · {d.words} words
               </option>
             ))}
         </select>
       </Field>
       <p className="footnote">
-        Não encontrou um baralho? Em Estudar, edite o baralho e autorize seu uso
-        em batalhas. É preciso ter 4 significados distintos.
+        Can't find a deck? Open Study, edit the deck, and enable battles. It
+        needs at least 4 distinct meanings.
       </p>
       <ErrorText error={error} />
       <Button
@@ -497,7 +498,7 @@ function Invite({ onClose }: { onClose: () => void }) {
             });
             await refresh();
             onClose();
-            toast("Desafio enviado.");
+            toast("Challenge sent.");
           } catch (e) {
             setError((e as Error).message);
           } finally {
@@ -506,7 +507,7 @@ function Invite({ onClose }: { onClose: () => void }) {
         }}
       >
         <Swords size={18} />
-        Enviar desafio
+        Send challenge
       </Button>
     </Modal>
   );
@@ -564,17 +565,17 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
     }
   }
   return (
-    <Modal title="Hora do desafio" onClose={onClose}>
+    <Modal title="Challenge time" onClose={onClose}>
       {!q ? (
-        <p>Carregando partida…</p>
+        <p>Loading battle…</p>
       ) : q.status === "preparation" ? (
         <div className="battle-prep">
           <Swords size={48} />
-          <h2>Preparado?</h2>
+          <h2>Ready?</h2>
           <p>
-            {q.deckName} · {q.rounds} perguntas.
+            {q.deckName} · {q.rounds} questions.
             <br />
-            60 segundos por rodada. O relógio continua se você sair.
+            60 seconds per round. The timer keeps running if you leave.
           </p>
           <Button
             busy={busy}
@@ -592,7 +593,7 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
               }
             }}
           >
-            Estou pronto
+            I'm ready
             <ArrowRight size={17} />
           </Button>
         </div>
@@ -600,7 +601,7 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
         <>
           <div className="battle-round">
             <span>
-              Rodada {q.idx + 1} de {q.total}
+              Round {q.idx + 1} of {q.total}
             </span>
             <strong className={seconds < 10 ? "danger-text" : ""}>
               <Clock3 size={16} />
@@ -609,7 +610,7 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
           </div>
           <Progress value={q.idx} max={q.total} />
           <h2 className="battle-prompt">{q.prompt}</h2>
-          <p className="centered">Qual é o significado?</p>
+          <p className="centered">What does it mean?</p>
           <div className="answer-options">
             {q.options.map((o: any) => (
               <button
@@ -625,22 +626,20 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
           </div>
           {!seconds && !answer && (
             <Button disabled={!online} onClick={() => respond(null)}>
-              Tempo encerrado · continuar
+              Time's up · continue
             </Button>
           )}
           {answer && (
             <div className="answer-feedback">
               <strong>
                 {answer.correct
-                  ? "Boa! Resposta correta."
+                  ? "Nice! Correct answer."
                   : answer.expired
-                    ? "O tempo desta rodada acabou."
-                    : "Essa não foi. A resposta está destacada."}
+                    ? "Time's up for this round."
+                    : "Not quite. The correct answer is highlighted."}
               </strong>
               <Button onClick={next}>
-                {q.idx + 1 === q.total
-                  ? "Finalizar minhas rodadas"
-                  : "Próxima rodada"}
+                {q.idx + 1 === q.total ? "Finish my rounds" : "Next round"}
                 <ArrowRight size={17} />
               </Button>
             </div>
@@ -651,15 +650,15 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
           <Trophy size={42} />
           <h2>
             {q.status === "waiting"
-              ? "Sua parte está feita."
+              ? "You've finished your rounds."
               : q.status === "completed"
-                ? "Batalha concluída."
-                : "Esta batalha foi encerrada."}
+                ? "Battle complete."
+                : "This battle has ended."}
           </h2>
           <p>
             {q.status === "waiting"
-              ? "A outra pessoa ainda está jogando. O resultado ficará salvo quando terminar."
-              : "Veja o placar e o resultado na lista de batalhas."}
+              ? "Your opponent is still playing. The result will be saved when they finish."
+              : "See the score and result in your battle list."}
           </p>
           <Button
             onClick={() => {
@@ -667,10 +666,10 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
               onClose();
             }}
           >
-            Ver batalhas
+            View battles
           </Button>
           <button className="text-button" onClick={next}>
-            Atualizar resultado
+            Refresh result
           </button>
         </div>
       )}
@@ -679,7 +678,7 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
         <div className="danger-zone">
           {abandon ? (
             <>
-              <p>Abandonar encerra a partida sem recompensa.</p>
+              <p>Abandoning ends the battle without rewards.</p>
               <Button
                 variant="danger"
                 busy={busy}
@@ -697,10 +696,10 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
                   }
                 }}
               >
-                Confirmar abandono
+                Confirm abandon
               </Button>
               <Button variant="ghost" onClick={() => setAbandon(false)}>
-                Continuar jogando
+                Keep playing
               </Button>
             </>
           ) : (
@@ -709,7 +708,7 @@ function PlayBattle({ id, onClose }: { id: string; onClose: () => void }) {
               onClick={() => setAbandon(true)}
             >
               <Flag size={14} />
-              Abandonar partida
+              Abandon battle
             </button>
           )}
         </div>
@@ -724,19 +723,19 @@ function GroupForm({ onClose }: { onClose: () => void }) {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   return (
-    <Modal title="Aprendizado em boa companhia" onClose={onClose}>
+    <Modal title="Learning with good company" onClose={onClose}>
       <div className="segmented">
         <button
           className={mode === "create" ? "active" : ""}
           onClick={() => setMode("create")}
         >
-          Criar grupo
+          Create group
         </button>
         <button
           className={mode === "join" ? "active" : ""}
           onClick={() => setMode("join")}
         >
-          Entrar com código
+          Join with a code
         </button>
       </div>
       <form
@@ -758,9 +757,7 @@ function GroupForm({ onClose }: { onClose: () => void }) {
           }
         }}
       >
-        <Field
-          label={mode === "create" ? "Nome do grupo" : "Código de convite"}
-        >
+        <Field label={mode === "create" ? "Group name" : "Invitation code"}>
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -771,7 +768,7 @@ function GroupForm({ onClose }: { onClose: () => void }) {
         </Field>
         <ErrorText error={error} />
         <Button type="submit" busy={busy}>
-          {mode === "create" ? "Criar grupo" : "Entrar no grupo"}
+          {mode === "create" ? "Create group" : "Join group"}
         </Button>
       </form>
     </Modal>

@@ -88,7 +88,8 @@ db.transaction(() => {
   svc.createDeck(user.id, {
     id: deckId,
     name: "English",
-    description: "Sua coleção original do Anki · frases, imagens e pronúncia",
+    description:
+      "Your original Anki collection · sentences, images, and pronunciation",
     language: "en",
     color: "#388b70",
     icon: "🇬🇧",
@@ -124,8 +125,8 @@ db.transaction(() => {
       color: n.color,
       tags: [
         ...n.tags,
-        "importado-anki",
-        ...(n.needsMeaning ? ["significado-visual"] : []),
+        "anki-import",
+        ...(n.needsMeaning ? ["visual-meaning"] : []),
       ],
       sentence: n.sentence,
       kind: "basic",

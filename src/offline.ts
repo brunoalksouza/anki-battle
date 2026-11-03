@@ -51,7 +51,10 @@ export async function api<T = any>(
   });
   const data = await res.json();
   if (!res.ok)
-    throw new APIError(res.status, data.error || "Não foi possível concluir.");
+    throw new APIError(
+      res.status,
+      data.error || "Could not complete the request.",
+    );
   return data;
 }
 export const activeId = () => localStorage.getItem("anki-active-account");
@@ -67,7 +70,7 @@ export async function updateLocal(id: string, fn: (local: Local) => Local) {
   const db = await dbPromise,
     tx = db.transaction("accounts", "readwrite"),
     local = (await tx.store.get(id)) as Local | undefined;
-  if (!local) throw new Error("Conta local indisponível.");
+  if (!local) throw new Error("Local account unavailable.");
   const next = fn(local);
   await tx.store.put(next, id);
   await tx.done;
@@ -101,7 +104,7 @@ export async function downloadDeck(local: Local, deckId: string) {
       });
       if (!res.ok)
         throw new Error(
-          "Uma mídia não foi baixada. Aguarde um momento e baixe o baralho novamente.",
+          "A media file could not be downloaded. Wait a moment and download the deck again.",
         );
       await db.put(
         "media",
@@ -178,14 +181,13 @@ export function syncAccount(id: string) {
   const current = syncing.get(id);
   if (current) return current;
   const run = async () => {
-    if (!(await loadLocal(id)))
-      throw new Error("Dados locais não encontrados.");
+    if (!(await loadLocal(id))) throw new Error("Local data not found.");
     // Check identity before sending any private queued action.
     const identity = await api<Snapshot>("/state");
     if (identity.user.id !== id)
       throw new APIError(
         401,
-        "Entre na conta original para sincronizar estas revisões.",
+        "Sign in to the original account to sync these reviews.",
       );
     for (;;) {
       const pending = (await loadLocal(id))!.pending.filter((p) => !p.error);
@@ -215,7 +217,7 @@ export function syncAccount(id: string) {
       }
       const snapshot = await api<Snapshot>("/state");
       if (snapshot.user.id !== id)
-        throw new APIError(401, "A conta mudou. Entre novamente.");
+        throw new APIError(401, "The account changed. Please sign in again.");
       const latest = await updateLocal(id, (l) => ({
         ...l,
         snapshot,

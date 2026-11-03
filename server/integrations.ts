@@ -14,10 +14,7 @@ async function json(url: URL | string) {
     signal: AbortSignal.timeout(15000),
   });
   if (!r.ok)
-    fail(
-      502,
-      "A fonte gratuita está indisponível. Tente novamente mais tarde.",
-    );
+    fail(502, "The free source is unavailable. Please try again later.");
   return r.json() as Promise<any>;
 }
 const licenseUrl = (license: string) =>
@@ -48,7 +45,7 @@ export class Integrations {
     if (used >= max)
       fail(
         429,
-        "Limite diário desta consulta atingido. Você pode continuar estudando e editar o texto.",
+        "You have reached the daily limit for this search. You can keep studying and edit the text.",
       );
     this.svc.db.run(
       "INSERT INTO usage VALUES(?,?,?,1) ON CONFLICT(user_id,day,kind) DO UPDATE SET count=count+1",
@@ -79,57 +76,61 @@ export class Integrations {
       return {
         definitions: [],
         notice:
-          "As sugestões de significado do dicionário estão disponíveis em inglês. Você pode escrever a tradução em qualquer idioma.",
+          "Dictionary suggestions are available for English words. You can write your own meaning in English.",
       };
-    return this.cached("dictionary:" + term.toLowerCase(), async () => {
-      const r = await fetch(
-        "https://api.dictionaryapi.dev/api/v2/entries/en/" +
-          encodeURIComponent(term),
-        { signal: AbortSignal.timeout(12000) },
-      );
-      if (r.status === 404)
+    return this.cached(
+      "dictionary:english-v1:" + term.toLowerCase(),
+      async () => {
+        const r = await fetch(
+          "https://api.dictionaryapi.dev/api/v2/entries/en/" +
+            encodeURIComponent(term),
+          { signal: AbortSignal.timeout(12000) },
+        );
+        if (r.status === 404)
+          return {
+            definitions: [],
+            notice: "Word not found. You can write your own meaning.",
+          };
+        if (!r.ok) fail(502, "Dictionary temporarily unavailable.");
+        const data = (await r.json()) as any[];
         return {
-          definitions: [],
-          notice: "Palavra não encontrada. Você pode preencher o significado.",
+          definitions: data
+            .flatMap((entry) =>
+              entry.meanings.flatMap((m: any) =>
+                m.definitions.map((d: any) => ({
+                  meaning: d.definition,
+                  part: m.partOfSpeech,
+                  example: d.example || "",
+                  credit: {
+                    source: "Wiktionary / Free Dictionary",
+                    url: entry.sourceUrls?.[0] || "https://dictionaryapi.dev/",
+                    author: "Wiktionary contributors",
+                    license: entry.license?.name || "CC BY-SA 3.0",
+                    licenseUrl: entry.license?.url,
+                  },
+                })),
+              ),
+            )
+            .slice(0, 20),
         };
-      if (!r.ok) fail(502, "Dicionário temporariamente indisponível.");
-      const data = (await r.json()) as any[];
-      return {
-        definitions: data
-          .flatMap((entry) =>
-            entry.meanings.flatMap((m: any) =>
-              m.definitions.map((d: any) => ({
-                meaning: d.definition,
-                part: m.partOfSpeech,
-                example: d.example || "",
-                credit: {
-                  source: "Wiktionary / Free Dictionary",
-                  url: entry.sourceUrls?.[0] || "https://dictionaryapi.dev/",
-                  author: "Wiktionary contributors",
-                  license: entry.license?.name || "CC BY-SA 3.0",
-                  licenseUrl: entry.license?.url,
-                },
-              })),
-            ),
-          )
-          .slice(0, 20),
-      };
-    });
+      },
+    );
   }
   async examples(user: string, word: Word) {
     this.quota(user, "sentences", 100);
-    const native = this.svc.user(user).nativeLang,
-      lang =
+    const lang =
         languages.find((l) => l.code === word.language)?.tatoeba ||
         word.language,
-      to = languages.find((l) => l.code === native)?.tatoeba || native;
-    return this.cached(`examples:${lang}:${to}:${word.term}`, async () => {
+      to = "eng";
+    // Keep explanations in English, independent of the user's native language.
+    // A new cache namespace also avoids reusing old Portuguese suggestions.
+    return this.cached(`examples:english-v1:${lang}:${word.term}`, async () => {
       const url = new URL("https://api.tatoeba.org/v1/sentences");
       url.search = new URLSearchParams({
         lang,
         q: '"' + word.term.replace(/["\\]/g, "") + '"',
         sort: "words",
-        "trans:lang": to,
+        ...(lang === to ? {} : { "trans:lang": to }),
         limit: "30",
         is_unapproved: "no",
         word_count: "3-18",
@@ -138,7 +139,7 @@ export class Integrations {
       return (data.data || [])
         .filter((s: any) => termRanges(s.text, word.term, word.language).length)
         .map((s: any) => {
-          const trans = (s.translations || [])
+          const trans = (lang === to ? [] : s.translations || [])
             .flat(Infinity)
             .filter((t: any) => t && t.lang === to);
           return {
@@ -173,7 +174,7 @@ export class Integrations {
         word: before,
         examples: [],
         notice:
-          "Nenhum exemplo com tradução encontrado. A palavra está salva. Escreva sua frase ou tente novamente.",
+          "No example found. Your word is saved. Write your own sentence or try again.",
       };
     const meaningTokens = new Set(
       before.meaning
@@ -183,7 +184,7 @@ export class Integrations {
     );
     const ranked = [...examples].sort((a, b) => {
       const score = (s: any) =>
-        s.translation
+        (s.sentence + " " + s.translation)
           .toLowerCase()
           .split(/[^\p{L}]+/u)
           .filter((t: string) => meaningTokens.has(t)).length;
@@ -196,7 +197,7 @@ export class Integrations {
     if (current.version !== before.version)
       fail(
         409,
-        "A palavra foi editada enquanto a frase era buscada. Tente novamente.",
+        "The word changed while the example was loading. Please try again.",
       );
     const credit: Credit = choice.credit;
     const next: Word = {
@@ -213,7 +214,7 @@ export class Integrations {
       word: next,
       examples: ranked,
       notice:
-        "Exemplo real de uma fonte pública. Confira se corresponde ao sentido que você quer estudar.",
+        "A real example from a public source. Check that it matches the meaning you want to study.",
     };
   }
   private commonsUrl() {
@@ -269,7 +270,7 @@ export class Integrations {
   ) {
     const word = this.svc.owned<Word>("words", wordId, user);
     if (word.version !== version)
-      fail(409, "A palavra mudou. Atualize antes de escolher a imagem.");
+      fail(409, "The word changed. Refresh before choosing an image.");
     this.quota(user, "image-download", 50);
     const url = this.commonsUrl();
     url.search = new URLSearchParams({
@@ -284,27 +285,27 @@ export class Integrations {
       image = Object.values(data.query?.pages || {})
         .map((p) => this.toImage(p))
         .find(Boolean);
-    if (!image) fail(400, "Imagem indisponível para uso.");
+    if (!image) fail(400, "Image unavailable.");
     const source = new URL(image.url);
     if (
       source.protocol !== "https:" ||
       !["upload.wikimedia.org", "thumb.wikimedia.org"].includes(source.hostname)
     )
-      fail(400, "Origem de imagem inválida.");
+      fail(400, "Invalid image source.");
     const r = await fetch(source, {
       headers: { "User-Agent": ua },
       redirect: "error",
       signal: AbortSignal.timeout(20000),
     });
     if (!r.ok || !r.headers.get("content-type")?.startsWith("image/"))
-      fail(502, "Não foi possível baixar a imagem.");
+      fail(502, "Could not download the image.");
     if (Number(r.headers.get("content-length")) > 6000000)
-      fail(400, "Imagem grande demais.");
+      fail(400, "Image too large.");
     const chunks: Uint8Array[] = [];
     let bytes = 0;
     for await (const chunk of r.body as any) {
       bytes += chunk.length;
-      if (bytes > 6000000) fail(400, "Imagem grande demais.");
+      if (bytes > 6000000) fail(400, "Image too large.");
       chunks.push(chunk);
     }
     const buffer = await sharp(Buffer.concat(chunks), {
@@ -321,7 +322,10 @@ export class Integrations {
       .toBuffer();
     const current = this.svc.owned<Word>("words", wordId, user);
     if (current.version !== version)
-      fail(409, "A palavra mudou durante o download. Selecione novamente.");
+      fail(
+        409,
+        "The word changed during the download. Please select it again.",
+      );
     const assetId = randomUUID();
     mkdirSync(join(this.dataDir, "media"), { recursive: true, mode: 0o700 });
     writeFileSync(join(this.dataDir, "media", assetId + ".webp"), buffer, {

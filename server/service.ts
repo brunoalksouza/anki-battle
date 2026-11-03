@@ -29,7 +29,7 @@ export const hash = (s: string) => createHash("sha256").update(s).digest("hex");
 let activeHashes = 0;
 async function derive(password: string, salt: string) {
   if (activeHashes >= 2)
-    fail(429, "Muitas tentativas. Aguarde alguns segundos.");
+    fail(429, "Too many attempts. Please wait a few seconds.");
   activeHashes++;
   try {
     return await new Promise<Buffer>((resolve, reject) =>
@@ -132,7 +132,7 @@ export class Service {
   ) {}
   user(id: string): User {
     const r = this.db.get("SELECT data FROM users WHERE id=?", id);
-    if (!r) fail(401, "Entre novamente para continuar.");
+    if (!r) fail(401, "Sign in again to continue.");
     return JSON.parse(r.data);
   }
   owned<T>(table: "decks" | "words" | "cards", id: string, user: string): T {
@@ -141,7 +141,7 @@ export class Service {
       id,
       user,
     );
-    if (!r) fail(404, "Conteúdo não encontrado.");
+    if (!r) fail(404, "Content not found.");
     return JSON.parse(r.data);
   }
   list<T>(table: "decks" | "words" | "cards", user: string): T[] {
@@ -197,11 +197,11 @@ export class Service {
     const existing =
       d.id && this.db.get("SELECT * FROM decks WHERE id=?", d.id);
     if (existing) {
-      if (existing.user_id !== user) fail(409, "Identificador indisponível.");
+      if (existing.user_id !== user) fail(409, "Identifier unavailable.");
       return JSON.parse(existing.data);
     }
     if (this.list("decks", user).length >= 100)
-      fail(400, "Limite de 100 baralhos atingido.");
+      fail(400, "You have reached the limit of 100 decks.");
     const deck: Deck = {
       ...d,
       id: d.id || randomUUID(),
@@ -220,10 +220,7 @@ export class Service {
     const d = deckInput.parse(input),
       prev = this.owned<Deck>("decks", deckId, user);
     if (d.version !== prev.version)
-      fail(
-        409,
-        "O baralho mudou em outro dispositivo. Atualize antes de salvar.",
-      );
+      fail(409, "This deck changed on another device. Refresh before saving.");
     const next = { ...prev, ...d, id: deckId, version: prev.version + 1 };
     this.save("decks", next);
     return next;
@@ -294,12 +291,12 @@ export class Service {
     this.owned("decks", w.deckId, user);
     const old = w.id && this.db.get("SELECT * FROM words WHERE id=?", w.id);
     if (old) {
-      if (old.user_id !== user) fail(409, "Identificador indisponível.");
-      if (old.deleted) fail(409, "Esta palavra foi removida.");
+      if (old.user_id !== user) fail(409, "Identifier unavailable.");
+      if (old.deleted) fail(409, "This word was removed.");
       return JSON.parse(old.data) as Word;
     }
     if (this.list("words", user).length >= 20000)
-      fail(400, "Limite de 20.000 palavras por conta atingido.");
+      fail(400, "The limit of 20,000 words per account has been reached.");
     const matching = this.list<Word>("words", user).find(
       (x) =>
         x.language === w.language &&
@@ -310,7 +307,7 @@ export class Service {
       (+new Date(w.createdAt) > +this.now() + 60000 ||
         +new Date(w.createdAt) < +this.now() - 90 * 86400000)
     )
-      fail(400, "Data da palavra fora do período permitido.");
+      fail(400, "Word date is outside the allowed range.");
     const word: Word = {
       ...w,
       color: matching?.color || w.color,
@@ -340,7 +337,7 @@ export class Service {
     if (w.version !== prev.version)
       fail(
         409,
-        "A palavra mudou em outro dispositivo. Seu rascunho foi preservado; compare antes de substituir.",
+        "This word changed on another device. Your draft is saved; compare the versions before replacing it.",
       );
     const changed =
       prev.term !== w.term ||
@@ -409,7 +406,7 @@ export class Service {
         action.id,
       );
       if (existing) {
-        if (existing.user_id !== user) fail(409, "Identificador indisponível.");
+        if (existing.user_id !== user) fail(409, "Identifier unavailable.");
         return { ...JSON.parse(existing.data), duplicate: true };
       }
       const card = this.owned<Card>("cards", action.cardId, user),
@@ -420,7 +417,7 @@ export class Service {
         at.getTime() > now.getTime() + 60000 ||
         at.getTime() < now.getTime() - 90 * 86400000
       )
-        fail(400, "Data da revisão fora do período permitido (90 dias).");
+        fail(400, "Review date is outside the allowed range (90 days).");
       const date = at > now ? now : at,
         day = dayKey(date, u.timezone),
         utcDay = dayKey(date),
@@ -459,7 +456,7 @@ export class Service {
         )
           fail(
             409,
-            "Limite diário atingido. A revisão continua salva neste dispositivo; aumente o limite no Perfil para sincronizar.",
+            "Daily limit reached. The review is saved on this device; increase your limit in Profile to sync it.",
           );
         const result = reviewSchedule(card.schedule, action.rating, date);
         next = result.schedule;
@@ -607,7 +604,7 @@ export class Service {
         .map(({ owner_id, ...g }) => g),
       now: this.now().toISOString(),
       integrations: {
-        sentences: "Tatoeba + Free Dictionary (gratuito)",
+        sentences: "Tatoeba + Free Dictionary (free)",
         images: "Wikimedia Commons",
       },
       points: all.find((r) => r.id === user)?.points || 0,
@@ -620,7 +617,7 @@ export class Service {
       user,
       user,
     );
-    if (!b) fail(404, "Batalha não encontrada.");
+    if (!b) fail(404, "Battle not found.");
     const data = JSON.parse(b.data);
     if (
       ["invited", "active"].includes(b.status) &&
@@ -669,14 +666,14 @@ export class Service {
       });
   }
   invite(user: string, guest: string, deckId: string, invitationId: string) {
-    if (guest === user) fail(400, "Escolha outra pessoa para desafiar.");
+    if (guest === user) fail(400, "Choose another person to challenge.");
     this.user(guest);
     const existing = this.db.get(
       "SELECT * FROM battles WHERE id=?",
       invitationId,
     );
     if (existing) {
-      if (existing.host_id !== user) fail(409, "Identificador indisponível.");
+      if (existing.host_id !== user) fail(409, "Identifier unavailable.");
       return { id: invitationId };
     }
     if (
@@ -685,15 +682,14 @@ export class Service {
         user,
       ).n >= 10
     )
-      fail(429, "Você já tem 10 desafios em aberto.");
+      fail(429, "You already have 10 open challenges.");
     const row = this.db.get(
       "SELECT data FROM decks WHERE id=? AND deleted=0",
       deckId,
     );
-    if (!row) fail(404, "Baralho não encontrado.");
+    if (!row) fail(404, "Deck not found.");
     const deck: Deck = JSON.parse(row.data);
-    if (!deck.shared)
-      fail(403, "O dono precisa autorizar este baralho para batalhas.");
+    if (!deck.shared) fail(403, "The owner must enable this deck for battles.");
     const words: Word[] = this.db
       .all("SELECT data FROM words WHERE deck_id=? AND deleted=0", deckId)
       .map((r) => JSON.parse(r.data));
@@ -710,10 +706,7 @@ export class Service {
         return true;
       });
     if (pool.length < 4)
-      fail(
-        400,
-        "O baralho precisa de pelo menos 4 palavras e significados distintos.",
-      );
+      fail(400, "The deck needs at least 4 distinct words and meanings.");
     const shuffle = <T>(a: T[]) => {
       const b = [...a];
       for (let i = b.length - 1; i > 0; i--) {
@@ -826,7 +819,7 @@ export class Service {
           user,
           idx,
         );
-      if (!a) fail(409, "Abra esta rodada antes de responder.");
+      if (!a) fail(409, "Open this round before answering.");
       const round = JSON.parse(
         this.db.get(
           "SELECT data FROM rounds WHERE battle_id=? AND idx=?",
@@ -836,9 +829,9 @@ export class Service {
       );
       if (a.answered_at)
         return { correct: !!a.correct, answer: round.answer, duplicate: true };
-      if (b.status !== "active") fail(409, "Esta batalha já terminou.");
+      if (b.status !== "active") fail(409, "This battle has already ended.");
       if (choice !== null && !round.options.some((o: any) => o.id === choice))
-        fail(400, "Alternativa inválida.");
+        fail(400, "Invalid answer option.");
       const elapsed = Math.max(0, +this.now() - +new Date(a.served_at)),
         correct = elapsed <= 60000 && choice === round.answer;
       this.db.run(

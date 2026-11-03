@@ -64,7 +64,7 @@ export default function Profile({
     try {
       await api("/profile", "PATCH", profile);
       await refresh();
-      toast("Seu perfil foi atualizado.");
+      toast("Your profile has been updated.");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -75,13 +75,13 @@ export default function Profile({
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">ESSA JORNADA É SUA</span>
-          <h1>Seu ritmo. Seu caminho.</h1>
-          <p>Um espaço para acompanhar, ajustar e continuar.</p>
+          <span className="eyebrow">THIS JOURNEY IS YOURS</span>
+          <h1>Your pace. Your path.</h1>
+          <p>Track your progress, adjust, and keep going.</p>
         </div>
         <Button variant="secondary" onClick={onInstall}>
           <Smartphone size={18} />
-          Instalar aplicativo
+          Install app
         </Button>
       </div>
       <div className="profile-hero panel">
@@ -89,7 +89,7 @@ export default function Profile({
         <div>
           <h2>{s.user.nickname}</h2>
           <p>
-            Nível {currentLevel} · {fmt(s.points)} pontos de aprendizado
+            Level {currentLevel} · {fmt(s.points)} learning points
           </p>
           <Progress
             value={s.points - (currentLevel - 1) ** 2 * 100}
@@ -98,15 +98,15 @@ export default function Profile({
         </div>
         <span className="level-badge">
           {currentLevel}
-          <small>NÍVEL</small>
+          <small>LEVEL</small>
         </span>
       </div>
       <div className="profile-grid">
         <section className="panel">
-          <SectionHead title="Do seu jeito" />
+          <SectionHead title="Make it yours" />
           <form onSubmit={save}>
             <div className="form-grid">
-              <Field label="Apelido">
+              <Field label="Nickname">
                 <input
                   required
                   minLength={2}
@@ -144,7 +144,7 @@ export default function Profile({
               </Field>
             </div>
             <div className="form-grid">
-              <Field label="Meu idioma">
+              <Field label="My native language">
                 <LanguageSelect
                   value={profile.nativeLang}
                   onChange={(nativeLang) =>
@@ -152,7 +152,7 @@ export default function Profile({
                   }
                 />
               </Field>
-              <Field label="Idioma principal de estudo">
+              <Field label="Main study language">
                 <LanguageSelect
                   value={profile.studyLang}
                   onChange={(studyLang) =>
@@ -161,7 +161,7 @@ export default function Profile({
                 />
               </Field>
             </div>
-            <Field label="Fuso horário">
+            <Field label="Time zone">
               <input
                 required
                 value={profile.timezone}
@@ -185,7 +185,7 @@ export default function Profile({
               </datalist>
             </Field>
             <div className="form-grid">
-              <Field label="Novos cards por dia">
+              <Field label="New cards per day">
                 <input
                   type="number"
                   min={0}
@@ -199,7 +199,7 @@ export default function Profile({
                   }
                 />
               </Field>
-              <Field label="Revisões por dia">
+              <Field label="Reviews per day">
                 <input
                   type="number"
                   min={0}
@@ -214,7 +214,7 @@ export default function Profile({
                 />
               </Field>
             </div>
-            <Field label="Aparência">
+            <Field label="Appearance">
               <select
                 value={profile.theme}
                 onChange={(e) =>
@@ -224,14 +224,14 @@ export default function Profile({
                   }))
                 }
               >
-                <option value="system">Acompanhar o dispositivo</option>
-                <option value="light">Claro</option>
-                <option value="dark">Escuro</option>
+                <option value="system">Match device</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
               </select>
             </Field>
             <ErrorText error={error} />
             <Button type="submit" busy={busy === "profile"} disabled={!online}>
-              Salvar preferências
+              Save preferences
               <Check size={16} />
             </Button>
           </form>
@@ -239,7 +239,7 @@ export default function Profile({
         <div>
           <section className="panel">
             <SectionHead
-              title="Metas desta semana"
+              title="This week's goals"
               extra={<Target size={20} />}
             />
             <form
@@ -249,7 +249,7 @@ export default function Profile({
                 try {
                   await api("/goals", "PUT", goal);
                   await refresh();
-                  toast("Metas atualizadas.");
+                  toast("Goals updated.");
                 } catch (e) {
                   toast((e as Error).message);
                 } finally {
@@ -258,7 +258,7 @@ export default function Profile({
               }}
             >
               <div className="form-grid">
-                <Field label="Revisões">
+                <Field label="Reviews">
                   <input
                     type="number"
                     min={1}
@@ -273,7 +273,7 @@ export default function Profile({
                     }
                   />
                 </Field>
-                <Field label="Dias de estudo">
+                <Field label="Study days">
                   <input
                     type="number"
                     min={1}
@@ -286,7 +286,7 @@ export default function Profile({
                   />
                 </Field>
               </div>
-              <Field label="Novas palavras">
+              <Field label="New words">
                 <input
                   type="number"
                   min={0}
@@ -304,11 +304,11 @@ export default function Profile({
                 busy={busy === "goals"}
                 disabled={!online}
               >
-                Salvar metas
+                Save goals
               </Button>
             </form>
             <details className="form-details">
-              <summary>Semanas anteriores</summary>
+              <summary>Previous weeks</summary>
               {s.goals
                 .filter((g) => g.week !== weekKey())
                 .reverse()
@@ -322,36 +322,39 @@ export default function Profile({
                     <div className="history-row" key={g.week}>
                       <strong>{g.week}</strong>
                       <span>
-                        {rs.length}/{g.reviews} revisões
+                        {rs.length}/{g.reviews} reviews
                       </span>
                       <span>
-                        {new Set(rs.map((r) => r.localDay)).size}/{g.days} dias
+                        {new Set(rs.map((r) => r.localDay)).size}/{g.days} days
                       </span>
                     </div>
                   );
                 })}
               {s.goals.length < 2 && (
-                <p>O histórico aparecerá ao concluir sua primeira semana.</p>
+                <p>Your history will appear after your first week.</p>
               )}
             </details>
           </section>
           <section className="panel spaced">
-            <SectionHead title="Sua conta" extra={<ShieldCheck size={20} />} />
-            <p className="muted">Acesso: {s.user.email}</p>
+            <SectionHead
+              title="Your account"
+              extra={<ShieldCheck size={20} />}
+            />
+            <p className="muted">Sign-in: {s.user.email}</p>
             <button
               className="settings-row"
               disabled={!online}
               onClick={() => setRecovery(true)}
             >
               <ShieldCheck size={18} />
-              Gerar códigos de recuperação
+              Generate recovery codes
               <ChevronDown size={16} />
             </button>
             <button
               className="settings-row"
               onClick={() =>
                 exportFile(
-                  "anki-battle-meus-dados.json",
+                  "anki-battle-my-data.json",
                   JSON.stringify(
                     {
                       exportedAt: new Date().toISOString(),
@@ -371,26 +374,26 @@ export default function Profile({
               }
             >
               <Download size={18} />
-              Exportar meus dados
+              Export my data
             </button>
             <button className="settings-row danger-text" onClick={onLogout}>
               <LogOut size={18} />
-              Sair da conta
+              Sign out
             </button>
           </section>
         </div>
       </div>
       <section className="panel spaced">
         <SectionHead
-          title="Duas formas de medir, sem confundir"
+          title="Two ways to track your learning"
           extra={<BarChart3 size={21} />}
         />
         <div className="metric-comparison">
           <div>
-            <h3>Como você sentiu a lembrança</h3>
-            <p>Autoavaliação dos flashcards</p>
+            <h3>How well you remembered</h3>
+            <p>Flashcard self-assessment</p>
             <div className="rating-stats">
-              {["Errei", "Difícil", "Bom", "Fácil"].map((label, i) => (
+              {["Again", "Hard", "Good", "Easy"].map((label, i) => (
                 <div key={label}>
                   <strong>{ratings[i]}</strong>
                   <span>{label}</span>
@@ -399,29 +402,26 @@ export default function Profile({
             </div>
           </div>
           <div>
-            <h3>Respostas verificadas</h3>
-            <p>Questões corrigidas pelo servidor nas batalhas</p>
+            <h3>Verified answers</h3>
+            <p>Battle answers checked by the server</p>
             <strong className="objective-score">
               {objective.total
                 ? Math.round((objective.correct / objective.total) * 100) + "%"
                 : "—"}
             </strong>
             <small>
-              {objective.correct} acertos em {objective.total} respostas
+              {objective.correct} correct out of {objective.total} answers
             </small>
           </div>
         </div>
       </section>
       {recovery && (
-        <Modal
-          title="Códigos de recuperação"
-          onClose={() => setRecovery(false)}
-        >
+        <Modal title="Recovery codes" onClose={() => setRecovery(false)}>
           {codes.length ? (
             <>
               <p>
-                Os códigos anteriores foram substituídos. Guarde estes em um
-                lugar seguro; cada código só funciona uma vez.
+                Your old codes have been replaced. Store these somewhere safe;
+                each code works only once.
               </p>
               <div className="recovery-codes">
                 {codes.map((c) => (
@@ -431,13 +431,13 @@ export default function Profile({
               <Button
                 onClick={() =>
                   exportFile(
-                    "anki-battle-recuperacao.txt",
+                    "anki-battle-recovery.txt",
                     codes.join("\n"),
                     "text/plain",
                   )
                 }
               >
-                Baixar códigos
+                Download codes
               </Button>
             </>
           ) : (
@@ -459,10 +459,10 @@ export default function Profile({
               }}
             >
               <p>
-                Confirme sua senha. Isso invalida códigos antigos de recuperação
-                deste aplicativo.
+                Confirm your password. This replaces your existing recovery
+                codes for this app.
               </p>
-              <Field label="Senha atual">
+              <Field label="Current password">
                 <input
                   type="password"
                   name="password"
@@ -471,7 +471,7 @@ export default function Profile({
                 />
               </Field>
               <Button type="submit" busy={busy === "recovery"}>
-                Gerar códigos
+                Generate codes
               </Button>
             </form>
           )}

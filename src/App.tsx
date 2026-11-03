@@ -76,7 +76,7 @@ export default function App() {
       else if (!(e instanceof APIError)) {
         setOnline(false);
         toast(
-          "Sem conexão com o servidor. Suas alterações continuam neste aparelho.",
+          "Cannot reach the server. Your changes are saved on this device.",
         );
       } else toast((e as Error).message);
     } finally {
@@ -193,9 +193,7 @@ export default function App() {
           });
         })
         .catch(() =>
-          toast(
-            "Não foi possível ativar o modo offline. Tente abrir o app novamente.",
-          ),
+          toast("Could not enable offline mode. Try reopening the app."),
         );
     return () => window.removeEventListener("beforeinstallprompt", listener);
   }, []);
@@ -225,16 +223,14 @@ export default function App() {
     if (pending?.error) throw new Error(pending.error);
     const saved = after?.snapshot.words.find((w) => w.id === word.id) || clean;
     toast(
-      pending
-        ? "Palavra salva neste aparelho. Sincronização pendente."
-        : "Palavra salva.",
+      pending ? "Word saved on this device. Waiting to sync." : "Word saved.",
     );
     if (navigator.onLine && !saved.sentence && !pending) {
       void api("/words/" + word.id + "/suggest", "POST", { another: false })
         .then(() => refresh())
         .catch(() =>
           toast(
-            "Palavra salva. A frase está pendente; tente novamente nos detalhes.",
+            "Word saved. The example is pending; try again in word details.",
           ),
         );
     }
@@ -259,14 +255,14 @@ export default function App() {
   async function logout() {
     if (local?.pending.length) {
       toast(
-        "Há ações pendentes. Sincronize ou resolva os conflitos antes de sair para preservar seu trabalho.",
+        "You have pending changes. Sync or resolve conflicts before signing out to keep your work safe.",
       );
       setConflicts(true);
       return;
     }
     try {
       if (!navigator.onLine) {
-        toast("Conecte-se para encerrar a sessão com segurança.");
+        toast("Connect to the internet to sign out securely.");
         return;
       }
       await api("/auth/logout", "POST", {});
@@ -283,7 +279,7 @@ export default function App() {
         <span className="brand-icon">
           <Layers3 size={30} />
         </span>
-        <h2>Seu próximo nível está chegando.</h2>
+        <h2>Your next level is loading.</h2>
         <RefreshCw className="spin muted" size={20} />
       </div>
     );
@@ -299,11 +295,11 @@ export default function App() {
       </>
     );
   const nav = [
-    { id: "home", label: "Início", icon: Home },
-    { id: "study", label: "Estudar", icon: Layers3 },
-    { id: "words", label: "Palavras", icon: LibraryBig },
-    { id: "battles", label: "Batalhas", icon: Swords },
-    { id: "profile", label: "Perfil", icon: UserRound },
+    { id: "home", label: "Home", icon: Home },
+    { id: "study", label: "Study", icon: Layers3 },
+    { id: "words", label: "Words", icon: LibraryBig },
+    { id: "battles", label: "Battles", icon: Swords },
+    { id: "profile", label: "Profile", icon: UserRound },
   ];
   const context = {
     s,
@@ -333,8 +329,8 @@ export default function App() {
               <small>LEARN. REMEMBER. GROW.</small>
             </span>
           </button>
-          <span className="nav-caption">SEU UNIVERSO</span>
-          <nav aria-label="Navegação principal">
+          <span className="nav-caption">YOUR SPACE</span>
+          <nav aria-label="Main navigation">
             {nav.map((n) => (
               <button
                 key={n.id}
@@ -351,9 +347,9 @@ export default function App() {
             <div className="sidebar-tip">
               <span>✦</span>
               <p>
-                O conhecimento cresce
+                Knowledge grows
                 <br />
-                um dia de cada vez.
+                one day at a time.
               </p>
             </div>
             <button
@@ -363,7 +359,7 @@ export default function App() {
               <span className="avatar">{s.user.avatar}</span>
               <div>
                 <strong>{s.user.nickname}</strong>
-                <small>Seu espaço de estudo</small>
+                <small>Your study space</small>
               </div>
               <ChevronRight size={16} />
             </button>
@@ -384,7 +380,7 @@ export default function App() {
                     ? setConflicts(true)
                     : void refresh()
                 }
-                title="Verificar sincronização"
+                title="Check sync status"
               >
                 {syncing ? (
                   <RefreshCw size={15} className="spin" />
@@ -397,24 +393,24 @@ export default function App() {
                 )}
                 <span>
                   {syncing
-                    ? "Sincronizando"
+                    ? "Syncing"
                     : !online
                       ? "Offline"
                       : local.pending.length
-                        ? `${local.pending.length} pendentes`
-                        : "Tudo sincronizado"}
+                        ? `${local.pending.length} pending`
+                        : "All synced"}
                 </span>
               </button>
               <span className="topbar-divider" />
               <span className="topbar-date">
-                {new Date().toLocaleDateString("pt-BR", {
+                {new Date().toLocaleDateString("en-US", {
                   day: "numeric",
                   month: "short",
                 })}
               </span>
               <button
                 className="avatar small"
-                aria-label="Abrir perfil"
+                aria-label="Open profile"
                 onClick={() => navigate("profile")}
               >
                 {s.user.avatar}
@@ -424,7 +420,7 @@ export default function App() {
           {!online && (
             <div className="offline-banner">
               <WifiOff size={15} />
-              Sem conexão. Seu estudo continua nos baralhos baixados.
+              Offline. Keep studying your downloaded decks.
             </div>
           )}
           {local.pending.some((p) => p.error) && (
@@ -433,13 +429,13 @@ export default function App() {
               onClick={() => setConflicts(true)}
             >
               <AlertCircle size={16} />
-              Há ações que precisam de atenção. Ver rascunhos preservados
+              Some changes need attention. View saved drafts
               <ChevronRight size={15} />
             </button>
           )}
           {update && page !== "study" && (
             <div className="update-banner">
-              Uma nova versão está pronta.
+              An update is ready.
               <Button
                 variant="small secondary"
                 disabled={!!local.pending.length}
@@ -452,12 +448,12 @@ export default function App() {
                   );
                 }}
               >
-                Atualizar agora
+                Update now
               </Button>
               <button
                 className="icon-button"
                 onClick={() => setUpdate(null)}
-                aria-label="Atualizar depois"
+                aria-label="Update later"
               >
                 <X size={16} />
               </button>
@@ -477,13 +473,13 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            <span>Pequenos passos. Conhecimento que fica.</span>
+            <span>Small steps. Lasting knowledge.</span>
             <span>
               ANKI BATTLE <i>✦</i>
             </span>
           </footer>
         </div>
-        <nav className="bottom-nav" aria-label="Navegação móvel">
+        <nav className="bottom-nav" aria-label="Mobile navigation">
           {nav.map((n) => (
             <button
               key={n.id}
@@ -522,73 +518,69 @@ export default function App() {
       {message && (
         <div className="toast" role="status">
           {message}
-          <button onClick={() => setMessage("")} aria-label="Fechar mensagem">
+          <button onClick={() => setMessage("")} aria-label="Dismiss message">
             <X size={16} />
           </button>
         </div>
       )}
       {install && (
         <Modal
-          title="Seu estudo, sempre por perto"
+          title="Take your learning with you"
           onClose={() => setInstall(false)}
         >
           <div className="install-icon">
             <Smartphone size={40} />
           </div>
-          <h3>Adicione à tela inicial.</h3>
+          <h3>Add to your home screen.</h3>
           {installPrompt ? (
             <Button
               onClick={async () => {
                 await installPrompt.prompt();
                 const choice = await installPrompt.userChoice;
                 if (choice.outcome === "accepted")
-                  toast("Instalação solicitada ao navegador.");
+                  toast("Installation requested in your browser.");
                 setInstallPrompt(null);
               }}
             >
-              Instalar Anki Battle
+              Install Anki Battle
               <Download size={17} />
             </Button>
           ) : (
             <>
               <p>
-                <strong>iPhone / iPad:</strong> abra no Safari, toque em
-                Compartilhar e escolha “Adicionar à Tela de Início”.
+                <strong>iPhone / iPad:</strong> open in Safari, tap Share, then
+                choose “Add to Home Screen”.
               </p>
               <p>
-                <strong>Android:</strong> abra no Chrome, toque no menu ⋮ e
-                escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.
+                <strong>Android:</strong> open in Chrome, tap the ⋮ menu, then
+                choose “Install app” or “Add to Home screen”.
               </p>
             </>
           )}
           <p>
-            Depois, em Estudar, toque em Baixar no baralho que você quer usar
-            sem internet. O navegador controla o espaço disponível neste
-            dispositivo.
+            Then open Study and tap Download on a deck to use it offline.
+            Available storage is managed by your browser.
           </p>
           <p className="footnote">
-            Batalhas e buscas externas precisam de conexão. O aplicativo não
-            consegue confirmar a instalação no sistema por você.
+            Battles and online searches need an internet connection. Complete
+            installation in your browser.
           </p>
         </Modal>
       )}
       {conflicts && (
-        <Modal
-          title="Seu trabalho está preservado"
-          onClose={() => setConflicts(false)}
-        >
-          <p>{local.pending.length} ações aguardam sincronização.</p>
+        <Modal title="Your work is saved" onClose={() => setConflicts(false)}>
+          <p>{local.pending.length} changes are waiting to sync.</p>
           {local.pending.map((p) => (
             <div className="pending-row" key={p.id}>
-              <strong>{p.word?.term || "Revisão de card"}</strong>
-              <p>{p.error || "Aguardando conexão."}</p>
+              <strong>{p.word?.term || "Card review"}</strong>
+              <p>{p.error || "Waiting for a connection."}</p>
               {p.word && p.error && (
                 <>
-                  <p>Seu rascunho: {p.word.meaning}</p>
+                  <p>Your draft: {p.word.meaning}</p>
                   <p>
-                    Servidor:{" "}
+                    Server:{" "}
                     {local.snapshot.words.find((w) => w.id === p.word?.id)
-                      ?.meaning || "Não encontrado"}
+                      ?.meaning || "Not found"}
                   </p>
                   <Button
                     variant="secondary small"
@@ -599,7 +591,7 @@ export default function App() {
                       );
                       if (!serverWord) {
                         toast(
-                          "A palavra foi removida. Exporte o rascunho para recuperá-lo.",
+                          "This word was removed. Export your draft to recover it.",
                         );
                         return;
                       }
@@ -622,7 +614,7 @@ export default function App() {
                       await refresh();
                     }}
                   >
-                    Aplicar meu rascunho
+                    Apply my draft
                   </Button>
                 </>
               )}
@@ -639,7 +631,7 @@ export default function App() {
                     await refresh();
                   }}
                 >
-                  Tentar sincronizar
+                  Retry sync
                 </Button>
               )}
               {p.error && (
@@ -647,19 +639,17 @@ export default function App() {
                   variant="ghost small"
                   onClick={async () => {
                     exportFile(
-                      "anki-rascunho-" + p.id + ".json",
+                      "anki-draft-" + p.id + ".json",
                       JSON.stringify(p, null, 2),
                     );
                     await updateLocal(s.user.id, (l) => ({
                       ...l,
                       pending: l.pending.filter((x) => x.id !== p.id),
                     }));
-                    toast(
-                      "Cópia do rascunho exportada. A versão do servidor foi mantida.",
-                    );
+                    toast("Draft exported. The server version was kept.");
                   }}
                 >
-                  Exportar rascunho e manter servidor
+                  Export draft and keep server version
                 </Button>
               )}
             </div>
@@ -668,15 +658,15 @@ export default function App() {
             variant="secondary"
             onClick={() =>
               exportFile(
-                "anki-battle-pendencias.json",
+                "anki-battle-pending.json",
                 JSON.stringify(local.pending, null, 2),
               )
             }
           >
-            Exportar cópia das pendências
+            Export pending changes
           </Button>
           <Button onClick={() => refresh()} disabled={!online || syncing}>
-            Sincronizar agora
+            Sync now
           </Button>
         </Modal>
       )}

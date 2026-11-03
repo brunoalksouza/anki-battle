@@ -1,4 +1,9 @@
 @import url("/fonts.css");
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
 :root {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #252533;
@@ -43,6 +48,7 @@ textarea {
 button {
   cursor: pointer;
   color: inherit;
+  touch-action: manipulation;
 }
 button {
   border: 0;
@@ -557,7 +563,8 @@ main {
 .hero-content {
   padding: 29px 30px;
   z-index: 1;
-  flex-shrink: 0;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 .hero-label {
   font-size: 8px;
@@ -2771,7 +2778,7 @@ main {
     display: none;
   }
   .sync-status {
-    font-size: 9px;
+    font-size: 12px;
   }
   .topbar .avatar.small {
     margin-left: 7px;
@@ -2807,7 +2814,7 @@ main {
     background: var(--accent-soft);
   }
   .bottom-nav button span {
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 550;
   }
   main {
@@ -2825,12 +2832,12 @@ main {
     letter-spacing: -1.2px;
   }
   .page-heading .eyebrow {
-    font-size: 7px;
+    font-size: 12px;
     letter-spacing: 1.3px;
     margin-bottom: 10px;
   }
   .page-heading p {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.7;
     max-width: 310px;
   }
@@ -2864,21 +2871,21 @@ main {
     letter-spacing: -0.9px;
   }
   .hero-content p {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.9;
     margin: 13px 0 20px;
   }
   .hero-label {
-    font-size: 7px;
+    font-size: 12px;
     letter-spacing: 1.15px;
     margin-bottom: 15px;
   }
   .hero-content .button {
-    font-size: 11px;
+    font-size: 12px;
     min-height: 40px;
   }
   .hero-content > small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .hero-deck {
     min-width: 80px;
@@ -2904,7 +2911,7 @@ main {
     font-size: 28px;
   }
   .streak-card h3 {
-    font-size: 9px;
+    font-size: 12px;
   }
   .streak-card strong span {
     font-size: 12px;
@@ -2916,10 +2923,10 @@ main {
   .week-dots span {
     width: 20px;
     height: 20px;
-    font-size: 7px;
+    font-size: 12px;
   }
   .week-dots small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .flame-circle {
     width: 38px;
@@ -2950,7 +2957,7 @@ main {
     font-size: 23px;
   }
   .quick-stats small {
-    font-size: 8px;
+    font-size: 12px;
   }
   .stat-icon {
     width: 35px;
@@ -2969,7 +2976,7 @@ main {
     font-size: 17px;
   }
   .section-head .text-button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .deck-row {
     padding: 19px 17px;
@@ -2979,7 +2986,7 @@ main {
     font-size: 13px;
   }
   .deck-row p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .deck-icon {
     width: 43px;
@@ -2987,7 +2994,7 @@ main {
     font-size: 23px;
   }
   .deck-due {
-    font-size: 8px;
+    font-size: 12px;
     gap: 6px;
   }
   .deck-row .progress {
@@ -3007,10 +3014,10 @@ main {
     font-size: 12px;
   }
   .goal-row strong small {
-    font-size: 11px;
+    font-size: 12px;
   }
   .section-sub {
-    font-size: 11px;
+    font-size: 12px;
   }
   .battle-teaser h3 {
     font-size: 19px;
@@ -3029,10 +3036,10 @@ main {
   .app-footer {
     padding: 0 22px 108px;
     gap: 10px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .app-footer > span:last-child {
-    font-size: 7px;
+    font-size: 12px;
     white-space: nowrap;
   }
   .toast {
@@ -3047,8 +3054,8 @@ main {
     width: 100%;
     border-radius: 22px 22px 0 0;
     margin: auto 0 0;
-    max-height: 94dvh;
     max-height: 94vh;
+    max-height: 94dvh;
   }
   .modal-head {
     padding: 16px 20px;
@@ -3071,7 +3078,7 @@ main {
     gap: 12px;
   }
   .form-grid .field > span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .color-options {
     gap: 14px;
@@ -3109,7 +3116,7 @@ main {
     line-height: 1.4;
   }
   .word-text p {
-    font-size: 11px;
+    font-size: 12px;
   }
   .word-row > svg {
     width: 14px;
@@ -3118,14 +3125,14 @@ main {
     display: none;
   }
   .words-summary {
-    font-size: 10px;
+    font-size: 12px;
     gap: 10px;
   }
   .words-summary > div {
     gap: 12px;
   }
   .words-summary .text-button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .word-detail-meta {
     gap: 10px;
@@ -3162,7 +3169,7 @@ main {
     margin-left: auto;
     min-height: 40px;
     padding: 10px 13px;
-    font-size: 11px;
+    font-size: 12px;
   }
   .deck-grid {
     grid-template-columns: 1fr;
@@ -3184,7 +3191,7 @@ main {
     min-width: 120px;
   }
   .deck-actions .text-button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .review-card {
     min-height: 350px;
@@ -3195,13 +3202,13 @@ main {
     font-size: 32px;
   }
   .review-caption {
-    font-size: 10px;
+    font-size: 12px;
   }
   .review-top {
-    font-size: 11px;
+    font-size: 12px;
   }
   .review-top .text-button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .rating-buttons {
     gap: 7px;
@@ -3219,7 +3226,7 @@ main {
   .rating-question > span {
     display: block;
     margin-top: 8px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .session-finish {
     margin: 45px auto;
@@ -3267,13 +3274,13 @@ main {
     font-size: 12px;
   }
   .ranking-row small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .rank-number {
     width: 18px;
   }
   .battle-top small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .battle-item {
     padding: 20px;
@@ -3292,7 +3299,7 @@ main {
     font-size: 22px;
   }
   .profile-hero p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .level-badge {
     width: 48px;
@@ -3331,7 +3338,7 @@ main {
     max-width: 450px;
   }
   .auth-story > .eyebrow {
-    font-size: 7px;
+    font-size: 12px;
     margin-bottom: 17px;
   }
   .auth-story h1 {
@@ -3358,10 +3365,10 @@ main {
     font-size: 24px;
   }
   .auth-form-card > .eyebrow {
-    font-size: 6px;
+    font-size: 12px;
   }
   .auth-form-card > p {
-    font-size: 11px;
+    font-size: 12px;
     margin-bottom: 23px;
   }
   .auth-form-card .field > span {
@@ -3371,18 +3378,18 @@ main {
     font-size: 13px;
   }
   .privacy-note {
-    font-size: 9px;
+    font-size: 12px;
   }
   .auth-footer {
     margin-top: 30px;
     display: block;
     text-align: center;
-    font-size: 8px;
+    font-size: 12px;
   }
   .auth-footer span {
     display: block;
     margin-top: 10px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .auth-page .form-grid {
     grid-template-columns: 1fr;
@@ -3391,32 +3398,32 @@ main {
     gap: 7px;
   }
   .recovery-codes code {
-    font-size: 10px;
+    font-size: 12px;
     padding: 12px 5px;
   }
   .auth-page .toast {
     bottom: 25px;
   }
   .notice {
-    font-size: 11px;
+    font-size: 12px;
   }
   .offline-banner,
   .conflict-banner {
-    font-size: 10px;
+    font-size: 12px;
     justify-content: flex-start;
     padding: 11px 20px;
   }
   .update-banner {
-    font-size: 10px;
+    font-size: 12px;
   }
   .history-row {
-    font-size: 9px;
+    font-size: 12px;
   }
   .history-card strong {
-    font-size: 11px;
+    font-size: 12px;
   }
   .history-card small {
-    font-size: 9px;
+    font-size: 12px;
   }
 }
 @media (max-width: 380px) {
@@ -3430,14 +3437,14 @@ main {
     font-size: 25px;
   }
   .hero-content p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .hero-deck {
     transform: scale(0.6);
     margin-left: -12px;
   }
   .hero-label {
-    font-size: 6px;
+    font-size: 12px;
   }
   .streak-card {
     gap: 9px;
@@ -3489,7 +3496,7 @@ main {
 }
 .word-audio > small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin-bottom: 8px;
 }
@@ -3503,25 +3510,25 @@ main {
     font-size: 12px;
   }
   .hero-content p {
-    font-size: 11px;
+    font-size: 12px;
   }
   .quick-stats small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .deck-row p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .deck-due {
-    font-size: 9px;
+    font-size: 12px;
   }
   .bottom-nav button span {
-    font-size: 10px;
+    font-size: 12px;
   }
   .section-sub {
     font-size: 12px;
   }
   .hero-content > small {
-    font-size: 8px;
+    font-size: 12px;
   }
 }
 
@@ -3634,7 +3641,7 @@ main {
   grid-template-columns: repeat(var(--heatmap-weeks), minmax(0, 1fr));
   gap: 3px;
   grid-column: 2;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   align-items: start;
 }
@@ -3648,7 +3655,7 @@ main {
   grid-template-rows: repeat(7, 1fr);
   gap: 3px;
   align-items: center;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
 }
 .heatmap-grid {
@@ -3721,7 +3728,7 @@ main {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .heatmap-legend span {
@@ -3739,7 +3746,7 @@ main {
   gap: 6px;
   align-items: center;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 .heatmap-detail {
   display: flex;
@@ -3749,7 +3756,7 @@ main {
   flex-wrap: wrap;
   text-align: center;
   min-height: 19px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin: 0 0 20px;
 }
@@ -3782,7 +3789,7 @@ main {
 }
 .heatmap-footnote {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
   text-align: center;
   line-height: 1.6;
   margin: 19px 0 0;
@@ -3807,7 +3814,7 @@ main {
     font-size: 17px;
   }
   .heatmap-heading p {
-    font-size: 11px;
+    font-size: 12px;
   }
   .heatmap-heading select {
     min-height: 40px;
@@ -3839,9 +3846,485 @@ main {
     font-size: 17px;
   }
   .heatmap-stats span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .heatmap-footnote {
     text-align: left;
+  }
+}
+
+/* Phone layouts prioritize readable copy, touch targets, and the active task. */
+@media (max-width: 760px) {
+  .dashboard-top,
+  .dashboard-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .main-shell,
+  main,
+  .page-heading > div,
+  .word-text,
+  .profile-hero > div,
+  .ranking-row > div,
+  .history-card > div {
+    min-width: 0;
+  }
+  main {
+    padding: 24px max(16px, env(safe-area-inset-right)) 32px
+      max(16px, env(safe-area-inset-left));
+  }
+  .topbar {
+    height: auto;
+    min-height: 64px;
+    padding-top: env(safe-area-inset-top);
+  }
+  .bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
+    padding: 8px max(8px, env(safe-area-inset-right))
+      calc(8px + env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
+  .bottom-nav button {
+    min-width: 0;
+    min-height: 52px;
+    padding: 5px 2px;
+    gap: 4px;
+  }
+  .bottom-nav button span {
+    font-size: 11px;
+  }
+  .button,
+  .button.small,
+  .text-button,
+  .icon-button,
+  .settings-row,
+  .tabs > button,
+  .segmented > button,
+  .sync-status,
+  .topbar .avatar.small,
+  .color-options button,
+  .heatmap-year-nav button {
+    min-height: 44px;
+  }
+  .icon-button,
+  .topbar .avatar.small,
+  .color-options button,
+  .heatmap-year-nav button {
+    min-width: 44px;
+  }
+  .button,
+  .button.small,
+  .text-button {
+    font-size: 14px;
+  }
+  .button {
+    white-space: normal;
+    text-align: center;
+  }
+  input:not([type="color"]):not([type="checkbox"]),
+  select,
+  textarea,
+  .search-input input,
+  .word-toolbar > select,
+  .heatmap-heading select {
+    font-size: 16px;
+    min-width: 0;
+    min-height: 48px;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .field > span,
+  .form-grid .field > span,
+  .auth-form-card .field > span {
+    font-size: 14px;
+  }
+  .field > small,
+  .privacy-note,
+  .footnote,
+  .notice,
+  .history-row,
+  .history-card small,
+  .word-audio > small,
+  .attribution,
+  .heatmap-footnote {
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .page-heading > div {
+    flex: 1 1 220px;
+  }
+  .page-heading > .button {
+    width: auto;
+    min-height: 44px;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+  .page-heading h1 {
+    font-size: clamp(27px, 7vw, 32px);
+  }
+  .page-heading p,
+  .auth-story > p,
+  .auth-form-card > p,
+  .deck-card > p,
+  .battle-teaser p,
+  .word-text p,
+  .profile-hero p,
+  .metric-comparison p {
+    font-size: 14px;
+  }
+  .page-heading .eyebrow,
+  .hero-label,
+  .auth-story > .eyebrow,
+  .auth-form-card > .eyebrow {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .study-hero {
+    min-height: 0;
+  }
+  .hero-content {
+    padding: 25px 22px;
+  }
+  .hero-content h2 {
+    font-size: 30px;
+  }
+  .hero-content p {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .hero-content .button {
+    min-height: 48px;
+    font-size: 15px;
+  }
+  .hero-content > small {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .hero-deck {
+    display: none;
+  }
+  .streak-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 18px;
+  }
+  .flame-circle {
+    display: none;
+  }
+  .streak-card h3 {
+    font-size: 12px;
+  }
+  .week-dots {
+    width: 100%;
+    max-width: 230px;
+    gap: 0;
+    min-width: 0;
+  }
+  .week-dots span {
+    width: 22px;
+    height: 24px;
+    font-size: 11px;
+  }
+  .week-dots small {
+    font-size: 10px;
+  }
+  .quick-stats > div {
+    padding: 17px 12px;
+    gap: 10px;
+    min-width: 0;
+  }
+  .quick-stats > div > span:last-child {
+    min-width: 0;
+  }
+  .quick-stats small {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .stat-icon {
+    flex-shrink: 0;
+  }
+  .deck-row {
+    flex-wrap: wrap;
+  }
+  .deck-row h3 {
+    font-size: 16px;
+    overflow-wrap: anywhere;
+  }
+  .deck-row p,
+  .deck-due {
+    font-size: 12px;
+  }
+  .deck-due {
+    margin-left: auto;
+  }
+  .word-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .word-toolbar .search-input,
+  .word-toolbar > select {
+    width: 100%;
+  }
+  .words-summary {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .words-summary > div {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .words-summary .text-button {
+    font-size: 13px;
+  }
+  .word-row {
+    align-items: flex-start;
+  }
+  .word-text h3 {
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+  .word-text p {
+    line-height: 1.5;
+  }
+  .word-text .tags {
+    flex-wrap: wrap;
+  }
+  .study-toolbar > .button {
+    width: 100%;
+    margin: 0;
+    min-height: 48px;
+    font-size: 15px;
+  }
+  .deck-actions {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .deck-actions .text-button {
+    font-size: 13px;
+  }
+  .review-page {
+    padding-bottom: 12px;
+  }
+  .review-card {
+    min-height: 280px;
+    padding: 28px 20px;
+  }
+  .review-card h1,
+  .review-card h2,
+  .word-meaning,
+  .battle-prompt {
+    overflow-wrap: anywhere;
+  }
+  .review-card h1 {
+    font-size: clamp(28px, 8vw, 40px);
+  }
+  .review-card .button {
+    min-height: 48px;
+    width: 100%;
+  }
+  .review-caption {
+    gap: 12px;
+    line-height: 1.5;
+  }
+  .review-caption > span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .review-caption > span:last-child {
+    flex-shrink: 0;
+  }
+  .review-top .text-button,
+  .review-hint {
+    font-size: 14px;
+  }
+  .rating-buttons {
+    position: sticky;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    z-index: 20;
+    background: var(--bg);
+    padding: 10px 0;
+    margin-bottom: 0;
+    gap: 8px;
+  }
+  .rating {
+    min-height: 72px;
+    padding: 14px 4px;
+  }
+  .rating strong {
+    font-size: 14px;
+  }
+  .rating small {
+    font-size: 12px;
+  }
+  .rating-question {
+    font-size: 14px;
+  }
+  .tabs {
+    gap: 12px;
+    justify-content: space-between;
+  }
+  .tabs > button {
+    font-size: 13px;
+    gap: 6px;
+  }
+  .ranking-row {
+    gap: 9px;
+  }
+  .ranking-row strong {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .ranking-row small {
+    font-size: 12px;
+  }
+  .battle-top {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .battle-top small {
+    font-size: 12px;
+  }
+  .versus > div {
+    min-width: 0;
+  }
+  .versus strong {
+    overflow-wrap: anywhere;
+  }
+  .battle-actions {
+    flex-wrap: wrap;
+  }
+  .battle-actions > .button {
+    flex: 1;
+  }
+  .profile-hero {
+    flex-wrap: wrap;
+  }
+  .profile-hero h2 {
+    overflow-wrap: anywhere;
+  }
+  .profile-hero .level-badge {
+    display: none;
+  }
+  .profile-hero > div {
+    flex: 1;
+  }
+  .settings-row {
+    text-align: left;
+    font-size: 14px;
+  }
+  .modal {
+    overscroll-behavior: contain;
+    scroll-padding-top: 75px;
+  }
+  .modal-head {
+    gap: 12px;
+  }
+  .modal-head h2 {
+    overflow-wrap: anywhere;
+  }
+  .modal-content {
+    overflow-wrap: anywhere;
+  }
+  .modal-actions {
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0;
+    background: var(--surface);
+  }
+  .modal-actions .button {
+    flex: 1;
+  }
+  .image-search {
+    flex-wrap: wrap;
+  }
+  .image-search input {
+    flex: 1 1 160px;
+  }
+  .color-options {
+    gap: 12px;
+  }
+  .color-options button {
+    width: 44px;
+    height: 44px;
+  }
+  .history-card {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .history-row {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .update-banner {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  .offline-banner,
+  .conflict-banner {
+    font-size: 13px;
+  }
+  .auth-page {
+    padding: max(20px, env(safe-area-inset-top)) 16px
+      max(20px, env(safe-area-inset-bottom));
+  }
+  .auth-layout {
+    margin-top: 24px;
+    gap: 20px;
+  }
+  .auth-story h1 {
+    font-size: 32px;
+    letter-spacing: -1px;
+  }
+  .auth-story > .eyebrow {
+    display: none;
+  }
+  .auth-story > p {
+    margin-top: 12px;
+  }
+  .auth-form-card {
+    padding: 24px 20px;
+  }
+  .auth-form-card h2 {
+    font-size: 26px;
+  }
+  .auth-form-card .button {
+    min-height: 48px;
+    font-size: 15px;
+  }
+  .auth-form-card .text-button,
+  .auth-switch button {
+    min-height: 44px;
+  }
+  .auth-switch {
+    font-size: 14px;
+  }
+  .recovery-codes {
+    grid-template-columns: 1fr;
+  }
+  .recovery-codes code {
+    font-size: 14px;
+  }
+  .heatmap-heading {
+    flex-wrap: wrap;
+  }
+  .heatmap-heading select {
+    min-height: 44px;
+  }
+  .heatmap-key {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .heatmap-stats > div {
+    min-width: 0;
   }
 }

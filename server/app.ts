@@ -7,6 +7,7 @@ import { existsSync, createReadStream, statSync, readFileSync } from "node:fs";
 import { join, resolve, extname, sep } from "node:path";
 import { z } from "zod";
 import { openDB } from "./db";
+import { migrateEnglishContent } from "./english-content";
 import {
   Service,
   passwordHash,
@@ -34,6 +35,7 @@ export async function buildApp(
 ) {
   const dataDir = resolve(options.dataDir || process.env.DATA_DIR || "data"),
     db = openDB(options.dbPath || join(dataDir, "anki.sqlite"));
+  migrateEnglishContent(db);
   const svc = new Service(db, options.now),
     integrations = new Integrations(svc, dataDir),
     origin =
@@ -90,7 +92,7 @@ export async function buildApp(
   app.setErrorHandler((err: any, req, reply) => {
     if (err instanceof z.ZodError)
       return reply.code(400).send({
-        error: "Confira os campos informados.",
+        error: "Please check the fields you entered.",
         fields: err.issues.map((i) => i.path.join(".")),
       });
     const status = err.statusCode || 500;
@@ -102,7 +104,7 @@ export async function buildApp(
     return reply.code(status).send({
       error:
         status >= 500
-          ? "Serviço temporariamente indisponível. Seus dados salvos estão preservados."
+          ? "Service temporarily unavailable. Your saved data is safe."
           : err.message,
     });
   });
@@ -117,19 +119,18 @@ export async function buildApp(
     reply.header("Cache-Control", "no-store");
     if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
       if (req.headers.origin && req.headers.origin !== origin)
-        fail(403, "Origem não autorizada.");
-      if (req.headers["x-anki-client"] !== "1")
-        fail(403, "Requisição inválida.");
+        fail(403, "Unauthorized origin.");
+      if (req.headers["x-anki-client"] !== "1") fail(403, "Invalid request.");
     }
     if (publicPaths.has(req.url.split("?")[0])) return;
     const token = req.cookies.anki_session;
-    if (!token) fail(401, "Entre para continuar.");
+    if (!token) fail(401, "Sign in to continue.");
     const session = db.get(
       "SELECT user_id FROM sessions WHERE token=? AND expires>?",
       hash(token),
       svc.now().toISOString(),
     );
-    if (!session) fail(401, "Sua sessão expirou. Entre novamente.");
+    if (!session) fail(401, "Your session expired. Please sign in again.");
     req.userId = session.user_id;
   });
   app.addHook("onClose", () => db.db.close());
@@ -164,7 +165,7 @@ export async function buildApp(
       if (prior.count >= 12)
         fail(
           429,
-          "Muitas tentativas para esta conta. Tente novamente em 15 minutos.",
+          "Too many attempts for this account. Try again in 15 minutes.",
         );
       db.run("UPDATE auth_attempts SET count=count+1 WHERE key=?", key);
     } else
@@ -183,18 +184,18 @@ export async function buildApp(
         email: z.email().max(254),
         password,
         nickname: z.string().trim().min(2).max(30),
-        nativeLang: z.string().min(2).max(12).default("pt"),
+        nativeLang: z.string().min(2).max(12).default("en"),
         studyLang: z.string().min(2).max(12).default("en"),
         timezone: z.string().max(80).default("America/Sao_Paulo"),
       })
       .parse(req.body);
     try {
-      new Intl.DateTimeFormat("pt", { timeZone: body.timezone });
+      new Intl.DateTimeFormat("en", { timeZone: body.timezone });
     } catch {
-      fail(400, "Fuso horário inválido.");
+      fail(400, "Invalid time zone.");
     }
     if (db.get("SELECT id FROM users WHERE email=?", body.email.toLowerCase()))
-      fail(409, "Este e-mail já está cadastrado.");
+      fail(409, "This email is already registered.");
     const userId = randomUUID(),
       p = await passwordHash(body.password),
       codes = Array.from({ length: 6 }, () => randomBytes(10).toString("hex"));
@@ -223,7 +224,7 @@ export async function buildApp(
         db.run("INSERT INTO recovery VALUES(?,?)", hash(c), userId);
       svc.ensureGoal(userId);
       svc.createDeck(userId, {
-        name: "Meu primeiro baralho",
+        name: "My first deck",
         language: user.studyLang,
         color: "#8058d8",
         icon: "🌱",
@@ -245,7 +246,7 @@ export async function buildApp(
       body.email.toLowerCase().trim(),
     );
     const ok = await passwordMatches(body.password, row?.password || dummy);
-    if (!row || !ok) fail(401, "Usuário ou senha incorretos.");
+    if (!row || !ok) fail(401, "Incorrect username or password.");
     db.run("DELETE FROM auth_attempts WHERE key=?", attemptKey);
     if (!row.password.startsWith("scrypt-v1$"))
       db.run(
@@ -270,7 +271,7 @@ export async function buildApp(
       body.email.toLowerCase().trim(),
       hash(body.code.trim().replace(/\s/g, "")),
     );
-    if (!row) fail(400, "E-mail ou código de recuperação inválido.");
+    if (!row) fail(400, "Invalid email or recovery code.");
     const p = await passwordHash(body.password);
     db.transaction(() => {
       db.run(
@@ -301,7 +302,7 @@ export async function buildApp(
         db.get("SELECT password FROM users WHERE id=?", req.userId).password,
       ))
     )
-      fail(403, "Senha incorreta.");
+      fail(403, "Incorrect password.");
     const codes = Array.from({ length: 6 }, () =>
       randomBytes(10).toString("hex"),
     );
@@ -331,9 +332,9 @@ export async function buildApp(
       })
       .parse(req.body);
     try {
-      new Intl.DateTimeFormat("pt", { timeZone: input.timezone });
+      new Intl.DateTimeFormat("en", { timeZone: input.timezone });
     } catch {
-      fail(400, "Fuso horário inválido.");
+      fail(400, "Invalid time zone.");
     }
     const user = { ...svc.user(req.userId), ...input };
     db.run(
@@ -357,7 +358,7 @@ export async function buildApp(
       .parse(req.body);
     const old = db.get("SELECT * FROM mutations WHERE id=?", input.id);
     if (old) {
-      if (old.user_id !== req.userId) fail(409, "Identificador indisponível.");
+      if (old.user_id !== req.userId) fail(409, "Identifier unavailable.");
       return JSON.parse(old.response);
     }
     return db.transaction(() => {
@@ -415,8 +416,7 @@ export async function buildApp(
       .parse(req.body);
     const prior = db.get("SELECT * FROM mutations WHERE id=?", input.id);
     if (prior) {
-      if (prior.user_id !== req.userId)
-        fail(409, "Identificador indisponível.");
+      if (prior.user_id !== req.userId) fail(409, "Identifier unavailable.");
       return JSON.parse(prior.response);
     }
     return db.transaction(() => {
@@ -476,9 +476,9 @@ export async function buildApp(
       const body = z.object({ accept: z.boolean() }).parse(req.body),
         b = svc.battleRow(req.userId, req.params.id);
       if (b.guest_id !== req.userId)
-        fail(403, "Só a pessoa convidada pode aceitar.");
+        fail(403, "Only the invited person can accept.");
       if (b.status !== "invited")
-        fail(409, "O convite já foi respondido ou expirou.");
+        fail(409, "This invitation has already been answered or has expired.");
       db.run(
         "UPDATE battles SET status=? WHERE id=?",
         body.accept ? "active" : "declined",
@@ -491,7 +491,7 @@ export async function buildApp(
     "/api/battles/:id/ready",
     async (req) => {
       const b = svc.battleRow(req.userId, req.params.id);
-      if (b.status !== "active") fail(409, "Aceite o convite para começar.");
+      if (b.status !== "active") fail(409, "Accept the invitation to start.");
       db.run(
         "INSERT OR IGNORE INTO battle_ready VALUES(?,?)",
         b.id,
@@ -518,7 +518,7 @@ export async function buildApp(
     async (req) => {
       const b = svc.battleRow(req.userId, req.params.id);
       if (!["active", "invited"].includes(b.status))
-        fail(409, "Batalha já encerrada.");
+        fail(409, "This battle has already ended.");
       db.run(
         "UPDATE battles SET status='abandoned',data=? WHERE id=?",
         JSON.stringify({
@@ -539,7 +539,7 @@ export async function buildApp(
       db.get("SELECT COUNT(*) n FROM groups WHERE owner_id=?", req.userId).n >=
       20
     )
-      fail(400, "Limite de 20 grupos.");
+      fail(400, "You have reached the limit of 20 groups.");
     const group = {
       id: randomUUID(),
       name: body.name,
@@ -560,7 +560,7 @@ export async function buildApp(
   app.post("/api/groups/join", async (req) => {
     const body = z.object({ code: z.string().max(100) }).parse(req.body),
       g = db.get("SELECT id FROM groups WHERE code=?", body.code.trim());
-    if (!g) fail(404, "Código de grupo não encontrado.");
+    if (!g) fail(404, "Group code not found.");
     db.run("INSERT OR IGNORE INTO members VALUES(?,?)", g.id, req.userId);
     return { ok: true };
   });
@@ -574,7 +574,7 @@ export async function buildApp(
           req.userId,
         )
       )
-        fail(404, "Grupo não encontrado.");
+        fail(404, "Group not found.");
       return svc.rank(
         req.query.period === "all" ? undefined : weekKey(svc.now()),
         req.params.id,
@@ -647,7 +647,7 @@ export async function buildApp(
           req.userId,
         )
       )
-        fail(404, "Imagem não encontrada.");
+        fail(404, "Image not found.");
       const meta = JSON.parse(
         db.get(
           "SELECT data FROM assets WHERE id=? AND user_id=?",
@@ -657,9 +657,9 @@ export async function buildApp(
       );
       const filename = meta.filename || req.params.id + ".webp";
       if (filename.includes("/") || filename.includes(".."))
-        fail(400, "Arquivo inválido.");
+        fail(400, "Invalid file.");
       const path = join(dataDir, "media", filename);
-      if (!existsSync(path)) fail(404, "Mídia indisponível.");
+      if (!existsSync(path)) fail(404, "Media unavailable.");
       return reply.type(meta.mime || "image/webp").send(createReadStream(path));
     },
   );
@@ -676,7 +676,7 @@ export async function buildApp(
   };
   app.setNotFoundHandler(async (req, reply) => {
     if (req.url.startsWith("/api/"))
-      return reply.code(404).send({ error: "Rota não encontrada." });
+      return reply.code(404).send({ error: "Route not found." });
     if (req.method !== "GET" && req.method !== "HEAD")
       return reply.code(405).send();
     let pathname: string;
@@ -693,7 +693,7 @@ export async function buildApp(
     if (!existsSync(path))
       return reply
         .code(404)
-        .send({ error: "Frontend ainda não compilado. Use npm run dev." });
+        .send({ error: "Frontend not built yet. Run npm run dev." });
     reply.header(
       "Cache-Control",
       pathname.startsWith("/assets/")

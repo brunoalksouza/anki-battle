@@ -1,7 +1,7 @@
 {
   "name": "anki-battle",
   "version": "1.0.0",
-  "description": "PWA móvel de estudos com FSRS, uso offline e batalhas assíncronas.",
+  "description": "Mobile study PWA with FSRS, offline learning, and asynchronous battles.",
   "scripts": {
     "test": "tsx --test tests/*.test.ts",
     "dev": "vite --host 127.0.0.1",

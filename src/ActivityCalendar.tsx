@@ -21,20 +21,20 @@ import {
 } from "../shared/activity";
 const monthNames = [
   "Jan",
-  "Fev",
+  "Feb",
   "Mar",
-  "Abr",
-  "Mai",
+  "Apr",
+  "May",
   "Jun",
   "Jul",
-  "Ago",
-  "Set",
-  "Out",
+  "Aug",
+  "Sep",
+  "Oct",
   "Nov",
-  "Dez",
+  "Dec",
 ];
 const number = (value: number, digits = 0) =>
-  value.toLocaleString("pt-BR", { maximumFractionDigits: digits });
+  value.toLocaleString("en-US", { maximumFractionDigits: digits });
 const duration = (ms: number) => {
   const seconds = Math.round(ms / 1000);
   return seconds >= 3600
@@ -44,7 +44,7 @@ const duration = (ms: number) => {
       : `${seconds} s`;
 };
 const dateLabel = (day: string) =>
-  new Date(day + "T12:00:00Z").toLocaleDateString("pt-BR", {
+  new Date(day + "T12:00:00Z").toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -107,31 +107,31 @@ export default function ActivityCalendar() {
     }
   }
   function description(cell: (typeof data.cells)[number]) {
-    return `${dateLabel(cell.day)}: ${cell.future ? "dia futuro" : kind === "study" ? `${number(cell.count)} ${cell.count === 1 ? "revisão" : "revisões"} · ${duration(cell.activeMs)}` : cell.count ? "acessou o aplicativo" : "nenhum acesso"}`;
+    return `${dateLabel(cell.day)}: ${cell.future ? "future day" : kind === "study" ? `${number(cell.count)} ${cell.count === 1 ? "review" : "reviews"} · ${duration(cell.activeMs)}` : cell.count ? "opened the app" : "no visits"}`;
   }
   const metrics = [
     {
-      label: kind === "study" ? "Média diária" : "Dias com acesso",
+      label: kind === "study" ? "Daily average" : "Days visited",
       value:
         kind === "study"
-          ? `${number(data.average, 1)} ${number(data.average, 1) === "1" ? "revisão" : "revisões"}`
-          : `${number(data.activeDays)} ${data.activeDays === 1 ? "dia" : "dias"}`,
-      hint: `${number(data.total)} ${kind === "study" ? "revisões" : "acessos"} em ${data.elapsedDays} dias decorridos de ${year}; inclui dias sem atividade.`,
+          ? `${number(data.average, 1)} ${number(data.average, 1) === "1" ? "review" : "reviews"}`
+          : `${number(data.activeDays)} ${data.activeDays === 1 ? "day" : "days"}`,
+      hint: `${number(data.total)} ${kind === "study" ? "reviews" : "visits"} in ${data.elapsedDays} elapsed days in ${year}; includes days without activity.`,
     },
     {
-      label: kind === "study" ? "Dias estudados" : "Frequência",
+      label: kind === "study" ? "Days studied" : "Frequency",
       value: `${number(data.percent, 1)}%`,
-      hint: `${data.activeDays} de ${data.elapsedDays} dias decorridos de ${year}. Dias futuros não entram no cálculo.`,
+      hint: `${data.activeDays} of ${data.elapsedDays} elapsed days in ${year}. Future days are excluded.`,
     },
     {
-      label: "Maior sequência",
-      value: `${data.longest} ${data.longest === 1 ? "dia" : "dias"}`,
-      hint: `Maior sequência dentro de ${year}.`,
+      label: "Longest streak",
+      value: `${data.longest} ${data.longest === 1 ? "day" : "days"}`,
+      hint: `Longest streak in ${year}.`,
     },
     {
-      label: "Sequência atual",
-      value: `${data.current} ${data.current === 1 ? "dia" : "dias"}`,
-      hint: "Sequência até hoje ou ontem, incluindo a passagem de ano. Você ainda pode estudar hoje para continuar.",
+      label: "Current streak",
+      value: `${data.current} ${data.current === 1 ? "day" : "days"}`,
+      hint: "Your streak through today or yesterday, including across years. Study today to keep it going.",
     },
   ];
   return (
@@ -141,26 +141,26 @@ export default function ActivityCalendar() {
     >
       <div className="heatmap-heading">
         <div>
-          <h2 id="activity-title">Cada dia conta</h2>
-          <p>Um ano de pequenos passos.</p>
+          <h2 id="activity-title">Every day counts</h2>
+          <p>A year of small steps.</p>
         </div>
         <select
-          aria-label="Tipo de atividade"
+          aria-label="Activity type"
           value={kind}
           onChange={(e) => setKind(e.target.value as ActivityKind)}
         >
-          <option value="study">Estudo</option>
-          <option value="access">Acessos</option>
+          <option value="study">Study</option>
+          <option value="access">Visits</option>
         </select>
       </div>
       <p className="heatmap-today">
         {kind === "study" ? (
           <>
-            Hoje:{" "}
+            Today:{" "}
             <strong>
-              {number(todayCount)} {todayCount === 1 ? "revisão" : "revisões"}
+              {number(todayCount)} {todayCount === 1 ? "review" : "reviews"}
             </strong>{" "}
-            em <strong>{duration(todayData?.activeMs || 0)}</strong>
+            in <strong>{duration(todayData?.activeMs || 0)}</strong>
             <span>
               {" "}
               ·{" "}
@@ -168,18 +168,18 @@ export default function ActivityCalendar() {
                 todayCount ? (todayData?.activeMs || 0) / 1000 / todayCount : 0,
                 1,
               )}{" "}
-              s por revisão
+              s per review
             </span>
           </>
         ) : todayCount ? (
-          "Você acessou o aplicativo hoje."
+          "You opened the app today."
         ) : (
-          "Nenhum acesso registrado hoje."
+          "No visits recorded today."
         )}
       </p>
-      <div className="heatmap-year-nav" aria-label="Ano do mapa de atividade">
+      <div className="heatmap-year-nav" aria-label="Activity calendar year">
         <button
-          aria-label="Ano anterior"
+          aria-label="Previous year"
           disabled={year <= 1970}
           onClick={() => navigateYear(year - 1)}
         >
@@ -187,15 +187,15 @@ export default function ActivityCalendar() {
         </button>
         <button
           className="heatmap-year"
-          aria-label={`Voltar ao ano atual, ${currentYear}`}
-          title="Voltar ao ano atual"
+          aria-label={`Return to the current year, ${currentYear}`}
+          title="Return to the current year"
           onClick={() => navigateYear(currentYear)}
         >
           <RotateCcw size={13} />
           <span aria-live="polite">{year}</span>
         </button>
         <button
-          aria-label="Próximo ano"
+          aria-label="Next year"
           disabled={year >= currentYear}
           onClick={() => navigateYear(year + 1)}
         >
@@ -215,14 +215,14 @@ export default function ActivityCalendar() {
             ))}
           </div>
           <div className="heatmap-weekdays" aria-hidden="true">
-            {["Seg", "", "Qua", "", "Sex", "", "Dom"].map((label, i) => (
+            {["Mon", "", "Wed", "", "Fri", "", "Sun"].map((label, i) => (
               <span key={i}>{label}</span>
             ))}
           </div>
           <div
             className="heatmap-grid"
             role="grid"
-            aria-label={`${kind === "study" ? "Revisões" : "Acessos"} em ${year}`}
+            aria-label={`${kind === "study" ? "Reviews" : "Visits"} in ${year}`}
             aria-rowcount={7}
             aria-colcount={data.columns}
           >
@@ -231,13 +231,13 @@ export default function ActivityCalendar() {
                 role="row"
                 aria-label={
                   [
-                    "Segunda-feira",
-                    "Terça-feira",
-                    "Quarta-feira",
-                    "Quinta-feira",
-                    "Sexta-feira",
-                    "Sábado",
-                    "Domingo",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
                   ][row]
                 }
                 className="heatmap-weekday-row"
@@ -283,21 +283,21 @@ export default function ActivityCalendar() {
       <div className="heatmap-key">
         <span className="heatmap-swipe">
           <MoveHorizontal size={14} />
-          Deslize para ver o ano
+          Swipe to explore the year
         </span>
         <div
           className="heatmap-legend"
           aria-label={
             kind === "study"
-              ? "Intensidade: nenhuma, 1 a 5, 6 a 15, 16 a 30, mais de 30 revisões"
-              : "Intensidade: sem acesso ou com acesso"
+              ? "Intensity: none, 1 to 5, 6 to 15, 16 to 30, over 30 reviews"
+              : "Intensity: no visit or visited"
           }
         >
-          <span>{kind === "study" ? "Menos" : "Sem acesso"}</span>
+          <span>{kind === "study" ? "Less" : "No visit"}</span>
           {(kind === "study" ? [0, 1, 2, 3, 4] : [0, 3]).map((level) => (
             <i key={level} data-level={level} />
           ))}
-          <span>{kind === "study" ? "Mais" : "Com acesso"}</span>
+          <span>{kind === "study" ? "More" : "Visited"}</span>
         </div>
       </div>
       <p className="heatmap-detail" aria-live="polite" aria-atomic="true">
@@ -306,14 +306,14 @@ export default function ActivityCalendar() {
             <strong>{dateLabel(chosen.day)}</strong>
             <span>
               {kind === "study"
-                ? `${number(chosen.count)} ${chosen.count === 1 ? "revisão" : "revisões"} · ${duration(chosen.activeMs)} de estudo`
+                ? `${number(chosen.count)} ${chosen.count === 1 ? "review" : "reviews"} · ${duration(chosen.activeMs)} of study`
                 : chosen.count
-                  ? "Acessou o aplicativo"
-                  : "Nenhum acesso registrado"}
+                  ? "Opened the app"
+                  : "No visits recorded"}
             </span>
           </>
         ) : (
-          <>Toque em um dia para ver sua atividade.</>
+          <>Tap a day to see your activity.</>
         )}
       </p>
       <div className="heatmap-stats">
@@ -325,10 +325,10 @@ export default function ActivityCalendar() {
         ))}
       </div>
       <p className="heatmap-footnote">
-        {year}: {data.activeDays} de {data.elapsedDays} dias{" "}
-        {kind === "study" ? "com estudo" : "com acesso"}. Média e frequência
-        consideram os dias decorridos do ano; sequência atual considera o
-        histórico até hoje.
+        {year}: {data.activeDays} of {data.elapsedDays} days{" "}
+        {kind === "study" ? "with study" : "with a visit"}. Average and
+        frequency use elapsed days this year; the current streak includes your
+        history through today.
       </p>
     </section>
   );

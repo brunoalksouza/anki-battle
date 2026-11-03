@@ -2,7 +2,7 @@
 
 ## Testes automatizados
 
-`npm test`: **26 testes aprovados, zero falhas**. TypeScript/Vite aprovados. `npm audit --omit=dev --json`: zero vulnerabilidades conhecidas reportadas na execução; não é garantia de ausência de falhas.
+`npm test`: **28 testes aprovados, zero falhas**. TypeScript/Vite aprovados. `npm audit --omit=dev --json`: zero vulnerabilidades conhecidas reportadas na execução; não é garantia de ausência de falhas.
 
 Cobertura: FSRS e serialização determinística; Unicode/lacunas; autenticação/recuperação/CSRF; isolamento de contas e mídias; reenvios idempotentes; edição sem perder agendamento; datas offline e pontos; semanas/fusos; batalhas com duas sessões, consentimento, reconexão, expiração e abandono; grupos; SQLite reaberto; significado visual editável; lote de mais de 300 mídias; fila IndexedDB concorrente, resposta perdida, conflito, conta incorreta e ações adicionadas durante sincronização. Testes usam bancos próprios.
 
@@ -36,3 +36,13 @@ Cobertura: FSRS e serialização determinística; Unicode/lacunas; autenticaçã
 ## Mapa anual de atividade
 
 Cinco testes adicionais cobrem alinhamento de semanas, 365/366 dias e anos com 54 colunas, médias sem contar datas futuras, sequência entre anos, estados vazios, distinção de acessos e estudo e data no fuso do perfil. Interface conferida em larguras de desktop e celular: seletor de ano, retorno ao ano atual, detalhes por dia, navegação por setas e filtro Estudo/Acessos. Rolagem horizontal fica contida no mapa. Capturas locais dos temas claro e escuro em `docs/screenshots/heatmap-*.jpg`.
+
+## English and mobile update
+
+- `npm test`: **28 tests passed, zero failures**. TypeScript/Vite build and `git diff --check` passed. Existing message assertions now use the English messages; test setup for the new migration test was corrected before the passing run.
+- Migration regression test verifies exact legacy labels/tags become English, custom definitions stay intact, card schedules/review records/media/source stay unchanged, and a second run makes no changes.
+- Provider regression test verifies a Portuguese native-language preference cannot reintroduce Portuguese explanations or cached Portuguese suggestions. A live request for `horse` returned six English examples and no translated explanations (example: “The horse reared.”).
+- Runtime strings audited against the previous source using the installed TypeScript parser, including JSX text and template fragments. Remaining Portuguese source literals are intentional exact-match inputs in the legacy data migration.
+- Browser QA: native required-field feedback appeared in English; registration and recovery labels/English defaults checked without changing credentials. Study, reveal-answer, visual word details, editor, invitation and profile inspected. No page overflow at 320px after the dashboard grid fix; 16px inputs, at least 44px primary touch targets, and sticky mobile review/dialog actions verified visually. Both themes and desktop checked. Calendar cells retain their dense annual view with internal horizontal scrolling.
+- Production content audit found English terms/sentences/definitions, 81 legacy visual-meaning placeholders, and Portuguese importer tags/default deck metadata. No Portuguese sentence translations were stored. Migration targets the app-generated Portuguese labels only, preserving the English card content.
+- Screenshots: `docs/screenshots/english-mobile-home.jpg`, `english-mobile-review.jpg`, and `english-mobile-light.jpg` (local-only).

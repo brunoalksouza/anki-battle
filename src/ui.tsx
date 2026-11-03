@@ -7,11 +7,11 @@ export const langName = (code: string) =>
   languages.find((l) => l.code === code)?.name || code;
 export const langFlag = (code: string) =>
   languages.find((l) => l.code === code)?.flag || "🌐";
-export const fmt = (n: number) => new Intl.NumberFormat("pt-BR").format(n);
+export const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 export const shortDate = (s: string) =>
-  new Date(s).toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
+  new Date(s).toLocaleDateString("en-US", { day: "numeric", month: "short" });
 export const fullDate = (s: string, tz?: string) =>
-  new Date(s).toLocaleString("pt-BR", {
+  new Date(s).toLocaleString("en-US", {
     timeZone: tz,
     dateStyle: "short",
     timeStyle: "short",
@@ -84,7 +84,7 @@ export function Modal({
     >
       <div className="modal-head">
         <h2 id="modal-title">{title}</h2>
-        <button className="icon-button" onClick={onClose} aria-label="Fechar">
+        <button className="icon-button" onClick={onClose} aria-label="Close">
           <X size={22} />
         </button>
       </div>
@@ -230,7 +230,7 @@ export function Attribution({ credit }: { credit: Credit | null | undefined }) {
       ) : (
         credit.license
       )}
-      {credit.modified ? " · adaptado" : ""}
+      {credit.modified ? " · adapted" : ""}
     </p>
   );
 }
@@ -252,11 +252,7 @@ export function WordImage({ word, user }: { word: Word; user: string }) {
   return word.imageId ? (
     <figure className="word-image">
       {url && (
-        <img
-          src={url}
-          alt={`Imagem escolhida para ${word.term}`}
-          loading="lazy"
-        />
+        <img src={url} alt={`Image chosen for ${word.term}`} loading="lazy" />
       )}
       <Attribution credit={word.imageCredit} />
     </figure>
@@ -319,7 +315,7 @@ function AudioAsset({ id, user }: { id: string; user: string }) {
   }, [id, user]);
   return (
     <div className="word-audio">
-      <small>Áudio do seu baralho original</small>
+      <small>Audio from your original deck</small>
       {url && <audio src={url} controls preload="none" />}
     </div>
   );
