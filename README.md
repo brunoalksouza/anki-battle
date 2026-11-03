@@ -6,6 +6,7 @@ PWA de estudos em português, publicado em **https://anki.aneblober.com**. React
 
 Entre com sua conta. Os quatro usuários existentes do Financeiro foram migrados com seus identificadores e verificadores de senha atuais. É uma migração inicial: alterações posteriores de senha ou novos usuários no Financeiro não são sincronizados. O Anki não lê dados financeiros durante o uso.
 
+- **Início:** mapa anual de atividade com intensidade verde, seleção de dia, navegação por ano, resumo diário e estatísticas. Média e frequência usam os dias decorridos do ano (sem dias futuros); a maior sequência considera o ano selecionado e a sequência atual considera todo o histórico. Estudo e acessos ficam separados.
 - **Estudar:** crie/edite baralhos, ajuste limites no Perfil e baixe um baralho para revisar sem internet. Revelar → Errei, Difícil, Bom ou Fácil. O FSRS calcula a próxima revisão.
 - **Palavras:** cadastre expressão, significado, idioma e cor; pesquise, filtre e edite. Cards básicos, inversos e lacunas. Detalhes incluem imagens, pronúncia importada, suspensão e histórico.
 - **Batalhas:** autorize um baralho para disputas, convide outra conta e aguarde o aceite. Cada jogador responde ao mesmo conjunto em seu horário. Dados pessoais e agendamentos ficam separados.

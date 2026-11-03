@@ -26,3 +26,10 @@
 - [x] Testes, conferência visual, HTTPS e restauração de backup.
 
 Instalação física no celular, cobertura das fontes gratuitas, independência futura das senhas e retenção de backups: [VALIDATION.md](VALIDATION.md). O repositório público recebe somente código e documentação.
+
+## Atualização — mapa anual de atividade
+
+- “Cada dia conta” agora mostra o ano inteiro em quadradinhos verdes, com navegação entre anos, resumo de revisões/tempo do dia, média diária, frequência e sequências.
+- Dias selecionáveis por toque e teclado, suporte ao fuso do perfil, anos bissextos e virada de ano. Dias futuros não entram nas estatísticas; atividade de estudo permanece separada de acessos.
+- Painel ocupa a largura do dashboard; no celular há rolagem lateral do mapa, sem transbordamento da página. Temas claro/escuro conferidos com o histórico importado em uma conta local de teste.
+- 26 testes aprovados (cinco novos casos de calendário/estatísticas), além de TypeScript e build. Navegação entre anos, estado vazio, detalhes de dia, teclado e filtro de acessos verificados no navegador.

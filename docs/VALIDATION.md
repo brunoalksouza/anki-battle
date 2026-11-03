@@ -2,7 +2,7 @@
 
 ## Testes automatizados
 
-`npm test`: **21 testes aprovados, zero falhas**. TypeScript/Vite aprovados. `npm audit --omit=dev --json`: zero vulnerabilidades conhecidas reportadas na execução; não é garantia de ausência de falhas.
+`npm test`: **26 testes aprovados, zero falhas**. TypeScript/Vite aprovados. `npm audit --omit=dev --json`: zero vulnerabilidades conhecidas reportadas na execução; não é garantia de ausência de falhas.
 
 Cobertura: FSRS e serialização determinística; Unicode/lacunas; autenticação/recuperação/CSRF; isolamento de contas e mídias; reenvios idempotentes; edição sem perder agendamento; datas offline e pontos; semanas/fusos; batalhas com duas sessões, consentimento, reconexão, expiração e abandono; grupos; SQLite reaberto; significado visual editável; lote de mais de 300 mídias; fila IndexedDB concorrente, resposta perdida, conflito, conta incorreta e ações adicionadas durante sincronização. Testes usam bancos próprios.
 
@@ -32,3 +32,7 @@ Cobertura: FSRS e serialização determinística; Unicode/lacunas; autenticaçã
 4. Batalhas assíncronas dependem de rede. O servidor valida respostas/tempo e duplicatas; não promete impedir consulta externa pelo jogador.
 5. Backups diários estão no mesmo servidor. Há cópia externa inicial, sem transferência externa recorrente configurada. Limpar o armazenamento do navegador remove pendências ainda não sincronizadas.
 6. Migração APKG atende ao modelo Basic do arquivo fornecido. CSV/JSON transferem conteúdo; restauração integral usa o backup administrativo.
+
+## Mapa anual de atividade
+
+Cinco testes adicionais cobrem alinhamento de semanas, 365/366 dias e anos com 54 colunas, médias sem contar datas futuras, sequência entre anos, estados vazios, distinção de acessos e estudo e data no fuso do perfil. Interface conferida em larguras de desktop e celular: seletor de ano, retorno ao ano atual, detalhes por dia, navegação por setas e filtro Estudo/Acessos. Rolagem horizontal fica contida no mapa. Capturas locais dos temas claro e escuro em `docs/screenshots/heatmap-*.jpg`.

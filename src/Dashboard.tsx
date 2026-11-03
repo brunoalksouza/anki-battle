@@ -9,10 +9,8 @@ import {
   BookOpen,
   Target,
   Trophy,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import ActivityCalendar from "./ActivityCalendar";
 import { useApp } from "./context";
 import {
   Button,
@@ -191,6 +189,7 @@ export default function Dashboard() {
           </span>
         </div>
       </div>
+      <ActivityCalendar />
       <div className="dashboard-bottom">
         <section>
           <SectionHead
@@ -245,7 +244,6 @@ export default function Dashboard() {
               Criar novo baralho
             </button>
           </div>
-          <ActivityCalendar />
         </section>
         <aside>
           <section className="panel goals-panel">
@@ -312,98 +310,5 @@ export default function Dashboard() {
         </aside>
       </div>
     </>
-  );
-}
-export function ActivityCalendar() {
-  const { s } = useApp(),
-    [offset, setOffset] = useState(0),
-    [kind, setKind] = useState<"study" | "access">("study");
-  const now = new Date(),
-    anchor = new Date(
-      Date.UTC(now.getFullYear(), now.getMonth() + offset, 1, 12),
-    ),
-    year = anchor.getUTCFullYear(),
-    month = anchor.getUTCMonth(),
-    length = new Date(Date.UTC(year, month + 1, 0)).getUTCDate(),
-    leading = (anchor.getUTCDay() + 6) % 7;
-  const monthKey = anchor.toISOString().slice(0, 7),
-    selected = s.days.filter((d) => d.day.startsWith(monthKey));
-  return (
-    <section className="panel activity-panel">
-      <SectionHead
-        title="Cada dia conta"
-        extra={
-          <div className="calendar-switch">
-            <button
-              aria-label="Mês anterior"
-              onClick={() => setOffset((o) => o - 1)}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <span>
-              {anchor.toLocaleDateString("pt-BR", {
-                month: "short",
-                year: "numeric",
-                timeZone: "UTC",
-              })}
-            </span>
-            <button
-              aria-label="Próximo mês"
-              disabled={offset >= 0}
-              onClick={() => setOffset((o) => o + 1)}
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        }
-      />
-      <div className="calendar-caption">
-        <span>
-          {kind === "study"
-            ? "Dias com revisões realizadas"
-            : "Dias em que você acessou o aplicativo"}
-        </span>
-        <select
-          aria-label="Tipo de atividade"
-          value={kind}
-          onChange={(e) => setKind(e.target.value as typeof kind)}
-        >
-          <option value="study">Estudo</option>
-          <option value="access">Acessos</option>
-        </select>
-      </div>
-      <div className="calendar-grid">
-        {["S", "T", "Q", "Q", "S", "S", "D"].map((d, i) => (
-          <small key={i}>{d}</small>
-        ))}
-        {Array.from({ length: leading }, (_, i) => (
-          <span key={"empty" + i} />
-        ))}
-        {Array.from({ length }, (_, i) => {
-          const key = monthKey + "-" + String(i + 1).padStart(2, "0"),
-            d = selected.find((x) => x.day === key),
-            n = kind === "access" ? (d?.access ? 1 : 0) : d?.reviews || 0;
-          return (
-            <span
-              title={`${key}: ${n} ${kind === "study" ? "revisões" : "acessos"}`}
-              className={"calendar-day " + (n ? "active" : "")}
-              data-level={n > 20 ? "high" : n > 5 ? "medium" : "low"}
-              key={key}
-            >
-              {i + 1}
-            </span>
-          );
-        })}
-      </div>
-      <div className="calendar-legend">
-        <span>
-          <i /> Ainda sem atividade
-        </span>
-        <span>
-          <i className="active" />
-          {kind === "study" ? "Dia de estudo" : "Acessou o app"}
-        </span>
-      </div>
-    </section>
   );
 }
