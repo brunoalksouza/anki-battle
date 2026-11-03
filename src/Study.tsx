@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Check,
@@ -76,7 +76,9 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
     [downloading, setDownloading] = useState("");
   const active = useRef(0),
     lastInteraction = useRef(Date.now()),
-    tick = useRef(Date.now());
+    tick = useRef(Date.now()),
+    reviewFrame = useRef<HTMLDivElement>(null),
+    reviewContent = useRef<HTMLDivElement>(null);
   const current = session?.[0],
     card = s.cards.find((c) => c.id === current),
     word = s.words.find((w) => w.id === card?.wordId);
@@ -95,6 +97,25 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
     lastInteraction.current = Date.now();
     setRevealed(false);
   }, [current]);
+  useLayoutEffect(() => {
+    const frame = reviewFrame.current,
+      content = reviewContent.current;
+    if (!frame || !content) return;
+    const viewport = content.parentElement!;
+    // Keep text readable while giving longer cards progressively tighter spacing.
+    // Refit after media loads, browser chrome resizes, rotation or text expansion.
+    const fit = () => {
+      for (const density of ["comfortable", "compact", "dense"]) {
+        frame.dataset.density = density;
+        if (content.scrollHeight <= viewport.clientHeight + 1) break;
+      }
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(viewport);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [current, revealed]);
   useEffect(() => {
     const touch = () => {
       lastInteraction.current = Date.now();
@@ -187,7 +208,7 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
             ? cloze(word.sentence, word.term, word.language)
             : word.term;
     return (
-      <section className="review-page">
+      <section className="review-page focus-review" aria-label="Study session">
         <div className="review-top">
           <button className="text-button" onClick={() => setSession(null)}>
             <ChevronLeft size={18} />
@@ -195,6 +216,11 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
           </button>
           <span>
             {done + 1} of {done + session.length}
+            {!online && (
+              <span className="review-offline">
+                <CloudOff size={14} /> Offline
+              </span>
+            )}
           </span>
         </div>
         <Progress value={done} max={done + session.length} />
@@ -208,78 +234,93 @@ export default function Study({ initialDeck }: { initialDeck?: string }) {
                 : "Learning"}
           </span>
         </div>
-        <div className="review-card">
-          <span className="eyebrow">
-            {card.direction === "cloze"
-              ? "FILL IN THE BLANK"
-              : card.direction === "reverse"
-                ? "HOW DO YOU SAY IT?"
-                : "WHAT DOES IT MEAN?"}
-          </span>
-          <h1 dir="auto">{prompt}</h1>
-          {!revealed ? (
+        <div className="review-card" ref={reviewFrame}>
+          <div className="review-content-viewport" key={current}>
+            <div className="review-content" ref={reviewContent}>
+              <span className="eyebrow">
+                {card.direction === "cloze"
+                  ? "FILL IN THE BLANK"
+                  : card.direction === "reverse"
+                    ? "HOW DO YOU SAY IT?"
+                    : "WHAT DOES IT MEAN?"}
+              </span>
+              <h1 dir="auto">{prompt}</h1>
+              {!revealed ? (
+                <>
+                  <p className="review-hint">Give your memory a moment.</p>
+                </>
+              ) : (
+                <div className="answer">
+                  <div className="answer-rule" />
+                  {!(
+                    card.direction === "forward" &&
+                    word.source?.needsMeaning &&
+                    word.imageId
+                  ) && (
+                    <h2 dir="auto">
+                      {card.direction === "forward" ? word.meaning : word.term}
+                    </h2>
+                  )}
+                  {word.sentence && (
+                    <blockquote dir="auto">
+                      <Highlight text={word.sentence} word={word} />
+                    </blockquote>
+                  )}
+                  {word.translation && (
+                    <details>
+                      <summary>Show English explanation</summary>
+                      <p>{word.translation}</p>
+                    </details>
+                  )}
+                  <Attribution credit={word.sentenceCredit} />
+                  <Attribution credit={word.translationCredit} />
+                  <div className="review-images">
+                    <WordImage word={word} user={s.user.id} />
+                    {word.extraImages?.map((imageId) => (
+                      <WordImage
+                        key={imageId}
+                        word={{ ...word, imageId, imageCredit: null }}
+                        user={s.user.id}
+                      />
+                    ))}
+                  </div>
+                  <WordAudio word={word} user={s.user.id} compact />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="review-actions">
+          {revealed ? (
             <>
-              <p className="review-hint">Give your memory a moment.</p>
-              <Button variant="secondary" onClick={() => setRevealed(true)}>
+              <p className="rating-question">How well did you remember?</p>
+              <div className="rating-buttons">
+                {["Again", "Hard", "Good", "Easy"].map((label, i) => (
+                  <button
+                    disabled={saving}
+                    key={label}
+                    className={"rating r" + i}
+                    onClick={() => rate((i + 1) as 1 | 2 | 3 | 4)}
+                  >
+                    <strong>{label}</strong>
+                    <small>{interval(previews[i])}</small>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="rating-question">Ready to check?</p>
+              <Button
+                onClick={() => setRevealed(true)}
+                className="reveal-answer"
+              >
                 <Eye size={18} />
                 Show answer
               </Button>
             </>
-          ) : (
-            <div className="answer">
-              <div className="answer-rule" />
-              <h2 dir="auto">
-                {card.direction === "forward" ? word.meaning : word.term}
-              </h2>
-              {word.sentence && (
-                <blockquote dir="auto">
-                  <Highlight text={word.sentence} word={word} />
-                </blockquote>
-              )}
-              {word.translation && (
-                <details>
-                  <summary>Show English explanation</summary>
-                  <p>{word.translation}</p>
-                </details>
-              )}
-              <Attribution credit={word.sentenceCredit} />
-              <Attribution credit={word.translationCredit} />
-              <WordImage word={word} user={s.user.id} />
-              {word.extraImages?.map((imageId) => (
-                <WordImage
-                  key={imageId}
-                  word={{ ...word, imageId, imageCredit: null }}
-                  user={s.user.id}
-                />
-              ))}
-              <WordAudio word={word} user={s.user.id} />
-            </div>
           )}
         </div>
-        {revealed && (
-          <>
-            <p className="rating-question">
-              How well did you remember? <span>Rate your recall.</span>
-            </p>
-            <div className="rating-buttons">
-              {["Again", "Hard", "Good", "Easy"].map((label, i) => (
-                <button
-                  disabled={saving}
-                  key={label}
-                  className={"rating r" + i}
-                  onClick={() => rate((i + 1) as 1 | 2 | 3 | 4)}
-                >
-                  <strong>{label}</strong>
-                  <small>{interval(previews[i])}</small>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-        <p className="review-footer">
-          FSRS · Your next review adapts to your memory.
-          {!online && " · Saved on this device"}
-        </p>
       </section>
     );
   }

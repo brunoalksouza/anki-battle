@@ -90,3 +90,7 @@ The app interface is English throughout, including validation, server errors, PW
 Open **Profile → Change photo → Choose from gallery**, check the preview, then tap **Save photo**. JPEG, PNG and WebP files up to 10 MB are accepted. The app prepares a square preview before upload, and the server validates, rotates and resizes the image to 512×512 WebP without EXIF metadata. Choosing or cancelling does not change the saved photo. **Remove photo → Save changes** restores the emoji avatar.
 
 Photos appear in the profile, app header, ranking, battle cards and player search. Upload/removal requires a connection; previously viewed photos are cached per signed-in account for offline display and cleared from that account's cache on sign-out. Replaced photo URLs stop serving the old image. Server backups include photos through the existing media directory and assets table.
+
+## Focused review sessions
+
+Starting a study session hides app navigation and keeps the card and answer controls in the visible screen area. The layout adapts to browser bars, safe areas, rotation and shorter screens. Images retain their aspect ratio, audio remains available and difficulty buttons stay in a stable bottom row. **End session** returns to the deck list. Very large custom content stays accessible inside the card without moving the action row.

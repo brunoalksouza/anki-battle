@@ -330,16 +330,32 @@ export function ErrorText({ error }: { error: string }) {
   ) : null;
 }
 
-export function WordAudio({ word, user }: { word: Word; user: string }) {
+export function WordAudio({
+  word,
+  user,
+  compact = false,
+}: {
+  word: Word;
+  user: string;
+  compact?: boolean;
+}) {
   return (
     <>
       {word.audio?.map((a) => (
-        <AudioAsset key={a.id} id={a.id} user={user} />
+        <AudioAsset key={a.id} id={a.id} user={user} compact={compact} />
       ))}
     </>
   );
 }
-function AudioAsset({ id, user }: { id: string; user: string }) {
+function AudioAsset({
+  id,
+  user,
+  compact,
+}: {
+  id: string;
+  user: string;
+  compact: boolean;
+}) {
   const [url, setUrl] = useState("");
   useEffect(() => {
     let live = true,
@@ -355,8 +371,10 @@ function AudioAsset({ id, user }: { id: string; user: string }) {
   }, [id, user]);
   return (
     <div className="word-audio">
-      <small>Audio from your original deck</small>
-      {url && <audio src={url} controls preload="none" />}
+      {!compact && <small>Audio from your original deck</small>}
+      {url && (
+        <audio src={url} aria-label="Card audio" controls preload="none" />
+      )}
     </div>
   );
 }

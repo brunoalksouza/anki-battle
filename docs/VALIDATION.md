@@ -56,3 +56,18 @@ Cinco testes adicionais cobrem alinhamento de semanas, 365/366 dias e anos com 5
 - Browser QA used the app's public icon only in a separate local database: selection/preview/cancel without uploading, save, reload persistence, header/profile/ranking/battle display, staged removal and restored emoji. Profile had no page overflow at 320px; the gallery bottom sheet and its actions fit 320px and 375px phone layouts.
 - The first photo test run exposed incomplete profile-preference fixtures; supplying the existing required preference fields corrected those two assertions.
 - Real device gallery behavior and HEIC decoding are not claimed; supported formats are JPEG, PNG and WebP.
+
+## Focused study layout
+
+- TypeScript/Vite build and 32 existing automated tests passed. No scheduler, review queue or production study data changed.
+- Browser QA in a separate local database: coffee maker, malingering, baseboard, manhood, framework and accent. At 402×680, every complete answer fit within the card; document height equaled viewport height and all difficulty buttons ended at y=668 consistently. An image card selected compact density automatically.
+- At 402×874 the image/audio card fit at comfortable density. At 320×568 a longer definition fit at compact density. At 874×402 the page stayed fixed and difficulty controls stayed visible. End session restored deck selection; no browser errors/warnings were reported.
+- This is browser viewport testing, not a claim of testing a physical iPhone 17 Pro. Dynamic viewport CSS and safe-area padding remain responsive to the actual browser/PWA area. Extremely long future user-authored content can scroll inside the card as an accessibility fallback; rating controls remain fixed and content is never truncated.
+
+## Official Anki synchronization feasibility
+
+The current APKG migration is an import, not continuous synchronization. AnkiMobile synchronizes cards, review history and media through AnkiWeb; the public service does not currently expose a supported third-party API. A desktop bridge/add-on is a feasible direction, with the official desktop client continuing to synchronize with AnkiWeb and AnkiMobile. A separate self-hosted Anki sync server is also documented, but merely hosting that server would not connect this PWA's data model.
+
+A future bridge must map the imported note IDs, avoid duplicate reviews and define which scheduler owns next-review dates before writing to either collection. No Anki credentials, desktop add-ons, official collection or synchronization settings were changed for this UI update.
+
+Sources consulted on 2026-11-03: [AnkiMobile preferences](https://docs.ankiweb.net/ankimobile/preferences), [maintainer statement about third-party API access](https://forums.ankiweb.net/t/github-action-to-upload-anki-add-on/70165), [self-hosted sync and AnkiConnect guidance](https://docs.ankiweb.net/manual/sync-server).

@@ -48,3 +48,10 @@ Instalação física no celular, cobertura das fontes gratuitas, independência 
 - Reused avatars across the header/sidebar, rankings, battles and invitation search. Images are cached in the viewer's account storage for offline use.
 - Added authenticated photo storage/retrieval, bounded decoding and WebP normalization without EXIF. Private card media retain owner-only access. Existing backups include the new images without a schema change.
 - Tested uploads only in isolated temporary/local QA databases; no fixture image is assigned to a production profile.
+
+## Focused study on iPhone — 2026-11-03
+
+- Review sessions now own the visible viewport. App navigation, general header/footer and nonessential copy are hidden while a card is active. End session returns to normal navigation.
+- The reveal button and all four difficulty buttons occupy the same bottom action area, outside the card. Dynamic viewport sizing and safe-area insets account for Safari chrome and the home indicator.
+- Compact card layout automatically adjusts spacing, readable text sizes and contained image height after resizing, image loading or expanding explanations. Imported visual answers show their original image directly; compact audio controls keep playback available.
+- Validated the longest imported definitions and representative image/audio cards at 402×874 and a reduced 402×680 viewport, plus 320×568 and landscape controls. No card or page scrolling for the six representative imported cards at 402×680.

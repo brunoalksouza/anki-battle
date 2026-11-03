@@ -4400,3 +4400,260 @@ main {
     min-width: 0;
   }
 }
+
+/* A study session owns the visible viewport, including Safari's changing chrome. */
+html:has(.focus-review),
+body:has(.focus-review) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+body:has(.focus-review) {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
+.app-shell:has(.focus-review) .sidebar,
+.app-shell:has(.focus-review) .topbar,
+.app-shell:has(.focus-review) .app-footer,
+.app-shell:has(.focus-review) .bottom-nav,
+.app-shell:has(.focus-review) .offline-banner,
+.app-shell:has(.focus-review) .conflict-banner {
+  display: none;
+}
+.app-shell:has(.focus-review) .main-shell,
+.app-shell:has(.focus-review) main {
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+}
+.focus-review {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  margin: 0;
+  padding: max(8px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  display: grid;
+  grid-template-columns: minmax(0, 720px);
+  grid-template-rows: 44px 3px auto minmax(0, 1fr) auto;
+  justify-content: center;
+  gap: 9px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.focus-review .review-top {
+  margin: 0;
+  font-size: 13px;
+  min-width: 0;
+}
+.focus-review .review-top > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.focus-review .review-top .text-button {
+  min-height: 44px;
+  font-size: 14px;
+}
+.review-offline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--orange);
+  font-size: 11px;
+}
+.focus-review > .progress {
+  height: 3px;
+}
+.focus-review .review-caption {
+  margin: 0;
+  gap: 12px;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 20px;
+}
+.focus-review .review-caption > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.focus-review .review-caption > span:last-child {
+  flex-shrink: 0;
+}
+.focus-review .review-card {
+  --review-gap: 12px;
+  --review-title: 32px;
+  --review-text: 20px;
+  --review-example: 18px;
+  --review-image: min(26dvh, 220px);
+  min-width: 0;
+  min-height: 0;
+  padding: 20px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.focus-review .review-card[data-density="compact"] {
+  --review-gap: 8px;
+  --review-title: 28px;
+  --review-text: 18px;
+  --review-example: 17px;
+  --review-image: min(22dvh, 175px);
+  padding: 14px;
+}
+.focus-review .review-card[data-density="dense"] {
+  --review-gap: 6px;
+  --review-title: 24px;
+  --review-text: 16px;
+  --review-example: 16px;
+  --review-image: min(17dvh, 125px);
+  padding: 10px;
+}
+.review-content-viewport {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Only exceptionally long user-written cards can scroll internally.
+     Navigation and rating controls never move or cover the content. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.review-content {
+  width: 100%;
+  margin-block: auto;
+  flex-shrink: 0;
+}
+.focus-review .review-card .eyebrow {
+  font-size: 10px;
+  line-height: 16px;
+  margin: 0;
+}
+.focus-review .review-card h1 {
+  font-size: var(--review-title);
+  line-height: 1.2;
+  margin: var(--review-gap) 0;
+  overflow-wrap: anywhere;
+}
+.focus-review .review-hint {
+  font-size: 14px;
+  margin: 16px 0 0;
+}
+.focus-review .answer-rule {
+  margin: var(--review-gap) auto;
+}
+.focus-review .answer h2 {
+  font-size: var(--review-text);
+  line-height: 1.35;
+  margin: var(--review-gap) 0;
+  overflow-wrap: anywhere;
+}
+.focus-review .answer blockquote {
+  font-size: var(--review-example);
+  line-height: 1.4;
+  margin: var(--review-gap) 0;
+  overflow-wrap: anywhere;
+}
+.focus-review .answer details {
+  font-size: 14px;
+  margin: var(--review-gap) 0;
+}
+.focus-review .answer details summary {
+  min-height: 44px;
+  align-content: center;
+}
+.focus-review .attribution {
+  margin: 4px 0;
+}
+.review-images {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.focus-review .word-image {
+  flex: 1;
+  min-width: 0;
+  margin: var(--review-gap) 0;
+}
+.focus-review .word-image img {
+  max-height: var(--review-image);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.focus-review .word-audio {
+  margin: var(--review-gap) 0 0;
+}
+.focus-review .word-audio audio {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: 44px;
+  margin: auto;
+}
+.review-actions {
+  min-width: 0;
+  padding-top: 2px;
+}
+.focus-review .rating-question {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.focus-review .rating-buttons {
+  position: static;
+  background: none;
+  padding: 0;
+  margin: 0;
+  gap: 8px;
+}
+.focus-review .rating,
+.focus-review .reveal-answer {
+  min-height: 62px;
+  height: 62px;
+  padding: 9px 4px;
+  gap: 4px;
+}
+.focus-review .rating strong {
+  font-size: 14px;
+}
+.focus-review .rating small {
+  font-size: 12px;
+}
+.focus-review .reveal-answer {
+  width: 100%;
+  font-size: 16px;
+}
+body:has(.focus-review) .toast {
+  top: calc(max(8px, env(safe-area-inset-top)) + 54px);
+  bottom: auto;
+}
+@media (max-height: 550px) {
+  .focus-review {
+    grid-template-rows: 44px 3px minmax(0, 1fr) auto;
+    gap: 5px;
+    padding-top: max(4px, env(safe-area-inset-top));
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+  .focus-review .review-caption,
+  .focus-review .review-card .eyebrow,
+  .focus-review .rating-question {
+    display: none;
+  }
+  .focus-review .rating,
+  .focus-review .reveal-answer {
+    min-height: 48px;
+    height: 48px;
+    padding: 4px;
+  }
+}
