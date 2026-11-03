@@ -41,3 +41,10 @@ Instalação física no celular, cobertura das fontes gratuitas, independência 
 - An idempotent startup migration translates exact importer/default labels and tags. Existing English definitions, sentences, images, audio, original APKG source, schedules, and reviews are preserved. Future imports use English labels too.
 - Phone layouts use readable copy, 16px form fields, larger controls, stacked filters/forms, safe-area padding, and reachable sticky review ratings and dialog actions. Fixed the narrow dashboard overflow and modal dynamic viewport sizing.
 - Verified actual UI on 320/360/375px content widths and desktop, light/dark, including login, recovery, registration, dashboard/year navigation, deck selection, review answers, imported word details/editor, invitation and profile. Screenshots stay local because they contain private learning history.
+
+## Gallery profile photos — 2026-11-03
+
+- Added gallery selection, circular preview, explicit save/cancel, replacement and removal in Profile. All controls/messages are English and fit narrow phone screens. Emoji avatars remain the fallback.
+- Reused avatars across the header/sidebar, rankings, battles and invitation search. Images are cached in the viewer's account storage for offline use.
+- Added authenticated photo storage/retrieval, bounded decoding and WebP normalization without EXIF. Private card media retain owner-only access. Existing backups include the new images without a schema change.
+- Tested uploads only in isolated temporary/local QA databases; no fixture image is assigned to a production profile.

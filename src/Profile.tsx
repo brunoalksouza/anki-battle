@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import {
+  ImagePlus,
   Target,
   ShieldCheck,
   Download,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { useApp } from "./context";
 import {
+  Avatar,
   Button,
   Field,
   LanguageSelect,
@@ -25,6 +27,7 @@ import {
 } from "./ui";
 import { weekKey, level } from "../shared/model";
 import { api, exportFile } from "./offline";
+import ProfilePhoto from "./ProfilePhoto";
 export default function Profile({
   onLogout,
   onInstall,
@@ -43,6 +46,7 @@ export default function Profile({
     ),
     [busy, setBusy] = useState(""),
     [error, setError] = useState(""),
+    [photoEditor, setPhotoEditor] = useState(false),
     [recovery, setRecovery] = useState(false),
     [codes, setCodes] = useState<string[]>([]);
   const currentLevel = level(s.points),
@@ -85,12 +89,32 @@ export default function Profile({
         </Button>
       </div>
       <div className="profile-hero panel">
-        <span className="profile-avatar">{s.user.avatar}</span>
+        <button
+          className="profile-photo-button"
+          aria-label="Change profile photo"
+          onClick={() => setPhotoEditor(true)}
+        >
+          <Avatar
+            userId={s.user.id}
+            photoId={s.user.avatarPhotoId}
+            emoji={s.user.avatar}
+            className="profile-avatar"
+          />
+          <span className="photo-edit-badge">
+            <ImagePlus size={15} />
+          </span>
+        </button>
         <div>
           <h2>{s.user.nickname}</h2>
           <p>
             Level {currentLevel} · {fmt(s.points)} learning points
           </p>
+          <button
+            className="text-button change-photo"
+            onClick={() => setPhotoEditor(true)}
+          >
+            Change photo
+          </button>
           <Progress
             value={s.points - (currentLevel - 1) ** 2 * 100}
             max={currentLevel ** 2 * 100 - (currentLevel - 1) ** 2 * 100}
@@ -117,7 +141,10 @@ export default function Profile({
                   }
                 />
               </Field>
-              <Field label="Avatar">
+              <Field
+                label="Emoji avatar"
+                hint="Used when you do not have a profile photo."
+              >
                 <select
                   value={profile.avatar}
                   onChange={(e) =>
@@ -415,6 +442,7 @@ export default function Profile({
           </div>
         </div>
       </section>
+      {photoEditor && <ProfilePhoto onClose={() => setPhotoEditor(false)} />}
       {recovery && (
         <Modal title="Recovery codes" onClose={() => setRecovery(false)}>
           {codes.length ? (

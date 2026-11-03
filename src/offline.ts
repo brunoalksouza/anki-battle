@@ -89,6 +89,33 @@ export async function mediaUrl(user: string, id: string) {
   const blob = await (await dbPromise).get("media", `${user}:${id}`);
   return blob ? URL.createObjectURL(blob) : "/api/media/" + id;
 }
+export async function profilePhotoUrl(
+  viewer: string,
+  owner: string,
+  photo: string,
+) {
+  const path = `/api/avatars/${owner}/${photo}`;
+  const key = `${viewer}:avatar:${owner}:${photo}`;
+  try {
+    const db = await dbPromise;
+    const cached = await db.get("media", key);
+    if (cached) return URL.createObjectURL(cached);
+    const res = await fetch(path, {
+      credentials: "same-origin",
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return "";
+    const blob = await res.blob();
+    try {
+      await db.put("media", blob, key);
+    } catch {
+      /* A full device must not prevent displaying an online photo. */
+    }
+    return URL.createObjectURL(blob);
+  } catch {
+    return navigator.onLine ? path : "";
+  }
+}
 export async function downloadDeck(local: Local, deckId: string) {
   const db = await dbPromise;
   const words = local.snapshot.words.filter((w) => w.deckId === deckId);

@@ -2,7 +2,47 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { X, LoaderCircle, ArrowRight, Plus, BookOpen } from "lucide-react";
 import { termRanges } from "../shared/text";
 import { languages, type Credit, type Word } from "../shared/model";
-import { mediaUrl } from "./offline";
+import { mediaUrl, profilePhotoUrl } from "./offline";
+import { useApp } from "./context";
+export function Avatar({
+  userId,
+  photoId,
+  emoji,
+  className = "avatar",
+}: {
+  userId: string;
+  photoId?: string | null;
+  emoji: string;
+  className?: string;
+}) {
+  const { s } = useApp();
+  const [photo, setPhoto] = useState({ id: "", url: "" });
+  useEffect(() => {
+    let disposed = false,
+      url = "";
+    if (photoId)
+      void profilePhotoUrl(s.user.id, userId, photoId).then((next) => {
+        url = next;
+        if (disposed) {
+          if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+        } else setPhoto({ id: photoId, url });
+      });
+    return () => {
+      disposed = true;
+      if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+    };
+  }, [s.user.id, userId, photoId]);
+  const url = photo.id === photoId ? photo.url : "";
+  return (
+    <span className={className} aria-hidden="true">
+      {url ? (
+        <img src={url} alt="" onError={() => setPhoto({ id: "", url: "" })} />
+      ) : (
+        emoji
+      )}
+    </span>
+  );
+}
 export const langName = (code: string) =>
   languages.find((l) => l.code === code)?.name || code;
 export const langFlag = (code: string) =>

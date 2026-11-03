@@ -518,7 +518,7 @@ export class Service {
     });
   }
   rank(week?: string, group?: string) {
-    let sql = `SELECT u.id,json_extract(u.data,'$.nickname') nickname,json_extract(u.data,'$.avatar') avatar,COALESCE(SUM(p.amount),0) points FROM users u LEFT JOIN points p ON p.user_id=u.id`;
+    let sql = `SELECT u.id,json_extract(u.data,'$.nickname') nickname,json_extract(u.data,'$.avatar') avatar,json_extract(u.data,'$.avatarPhotoId') avatarPhotoId,COALESCE(SUM(p.amount),0) points FROM users u LEFT JOIN points p ON p.user_id=u.id`;
     const args: string[] = [];
     if (week) {
       sql += " AND p.week=?";
@@ -657,6 +657,8 @@ export class Service {
           guestName: g.nickname,
           hostAvatar: h.avatar,
           guestAvatar: g.avatar,
+          hostAvatarPhotoId: h.avatarPhotoId,
+          guestAvatarPhotoId: g.avatarPhotoId,
           hostCorrect: hs.correct,
           guestCorrect: gs.correct,
           hostTime: hs.elapsed,

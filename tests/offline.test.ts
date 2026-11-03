@@ -205,3 +205,52 @@ test("sync drains a word added while another request is in flight", async () => 
     !(await loadLocal(alice.id))!.pending.some((p) => p.word?.id === second.id),
   );
 });
+
+test("profile photos survive offline use, stay scoped to the viewer and clear on sign-out", async () => {
+  const { profilePhotoUrl, clearLocal } = await import("../src/offline");
+  const originalFetch = globalThis.fetch;
+  const urls: string[] = [];
+  let online = true,
+    requests = 0;
+  globalThis.fetch = async () => {
+    requests++;
+    if (!online) throw new TypeError("Offline photo transport");
+    return new Response(new Blob(["test photo"], { type: "image/webp" }));
+  };
+  try {
+    urls.push(
+      await profilePhotoUrl("photo-viewer", "photo-owner", "photo-one"),
+    );
+    assert.match(urls[0], /^blob:/);
+    online = false;
+    Object.defineProperty(navigator, "onLine", {
+      value: false,
+      configurable: true,
+    });
+    urls.push(
+      await profilePhotoUrl("photo-viewer", "photo-owner", "photo-one"),
+    );
+    assert.match(urls[1], /^blob:/);
+    assert.equal(requests, 1);
+    assert.equal(
+      await profilePhotoUrl("other-viewer", "photo-owner", "photo-one"),
+      "",
+    );
+    assert.equal(
+      await profilePhotoUrl("photo-viewer", "photo-owner", "photo-two"),
+      "",
+    );
+    await clearLocal("photo-viewer");
+    assert.equal(
+      await profilePhotoUrl("photo-viewer", "photo-owner", "photo-one"),
+      "",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+    Object.defineProperty(navigator, "onLine", {
+      value: true,
+      configurable: true,
+    });
+    urls.forEach((url) => URL.revokeObjectURL(url));
+  }
+});

@@ -1,6 +1,6 @@
 # Anki Battle
 
-PWA de estudos em português, publicado em **https://anki.aneblober.com**. React/Vite, Fastify, SQLite persistente e FSRS-7 (`ts-fsrs` 6). Interface própria com temas claro/escuro, baralhos privados e batalhas assíncronas entre contas reais.
+PWA de estudos com interface em inglês, publicado em **https://anki.aneblober.com**. React/Vite, Fastify, SQLite persistente e FSRS-7 (`ts-fsrs` 6). Interface própria com temas claro/escuro, baralhos privados e batalhas assíncronas entre contas reais.
 
 ## Usar
 
@@ -36,7 +36,7 @@ Variáveis em `.env.example` são referência; injete-as pelo ambiente do proces
 
 ## Dados e sincronização
 
-SQLite em WAL, transações para revisões/resultados, sessões opacas em cookies HttpOnly, hashes de sessão no banco, scrypt e autorização de cada recurso. CSRF valida origem e cabeçalho da aplicação. Mídias requerem autenticação e propriedade. O proxy sobrescreve o IP usado nos limites; a API não publica porta no host.
+SQLite em WAL, transações para revisões/resultados, sessões opacas em cookies HttpOnly, hashes de sessão no banco, scrypt e autorização de cada recurso. CSRF valida origem e cabeçalho da aplicação. Mídias de estudo requerem autenticação e propriedade. Fotos de perfil ficam visíveis aos jogadores autenticados, como os avatares e apelidos. O proxy sobrescreve o IP usado nos limites; a API não publica porta no host.
 
 IndexedDB isola os dados de cada conta. Cards baixados, mídias e fila de revisões sobrevivem ao fechamento. Escritas locais são atômicas; `navigator.locks` coordena abas. IDs de ação tornam reenvios idempotentes. Um conflito de conteúdo conserva o rascunho, permite comparar, reaplicar ou exportar e manter a versão do servidor. Revisões concorrentes conservam o histórico, sem aplicar duas vezes o mesmo estado ou conceder pontos em duplicidade. O conteúdo e o agendamento têm versões independentes.
 
@@ -84,3 +84,9 @@ Referências visuais examinadas: [Apple design](https://github.com/topics/apple-
 ## Interface language and mobile use
 
 The app interface is English throughout, including validation, server errors, PWA metadata, and date/number formatting. English learning examples do not generate Portuguese translations. Existing imported English content is preserved; legacy importer labels and default deck metadata are migrated idempotently to English. Phone layouts use larger touch targets and text, stacked forms/filters, safe areas, and sticky review and dialog actions.
+
+## Profile photos
+
+Open **Profile → Change photo → Choose from gallery**, check the preview, then tap **Save photo**. JPEG, PNG and WebP files up to 10 MB are accepted. The app prepares a square preview before upload, and the server validates, rotates and resizes the image to 512×512 WebP without EXIF metadata. Choosing or cancelling does not change the saved photo. **Remove photo → Save changes** restores the emoji avatar.
+
+Photos appear in the profile, app header, ranking, battle cards and player search. Upload/removal requires a connection; previously viewed photos are cached per signed-in account for offline display and cleared from that account's cache on sign-out. Replaced photo URLs stop serving the old image. Server backups include photos through the existing media directory and assets table.

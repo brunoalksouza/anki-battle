@@ -27,7 +27,7 @@ import Study from "./Study";
 import Words, { WordEditor, DeckEditor, WordDetail } from "./Words";
 import Battles from "./Battles";
 import Profile from "./Profile";
-import { Modal, Button, ErrorText, langName, fmt } from "./ui";
+import { Avatar, Modal, Button, ErrorText, langName, fmt } from "./ui";
 import {
   api,
   activeId,
@@ -356,7 +356,11 @@ export default function App() {
               className="sidebar-user"
               onClick={() => navigate("profile")}
             >
-              <span className="avatar">{s.user.avatar}</span>
+              <Avatar
+                userId={s.user.id}
+                photoId={s.user.avatarPhotoId}
+                emoji={s.user.avatar}
+              />
               <div>
                 <strong>{s.user.nickname}</strong>
                 <small>Your study space</small>
@@ -413,7 +417,12 @@ export default function App() {
                 aria-label="Open profile"
                 onClick={() => navigate("profile")}
               >
-                {s.user.avatar}
+                <Avatar
+                  userId={s.user.id}
+                  photoId={s.user.avatarPhotoId}
+                  emoji={s.user.avatar}
+                  className="avatar-content"
+                />
               </button>
             </div>
           </header>

@@ -18,6 +18,7 @@ import {
   id,
 } from "./service";
 import { Integrations } from "./integrations";
+import { ProfilePhotos } from "./profile-photo";
 import { weekKey, type User, type Word, type Card } from "../shared/model";
 declare module "fastify" {
   interface FastifyRequest {
@@ -38,6 +39,7 @@ export async function buildApp(
   migrateEnglishContent(db);
   const svc = new Service(db, options.now),
     integrations = new Integrations(svc, dataDir),
+    photos = new ProfilePhotos(svc, dataDir),
     origin =
       options.origin || process.env.APP_ORIGIN || "http://localhost:5173";
   const app = Fastify({
@@ -344,6 +346,40 @@ export async function buildApp(
     );
     return user;
   });
+  app.post(
+    "/api/profile/photo",
+    { config: { rateLimit: { max: 20, timeWindow: 3600000 } } },
+    async (req) => {
+      const { image } = z
+        .object({ image: z.string().max(1400000) })
+        .parse(req.body);
+      return photos.save(req.userId, image);
+    },
+  );
+  app.delete("/api/profile/photo", async (req) => photos.remove(req.userId));
+  app.get<{ Params: { userId: string; photoId: string } }>(
+    "/api/avatars/:userId/:photoId",
+    async (req, reply) => {
+      const owner = id.parse(req.params.userId),
+        photoId = id.parse(req.params.photoId);
+      const user = db.get("SELECT data FROM users WHERE id=?", owner);
+      const asset = db.get(
+        "SELECT data FROM assets WHERE id=? AND user_id=?",
+        photoId,
+        owner,
+      );
+      if (
+        !user ||
+        JSON.parse(user.data).avatarPhotoId !== photoId ||
+        !asset ||
+        JSON.parse(asset.data).kind !== "avatar"
+      )
+        fail(404, "Profile photo not found.");
+      const path = join(dataDir, "media", photoId + ".webp");
+      if (!existsSync(path)) fail(404, "Profile photo not found.");
+      return reply.type("image/webp").send(createReadStream(path));
+    },
+  );
   app.post("/api/decks", async (req) => svc.createDeck(req.userId, req.body));
   app.patch<{ Params: { id: string } }>("/api/decks/:id", async (req) =>
     svc.editDeck(req.userId, req.params.id, req.body),
@@ -454,7 +490,7 @@ export async function buildApp(
     const q = (req.query.q || "").trim();
     if (q.length < 2) return [];
     return db.all(
-      "SELECT id,json_extract(data,'$.nickname') nickname,json_extract(data,'$.avatar') avatar FROM users WHERE id<>? AND (json_extract(data,'$.nickname') LIKE ? ESCAPE '\\' OR id=?) LIMIT 20",
+      "SELECT id,json_extract(data,'$.nickname') nickname,json_extract(data,'$.avatar') avatar,json_extract(data,'$.avatarPhotoId') avatarPhotoId FROM users WHERE id<>? AND (json_extract(data,'$.nickname') LIKE ? ESCAPE '\\' OR id=?) LIMIT 20",
       req.userId,
       "%" + q.replace(/[\\%_]/g, "\\$&") + "%",
       q,

@@ -46,3 +46,13 @@ Cinco testes adicionais cobrem alinhamento de semanas, 365/366 dias e anos com 5
 - Browser QA: native required-field feedback appeared in English; registration and recovery labels/English defaults checked without changing credentials. Study, reveal-answer, visual word details, editor, invitation and profile inspected. No page overflow at 320px after the dashboard grid fix; 16px inputs, at least 44px primary touch targets, and sticky mobile review/dialog actions verified visually. Both themes and desktop checked. Calendar cells retain their dense annual view with internal horizontal scrolling.
 - Production content audit found English terms/sentences/definitions, 81 legacy visual-meaning placeholders, and Portuguese importer tags/default deck metadata. No Portuguese sentence translations were stored. Migration targets the app-generated Portuguese labels only, preserving the English card content.
 - Screenshots: `docs/screenshots/english-mobile-home.jpg`, `english-mobile-review.jpg`, and `english-mobile-light.jpg` (local-only).
+
+## Gallery profile photos
+
+- Final check: **32 tests passed, zero failures**, TypeScript/Vite build and diff/format checks passed.
+
+- API regression coverage: normalization/orientation/metadata removal, persistence, authenticated player access, private card media isolation, invalid/oversized input preserving the current photo, stale preferences preserving the photo, replacement/revocation, and removal affecting only the signed-in account.
+- IndexedDB coverage: previously viewed photos work offline, cache keys are scoped to the viewer, a new photo never reuses an old photo, and sign-out clears cached photos.
+- Browser QA used the app's public icon only in a separate local database: selection/preview/cancel without uploading, save, reload persistence, header/profile/ranking/battle display, staged removal and restored emoji. Profile had no page overflow at 320px; the gallery bottom sheet and its actions fit 320px and 375px phone layouts.
+- The first photo test run exposed incomplete profile-preference fixtures; supplying the existing required preference fields corrected those two assertions.
+- Real device gallery behavior and HEIC decoding are not claimed; supported formats are JPEG, PNG and WebP.

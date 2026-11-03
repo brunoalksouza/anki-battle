@@ -17,6 +17,7 @@ export type User = {
   email: string;
   nickname: string;
   avatar: string;
+  avatarPhotoId?: string | null;
   nativeLang: string;
   studyLang: string;
   timezone: string;
@@ -116,6 +117,7 @@ export type Ranking = {
   id: string;
   nickname: string;
   avatar: string;
+  avatarPhotoId?: string | null;
   points: number;
   rank: number;
 };
@@ -128,6 +130,8 @@ export type Battle = {
   guestName: string;
   hostAvatar: string;
   guestAvatar: string;
+  hostAvatarPhotoId?: string | null;
+  guestAvatarPhotoId?: string | null;
   deckName: string;
   status:
     "invited" | "active" | "completed" | "declined" | "abandoned" | "expired";

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useApp } from "./context";
 import {
+  Avatar,
   Button,
   Empty,
   Modal,
@@ -140,7 +141,11 @@ export default function Battles() {
                     </div>
                     <div className="versus">
                       <div>
-                        <span className="avatar">{b.hostAvatar}</span>
+                        <Avatar
+                          userId={b.hostId}
+                          photoId={b.hostAvatarPhotoId}
+                          emoji={b.hostAvatar}
+                        />
                         <strong>{b.hostName}</strong>
                         <small>
                           {b.hostCorrect} correct
@@ -158,7 +163,11 @@ export default function Battles() {
                       </div>
                       <span className="vs">VS</span>
                       <div>
-                        <span className="avatar">{b.guestAvatar}</span>
+                        <Avatar
+                          userId={b.guestId}
+                          photoId={b.guestAvatarPhotoId}
+                          emoji={b.guestAvatar}
+                        />
                         <strong>{b.guestName}</strong>
                         <small>
                           {b.guestCorrect} correct
@@ -285,7 +294,11 @@ export default function Battles() {
                   <strong className="rank-number">
                     {r.points ? r.rank : "—"}
                   </strong>
-                  <span className="avatar">{r.avatar}</span>
+                  <Avatar
+                    userId={r.id}
+                    photoId={r.avatarPhotoId}
+                    emoji={r.avatar}
+                  />
                   <div>
                     <strong>
                       {r.nickname}
@@ -461,7 +474,7 @@ function Invite({ onClose }: { onClose: () => void }) {
             className={guest === u.id ? "selected" : ""}
             onClick={() => setGuest(u.id)}
           >
-            <span className="avatar">{u.avatar}</span>
+            <Avatar userId={u.id} photoId={u.avatarPhotoId} emoji={u.avatar} />
             {u.nickname}
             {guest === u.id && <Check size={18} />}
           </button>
