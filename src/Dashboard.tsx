@@ -44,9 +44,14 @@ export default function Dashboard() {
     rank = s.rankings.weekly.find((r) => r.id === s.user.id),
     todayStats = s.days.find((d) => d.day === today);
   const daysStreak = streak(s.days, today),
-    invites = s.battles.filter(
-      (b) => b.status === "invited" && b.guestId === s.user.id,
-    );
+    invites = [
+      ...s.battles.filter(
+        (b) => b.status === "invited" && b.guestId === s.user.id,
+      ),
+      ...(s.challenges || []).filter(
+        (c) => c.status === "invited" && c.guest.userId === s.user.id,
+      ),
+    ];
   return (
     <>
       <div className="page-heading">
@@ -292,11 +297,11 @@ export default function Dashboard() {
             <span className="teaser-icon">
               <Swords size={22} />
             </span>
-            <h3>Go further together.</h3>
+            <h3>Build a streak together.</h3>
             <p>
               {invites.length
                 ? `${invites.length} invitation${invites.length > 1 ? "s" : ""} waiting for you.`
-                : "Challenge a friend and put your knowledge to the test."}
+                : "Your own cards. A shared challenge. Compare study days and words reviewed."}
             </p>
             <Button
               variant="secondary full"

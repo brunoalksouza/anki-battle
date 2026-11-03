@@ -91,6 +91,8 @@ export type ReviewAction = {
   activeMs: number;
 };
 export type ReviewRecord = ReviewAction & {
+  receivedAt?: string;
+  wordKey?: string;
   status: string;
   points: number;
   localDay: string;
@@ -122,6 +124,33 @@ export type Ranking = {
   rank: number;
 };
 export type Group = { id: string; name: string; code: string; members: number };
+export type ChallengeScore = {
+  userId: string;
+  days: { day: string; words: number }[];
+  studyDays: number;
+  totalWords: number;
+};
+export type ChallengePlayer = ChallengeScore & {
+  nickname: string;
+  avatar: string;
+  avatarPhotoId?: string | null;
+  todayWords: number;
+};
+export type ConsistencyChallenge = {
+  id: string;
+  status:
+    "invited" | "active" | "completed" | "declined" | "cancelled" | "expired";
+  createdAt: string;
+  invitationExpiresAt: string;
+  timezone: string;
+  startDay: string | null;
+  endDay: string | null;
+  today: string;
+  host: ChallengePlayer;
+  guest: ChallengePlayer;
+  leaderId: string | null;
+  winnerId: string | null;
+};
 export type Battle = {
   id: string;
   hostId: string;
@@ -155,6 +184,7 @@ export type Snapshot = {
   goals: Goal[];
   rankings: { weekly: Ranking[]; all: Ranking[] };
   battles: Battle[];
+  challenges: ConsistencyChallenge[];
   groups: Group[];
   now: string;
   integrations: { sentences: string; images: string };

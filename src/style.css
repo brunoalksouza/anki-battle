@@ -4642,3 +4642,282 @@ body:has(.focus-review) .toast {
     padding: 4px;
   }
 }
+
+/* Private consistency challenges compare habits across independent decks. */
+.consistency-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+}
+.consistency-intro > .stat-icon {
+  flex-shrink: 0;
+}
+.consistency-intro h2 {
+  margin-bottom: 8px;
+}
+.consistency-intro p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.challenge-rule-chips {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.challenge-rule-chips span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--accent-strong);
+}
+.consistency-list {
+  display: grid;
+  gap: 22px;
+  margin: 24px 0;
+}
+.consistency-card {
+  padding: 24px;
+  min-width: 0;
+}
+.challenge-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.challenge-card-head > span:last-child {
+  font-size: 12px;
+  color: var(--muted);
+}
+.consistency-card > h2 {
+  overflow-wrap: anywhere;
+  margin-bottom: 8px;
+}
+.consistency-card > h2 > span {
+  color: var(--muted);
+}
+.challenge-dates {
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.challenge-scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+.challenge-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+  padding: 20px 12px 14px;
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.challenge-player.is-me {
+  border-color: var(--accent);
+}
+.challenge-player-name {
+  min-height: 40px;
+  line-height: 20px;
+  font-size: 14px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.challenge-player-name small {
+  font-weight: 400;
+  color: var(--muted);
+}
+.challenge-today {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 18px 0;
+}
+.challenge-today > strong {
+  font-size: 36px;
+  line-height: 1.1;
+  color: var(--accent-strong);
+}
+.challenge-today span,
+.challenge-totals span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.challenge-totals {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 18px;
+}
+.challenge-totals > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.challenge-totals strong {
+  font-size: 20px;
+}
+.challenge-totals small {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.challenge-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  list-style: none;
+  gap: 4px;
+  margin: 20px 0 0;
+  padding: 0;
+  width: 100%;
+}
+.challenge-days li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.challenge-days li strong {
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  min-height: 32px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  background: var(--surface);
+}
+.challenge-days .studied strong {
+  background: var(--green-soft);
+  color: var(--green);
+}
+.challenge-days .today strong {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+.challenge-days .future {
+  opacity: 0.55;
+}
+.challenge-standing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--accent-strong);
+  font-size: 14px;
+  margin: 22px 0;
+  text-align: center;
+}
+.challenge-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.challenge-actions .text-button {
+  min-height: 44px;
+}
+.challenge-actions .footnote {
+  margin: 0;
+}
+.challenge-invite-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+.challenge-invite-pair > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.challenge-invite-pair small {
+  color: var(--muted);
+}
+.challenge-invite-rules {
+  align-items: flex-start;
+}
+.challenge-invite-rules p {
+  margin: 6px 0;
+}
+@media (max-width: 600px) {
+  .consistency-intro {
+    padding: 18px;
+    gap: 12px;
+  }
+  .consistency-intro > .stat-icon {
+    display: none;
+  }
+  .consistency-card {
+    padding: 18px 14px;
+  }
+  .challenge-scoreboard {
+    gap: 8px;
+  }
+  .challenge-player {
+    padding: 16px 8px 12px;
+  }
+  .challenge-totals {
+    gap: 10px;
+  }
+  .challenge-days {
+    gap: 3px;
+  }
+  .challenge-days li strong {
+    font-size: 9px;
+  }
+  .challenge-rule-chips {
+    gap: 10px;
+  }
+  .consistency-card .battle-actions {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 350px) {
+  .challenge-scoreboard {
+    grid-template-columns: 1fr;
+  }
+  .challenge-days li strong {
+    font-size: 12px;
+  }
+}
+.battle-tabs {
+  overflow-x: auto;
+}
+.battle-tabs > button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .battle-tabs {
+    gap: 6px;
+  }
+  .battle-tabs > button {
+    flex: 1 0 auto;
+    justify-content: center;
+    font-size: 12px;
+    padding: 12px 3px;
+  }
+  .battle-tabs > button svg {
+    display: none;
+  }
+}

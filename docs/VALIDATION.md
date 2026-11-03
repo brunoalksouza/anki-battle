@@ -77,3 +77,10 @@ Sources consulted on 2026-11-03: [AnkiMobile preferences](https://docs.ankiweb.n
 - 32 existing tests passed, TypeScript/Vite production build and diff checks passed. Changes are CSS only.
 - Browser inspection covered the dashboard in both themes and revealed review cards at 402×680. The document stayed 402×680 and every rating button ended at y=668 in both themes.
 - Final palette contrast ratios: light Again 4.69:1, Hard 5.44:1, Good 4.60:1, Easy 6.31:1; dark ratings 6.03:1–7.05:1. White primary button text is 6.11:1 in light and 5.94:1 in dark. These checks cover these color pairs, not a full accessibility audit or user-defined card colors.
+
+## Independent-deck consistency challenges
+
+- 40 tests passed, including eight new challenge tests. Coverage includes different private decks, consent and authorization, same-day pre-acceptance study, reverse/duplicate cards, replay, every eligibility exclusion, days-before-volume ranking, word-count tie-breaks, exact ties, offline receipt deadlines, DST and fixed shared time zones, cancellation/expiry and persisted final results after reopening SQLite.
+- Real UI flow in a separate local database: sender searched for a synthetic partner and sent an invitation without a deck selector; invited account accepted; Study my cards showed only that account's private deck; a valid review of horse updated its score from zero to one word and one study day. No production cards or invitations were modified.
+- Both themes inspected. At 402px, both players remain side by side; at 320px the scoreboard stacks and all four competition tabs fit without page overflow. Touch controls, English text, pending-sync guidance and explicit end-challenge confirmation remain available.
+- Challenge totals measure study activity, not verified vocabulary mastery. The duration is seven days; no automatic rematch, notification delivery or invitation to a particular production partner is claimed.

@@ -9,7 +9,7 @@ Entre com sua conta. Os quatro usuários existentes do Financeiro foram migrados
 - **Início:** mapa anual de atividade com intensidade verde, seleção de dia, navegação por ano, resumo diário e estatísticas. Média e frequência usam os dias decorridos do ano (sem dias futuros); a maior sequência considera o ano selecionado e a sequência atual considera todo o histórico. Estudo e acessos ficam separados.
 - **Estudar:** crie/edite baralhos, ajuste limites no Perfil e baixe um baralho para revisar sem internet. Revelar → Errei, Difícil, Bom ou Fácil. O FSRS calcula a próxima revisão.
 - **Palavras:** cadastre expressão, significado, idioma e cor; pesquise, filtre e edite. Cards básicos, inversos e lacunas. Detalhes incluem imagens, pronúncia importada, suspensão e histórico.
-- **Batalhas:** autorize um baralho para disputas, convide outra conta e aguarde o aceite. Cada jogador responde ao mesmo conjunto em seu horário. Dados pessoais e agendamentos ficam separados.
+- **Batalhas:** o modo principal **Consistency** compara dias de estudo e palavras revisadas por 7 dias, usando os baralhos privados de cada participante. Convide a outra conta e aguarde o aceite. O modo opcional **Card quiz** conserva as perguntas de um baralho compartilhado.
 - **Perfil:** metas, limites, aparência, idiomas, histórico e exportação. Gere e guarde os códigos de recuperação; cada código funciona uma vez. Não há envio de e-mail.
 
 **Instalar:** no iPhone/iPad, Safari → Compartilhar → Adicionar à Tela de Início. No Android, Chrome → menu → Instalar aplicativo. Em Estudar, use **Baixar** para incluir imagens e áudios. O armazenamento offline pertence ao navegador; limpar os dados do site remove a cópia local. Aguarde “Tudo sincronizado” antes de trocar de aparelho ou limpar dados.
@@ -94,3 +94,13 @@ Photos appear in the profile, app header, ranking, battle cards and player searc
 ## Focused review sessions
 
 Starting a study session hides app navigation and keeps the card and answer controls in the visible screen area. The layout adapts to browser bars, safe areas, rotation and shorter screens. Images retain their aspect ratio, audio remains available and difficulty buttons stay in a stable bottom row. **End session** returns to the deck list. Very large custom content stays accessible inside the card without moving the action row.
+
+## Consistency challenges with independent decks
+
+Open **Battles → Consistency → Challenge a friend**, search for your partner's nickname, and send the invitation. The invited person accepts in their own account. No shared deck or matching vocabulary is required. The challenge covers seven calendar days, including the day of acceptance and both players' study earlier that day. Invitations expire after seven days.
+
+The scoreboard shows each person's words today, study days, total daily word counts and seven-day activity. More study days wins; total words reviewed breaks a tie; equal totals produce a tie. One eligible word makes a study day. The same word counts once per day across reverse cards, duplicate terms and decks; reviewing it again on another day can count again. Ratings have equal value. Only applied reviews of due cards with at least two seconds of active study count; creating/importing content alone does not count.
+
+Both players use the inviter's time zone, fixed when the invitation is created. Offline reviews count if received before the last day ends, even when they crossed a leaderboard week. Server receipt times prevent later sync from changing a completed result. Final and cancelled scores are persisted. Either participant can end an active challenge without a winner; the sender can cancel an unanswered invitation. No extra leaderboard points are awarded.
+
+Only participants can access a challenge. They see names, avatars and daily aggregate counts, never the other person's vocabulary, definitions or review records. Existing scheduling, private decks, quiz battles and global points remain independent.

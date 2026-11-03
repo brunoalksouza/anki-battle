@@ -21,7 +21,10 @@ import {
   type Snapshot,
   type Day,
   type Battle,
+  type ChallengeScore,
+  type ConsistencyChallenge,
 } from "../shared/model";
+import { addCalendarDays, challengeLeader } from "../shared/challenges";
 import { newSchedule, reviewSchedule } from "../shared/scheduler";
 import { cloze } from "../shared/text";
 const scrypt = promisify(scryptCb);
@@ -493,6 +496,11 @@ export class Service {
       }
       const record = {
         ...action,
+        receivedAt: now.toISOString(),
+        wordKey: (() => {
+          const word = this.owned<Word>("words", card.wordId, user);
+          return word.language + ":" + normalizeAnswer(word.term);
+        })(),
         reviewedAt: date.toISOString(),
         localDay: day,
         timezone: u.timezone,
@@ -596,6 +604,7 @@ export class Service {
         .map((r) => JSON.parse(r.data)),
       rankings: { all, weekly },
       battles: this.battles(user),
+      challenges: this.challenges(user),
       groups: this.db
         .all(
           "SELECT g.*, (SELECT COUNT(*) FROM members m WHERE m.group_id=g.id) members FROM groups g JOIN members m ON m.group_id=g.id WHERE m.user_id=?",
@@ -609,6 +618,234 @@ export class Service {
       },
       points: all.find((r) => r.id === user)?.points || 0,
     };
+  }
+  challengeRow(user: string, challengeId: string) {
+    const row = this.db.get(
+      "SELECT * FROM challenges WHERE id=? AND (host_id=? OR guest_id=?)",
+      challengeId,
+      user,
+      user,
+    );
+    if (!row) fail(404, "Challenge not found.");
+    const info = JSON.parse(row.data) as {
+      createdAt: string;
+      invitationExpiresAt: string;
+      timezone: string;
+      startDay: string | null;
+      endDay: string | null;
+      scores?: ChallengeScore[];
+    };
+    if (
+      row.status === "invited" &&
+      info.invitationExpiresAt <= this.now().toISOString()
+    ) {
+      row.status = "expired";
+      this.db.run("UPDATE challenges SET status='expired' WHERE id=?", row.id);
+    }
+    if (
+      row.status === "active" &&
+      info.endDay &&
+      dayKey(this.now(), info.timezone) > info.endDay
+    ) {
+      info.scores = [row.host_id, row.guest_id].map((id) =>
+        this.challengeScore(id, info),
+      );
+      row.status = "completed";
+      this.db.run(
+        "UPDATE challenges SET status='completed',data=? WHERE id=?",
+        JSON.stringify(info),
+        row.id,
+      );
+    }
+    return { ...row, info };
+  }
+  challengeScore(
+    user: string,
+    info: { startDay: string | null; endDay: string | null; timezone: string },
+  ): ChallengeScore {
+    const days: ChallengeScore["days"] = [];
+    if (info.startDay && info.endDay) {
+      const unique = new Map<string, Set<string>>();
+      // A coarse UTC bound preserves local-day boundaries in every time zone.
+      const rows = this.db.all(
+        `SELECT r.reviewed_at,r.data,w.data word_data FROM reviews r
+         JOIN cards c ON c.id=r.card_id AND c.user_id=r.user_id
+         JOIN words w ON w.id=c.word_id AND w.user_id=r.user_id
+         WHERE r.user_id=? AND r.status='applied' AND r.active_ms>=2000
+         AND r.reviewed_at>=? AND r.reviewed_at<?`,
+        user,
+        addCalendarDays(info.startDay, -1),
+        addCalendarDays(info.endDay, 2),
+      );
+      for (const row of rows) {
+        const review = JSON.parse(row.data),
+          day = dayKey(row.reviewed_at, info.timezone),
+          receivedDay = dayKey(
+            review.receivedAt || row.reviewed_at,
+            info.timezone,
+          );
+        if (
+          day < info.startDay ||
+          day > info.endDay ||
+          receivedDay > info.endDay
+        )
+          continue;
+        const word = JSON.parse(row.word_data);
+        const key =
+          review.wordKey || word.language + ":" + normalizeAnswer(word.term);
+        if (!unique.has(day)) unique.set(day, new Set());
+        unique.get(day)!.add(key);
+      }
+      for (
+        let day = info.startDay;
+        day <= info.endDay;
+        day = addCalendarDays(day, 1)
+      )
+        days.push({ day, words: unique.get(day)?.size || 0 });
+    }
+    return {
+      userId: user,
+      days,
+      studyDays: days.filter((d) => d.words > 0).length,
+      totalWords: days.reduce((n, d) => n + d.words, 0),
+    };
+  }
+  challenges(user: string): ConsistencyChallenge[] {
+    return this.db
+      .all(
+        "SELECT id FROM challenges WHERE host_id=? OR guest_id=? ORDER BY rowid DESC LIMIT 100",
+        user,
+        user,
+      )
+      .map(({ id }) => {
+        const row = this.challengeRow(user, id),
+          info = row.info;
+        const today = dayKey(this.now(), info.timezone);
+        const player = (userId: string) => {
+          const u = this.user(userId);
+          const score =
+            info.scores?.find((s: ChallengeScore) => s.userId === userId) ||
+            this.challengeScore(userId, info);
+          return {
+            ...score,
+            nickname: u.nickname,
+            avatar: u.avatar,
+            avatarPhotoId: u.avatarPhotoId,
+            todayWords:
+              score.days.find((d: { day: string }) => d.day === today)?.words ||
+              0,
+          };
+        };
+        const host = player(row.host_id),
+          guest = player(row.guest_id);
+        const leaderId = challengeLeader(host, guest);
+        return {
+          id,
+          status: row.status,
+          createdAt: info.createdAt,
+          invitationExpiresAt: info.invitationExpiresAt,
+          timezone: info.timezone,
+          startDay: info.startDay,
+          endDay: info.endDay,
+          today,
+          host,
+          guest,
+          leaderId,
+          winnerId: row.status === "completed" ? leaderId : null,
+        };
+      });
+  }
+  inviteChallenge(user: string, guest: string, invitationId: string) {
+    return this.db.transaction(() => {
+      if (guest === user) fail(400, "Choose another person to challenge.");
+      if (!this.db.get("SELECT id FROM users WHERE id=?", guest))
+        fail(404, "Player not found.");
+      const existing = this.db.get(
+        "SELECT * FROM challenges WHERE id=?",
+        invitationId,
+      );
+      if (existing) {
+        if (existing.host_id !== user || existing.guest_id !== guest)
+          fail(409, "Identifier unavailable.");
+        return { id: invitationId };
+      }
+      const open = this.db
+        .all(
+          "SELECT id FROM challenges WHERE (host_id=? OR guest_id=?) AND status IN ('invited','active')",
+          user,
+          user,
+        )
+        .map(({ id }) => this.challengeRow(user, id))
+        .filter((r) => ["invited", "active"].includes(r.status));
+      if (open.some((r) => r.host_id === guest || r.guest_id === guest))
+        fail(
+          409,
+          "You already have an open consistency challenge with this person.",
+        );
+      if (open.length >= 10)
+        fail(429, "You already have 10 open consistency challenges.");
+      const now = this.now();
+      const info = {
+        createdAt: now.toISOString(),
+        invitationExpiresAt: new Date(+now + 7 * 86400000).toISOString(),
+        timezone: this.user(user).timezone,
+        startDay: null,
+        endDay: null,
+      };
+      this.db.run(
+        "INSERT INTO challenges VALUES(?,?,?,?,?)",
+        invitationId,
+        user,
+        guest,
+        "invited",
+        JSON.stringify(info),
+      );
+      return { id: invitationId };
+    });
+  }
+  respondChallenge(user: string, challengeId: string, accept: boolean) {
+    return this.db.transaction(() => {
+      const row = this.challengeRow(user, challengeId);
+      if (row.guest_id !== user)
+        fail(403, "Only the invited person can respond.");
+      if (
+        (accept && row.status === "active") ||
+        (!accept && row.status === "declined")
+      )
+        return { ok: true };
+      if (row.status !== "invited")
+        fail(409, "This invitation has already ended.");
+      if (accept) {
+        row.info.startDay = dayKey(this.now(), row.info.timezone);
+        row.info.endDay = addCalendarDays(row.info.startDay, 6);
+      }
+      this.db.run(
+        "UPDATE challenges SET status=?,data=? WHERE id=?",
+        accept ? "active" : "declined",
+        JSON.stringify(row.info),
+        row.id,
+      );
+      return { ok: true };
+    });
+  }
+  cancelChallenge(user: string, challengeId: string) {
+    return this.db.transaction(() => {
+      const row = this.challengeRow(user, challengeId);
+      if (row.status === "cancelled") return { ok: true };
+      if (row.status === "invited" && row.host_id !== user)
+        fail(403, "Only the sender can cancel this invitation.");
+      if (!["invited", "active"].includes(row.status))
+        fail(409, "This challenge has already ended.");
+      row.info.scores = [row.host_id, row.guest_id].map((id) =>
+        this.challengeScore(id, row.info),
+      );
+      this.db.run(
+        "UPDATE challenges SET status='cancelled',data=? WHERE id=?",
+        JSON.stringify(row.info),
+        row.id,
+      );
+      return { ok: true };
+    });
   }
   battleRow(user: string, battleId: string) {
     const b = this.db.get(

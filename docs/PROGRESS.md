@@ -61,3 +61,11 @@ Instalação física no celular, cobertura das fontes gratuitas, independência 
 - Strengthened the purple accent, dashboard highlights, semantic icon colors and activity greens while preserving the layout and English copy. Secondary text and panel boundaries are more distinct.
 - Theme-aware semantic colors now also drive rating buttons, notices and status badges. Primary button fills retain readable white labels in both themes; dark ratings use distinct deep backgrounds instead of a brightness filter.
 - No study content, schedules, account preferences or application behavior changed in production.
+
+## Independent-deck consistency challenges — 2026-11-03
+
+- Battles now opens on Consistency: invite/accept, seven calendar days, own private cards, today's unique words, study days, total daily words and a day-by-day scoreboard. The existing shared-deck game is available as Card quiz.
+- The winner is decided by study days, then total daily words. Repeated/reverse/duplicate-word reviews cannot inflate a day's count. All ratings count equally; early, suspended, conflicting, imported and under-two-second reviews are excluded.
+- Added a separate challenges table and indexes without changing existing tables or schedules. Reviews now retain server receipt time and a normalized word identity; closed scores are frozen and late offline sync does not rewrite results. Challenge dates use the inviter's fixed time zone.
+- Participant-only API reads and actions, idempotent invites/acceptance, duplicate-pair protection, expiration, cancellation and historical results. Only aggregates are shared. Dashboard invitation counts include the new mode.
+- QA invitations, acceptance and study were performed only between synthetic local accounts. No invitation was sent to a production account.

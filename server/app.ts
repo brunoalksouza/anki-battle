@@ -502,6 +502,26 @@ export async function buildApp(
     ),
   );
   app.get("/api/battles", async (req) => svc.battles(req.userId));
+  app.get("/api/challenges", async (req) => svc.challenges(req.userId));
+  app.post("/api/challenges", async (req) => {
+    const body = z.object({ id, guestId: id }).parse(req.body);
+    return svc.inviteChallenge(req.userId, body.guestId, body.id);
+  });
+  app.post<{ Params: { id: string } }>(
+    "/api/challenges/:id/respond",
+    async (req) => {
+      const body = z.object({ accept: z.boolean() }).parse(req.body);
+      return svc.respondChallenge(
+        req.userId,
+        id.parse(req.params.id),
+        body.accept,
+      );
+    },
+  );
+  app.post<{ Params: { id: string } }>(
+    "/api/challenges/:id/cancel",
+    async (req) => svc.cancelChallenge(req.userId, id.parse(req.params.id)),
+  );
   app.post("/api/battles", async (req) => {
     const body = z.object({ id, guestId: id, deckId: id }).parse(req.body);
     return svc.invite(req.userId, body.guestId, body.deckId, body.id);

@@ -25,6 +25,9 @@ CREATE TABLE IF NOT EXISTS battles(id TEXT PRIMARY KEY,host_id TEXT NOT NULL REF
 CREATE TABLE IF NOT EXISTS rounds(battle_id TEXT NOT NULL REFERENCES battles(id),idx INTEGER NOT NULL,data TEXT NOT NULL,PRIMARY KEY(battle_id,idx));
 CREATE TABLE IF NOT EXISTS answers(battle_id TEXT NOT NULL REFERENCES battles(id),user_id TEXT NOT NULL REFERENCES users(id),idx INTEGER NOT NULL,served_at TEXT NOT NULL,answered_at TEXT,correct INTEGER NOT NULL DEFAULT 0,elapsed INTEGER NOT NULL DEFAULT 0,choice TEXT,PRIMARY KEY(battle_id,user_id,idx));
 CREATE TABLE IF NOT EXISTS battle_ready(battle_id TEXT NOT NULL REFERENCES battles(id),user_id TEXT NOT NULL REFERENCES users(id),PRIMARY KEY(battle_id,user_id));
+CREATE TABLE IF NOT EXISTS challenges(id TEXT PRIMARY KEY,host_id TEXT NOT NULL REFERENCES users(id),guest_id TEXT NOT NULL REFERENCES users(id),status TEXT NOT NULL,data TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS challenges_host ON challenges(host_id,status);
+CREATE INDEX IF NOT EXISTS challenges_guest ON challenges(guest_id,status);
 CREATE TABLE IF NOT EXISTS groups(id TEXT PRIMARY KEY,name TEXT NOT NULL,code TEXT NOT NULL UNIQUE,owner_id TEXT NOT NULL REFERENCES users(id));
 CREATE TABLE IF NOT EXISTS members(group_id TEXT NOT NULL REFERENCES groups(id),user_id TEXT NOT NULL REFERENCES users(id),PRIMARY KEY(group_id,user_id));
 CREATE TABLE IF NOT EXISTS assets(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),data TEXT NOT NULL);

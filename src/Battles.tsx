@@ -9,8 +9,10 @@ import {
   Clock3,
   RefreshCw,
   Flag,
+  Flame,
 } from "lucide-react";
 import { useApp } from "./context";
+import ConsistencyChallenges from "./ConsistencyChallenges";
 import {
   Avatar,
   Button,
@@ -34,9 +36,9 @@ const statusNames: Record<string, string> = {
 };
 export default function Battles() {
   const { s, online, refresh, toast } = useApp(),
-    [tab, setTab] = useState("battles"),
+    [tab, setTab] = useState("consistency"),
     [period, setPeriod] = useState("weekly"),
-    [invite, setInvite] = useState(false),
+    [invite, setInvite] = useState<"consistency" | "quiz" | null>(null),
     [playing, setPlaying] = useState<string | null>(null),
     [group, setGroup] = useState(""),
     [groupRank, setGroupRank] = useState<Ranking[]>([]),
@@ -70,20 +72,29 @@ export default function Battles() {
         <div>
           <span className="eyebrow">KNOWLEDGE THAT CONNECTS</span>
           <h1>Level up together.</h1>
-          <p>A friendly challenge. One more reason to learn.</p>
+          <p>Build a habit together, with your own words and levels.</p>
         </div>
-        <Button disabled={!online} onClick={() => setInvite(true)}>
+        <Button
+          disabled={!online}
+          onClick={() => setInvite(tab === "battles" ? "quiz" : "consistency")}
+        >
           <Swords size={18} />
           Challenge a friend
         </Button>
       </div>
-      <div className="tabs">
+      <div className="tabs battle-tabs">
+        <button
+          className={tab === "consistency" ? "active" : ""}
+          onClick={() => setTab("consistency")}
+        >
+          <Flame size={17} /> Consistency
+        </button>
         <button
           className={tab === "battles" ? "active" : ""}
           onClick={() => setTab("battles")}
         >
           <Swords size={17} />
-          Battles
+          Card quiz
         </button>
         <button
           className={tab === "ranking" ? "active" : ""}
@@ -97,7 +108,7 @@ export default function Battles() {
           onClick={() => setTab("groups")}
         >
           <Users size={17} />
-          My groups
+          Groups
         </button>
       </div>
       {!online && (
@@ -106,17 +117,20 @@ export default function Battles() {
           last synced activity is shown below.
         </div>
       )}
+      {tab === "consistency" && (
+        <ConsistencyChallenges onInvite={() => setInvite("consistency")} />
+      )}
       {tab === "battles" && (
         <>
           {!s.battles.length ? (
             <Empty
               icon={<Swords size={32} />}
-              title="Your first battle awaits."
+              title="Try a shared-deck quiz."
               description="Invite a friend and choose a shared deck. The same questions, one chance each."
               action="Create challenge"
               onAction={() =>
                 online
-                  ? setInvite(true)
+                  ? setInvite("quiz")
                   : toast("Connect to challenge a friend.")
               }
             />
@@ -376,7 +390,7 @@ export default function Battles() {
       <button className="text-button spaced" onClick={() => setRules(true)}>
         How do points and battles work?
       </button>
-      {invite && <Invite onClose={() => setInvite(false)} />}{" "}
+      {invite && <Invite mode={invite} onClose={() => setInvite(null)} />}{" "}
       {playing && (
         <PlayBattle
           id={playing}
@@ -390,6 +404,22 @@ export default function Battles() {
       {rules && (
         <Modal title="A fair competition" onClose={() => setRules(false)}>
           <div className="rules">
+            <h3>Consistency challenges</h3>
+            <p>
+              Study your own cards for 7 calendar days, starting on the day your
+              partner accepts. Today's study counts for both of you. More study
+              days wins; the sum of daily unique word counts breaks a tie. A
+              word counts once per day, even across reverse cards or duplicate
+              entries. One valid word makes a study day.
+            </p>
+            <p>
+              Only due-card reviews with at least 2 seconds of active study
+              count. Every difficulty rating has equal value. Both players use
+              the challenge's time zone, fixed when invited. Sync offline
+              reviews before the final day ends; completed scores are final.
+              These challenges do not award extra leaderboard points or share
+              your card content.
+            </p>
             <h3>Study points</h3>
             <p>
               Earn 5 points for the first valid review of a word each UTC day,
@@ -397,7 +427,7 @@ export default function Battles() {
               Hard, Good, and Easy all earn the same points. Signing in,
               refreshing, and duplicate requests earn no points.
             </p>
-            <h3>Battles</h3>
+            <h3>Card quizzes</h3>
             <p>
               Answer up to 10 multiple-choice questions from the same shared
               deck. Each player has 60 seconds per question, timed by the
@@ -429,8 +459,16 @@ export default function Battles() {
     </>
   );
 }
-function Invite({ onClose }: { onClose: () => void }) {
-  const { refresh, toast } = useApp(),
+function Invite({
+  onClose,
+  mode,
+}: {
+  onClose: () => void;
+  mode: "consistency" | "quiz";
+}) {
+  const { s, refresh, toast, online } = useApp(),
+    [invitationId] = useState(() => crypto.randomUUID()),
+    [searched, setSearched] = useState(false),
     [q, setQ] = useState(""),
     [users, setUsers] = useState<any[]>([]),
     [guest, setGuest] = useState(""),
@@ -439,6 +477,7 @@ function Invite({ onClose }: { onClose: () => void }) {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   useEffect(() => {
+    if (mode !== "quiz") return;
     api("/shared-decks")
       .then(setDecks)
       .catch((e) => setError(e.message));
@@ -446,14 +485,27 @@ function Invite({ onClose }: { onClose: () => void }) {
   async function search(e: React.FormEvent) {
     e.preventDefault();
     try {
+      setError("");
       setUsers(await api("/users?q=" + encodeURIComponent(q)));
+      setSearched(true);
     } catch (e) {
       setError((e as Error).message);
     }
   }
   return (
-    <Modal title="An invitation to grow" onClose={onClose}>
-      <p>Choose a friend and a deck shared with both of you.</p>
+    <Modal
+      title={
+        mode === "consistency"
+          ? "Invite your study partner"
+          : "Invite to a card quiz"
+      }
+      onClose={onClose}
+    >
+      <p>
+        {mode === "consistency"
+          ? "Each of you studies your own cards. Compare study days and words reviewed over 7 days."
+          : "Choose a friend and a deck shared with both of you."}
+      </p>
       <form className="image-search" onSubmit={search}>
         <input
           aria-label="Find a person"
@@ -480,35 +532,66 @@ function Invite({ onClose }: { onClose: () => void }) {
           </button>
         ))}
       </div>
-      <Field label="Battle deck">
-        <select value={deck} onChange={(e) => setDeck(e.target.value)} required>
-          <option value="">Choose a deck</option>
-          {decks
-            .filter((d) => d.words >= 4)
-            .map((d) => (
-              <option value={d.id} key={d.id}>
-                {d.name} · {d.owner} · {d.words} words
-              </option>
-            ))}
-        </select>
-      </Field>
-      <p className="footnote">
-        Can't find a deck? Open Study, edit the deck, and enable battles. It
-        needs at least 4 distinct meanings.
-      </p>
+      {searched && !users.length && (
+        <p className="muted">No players found. Try their nickname.</p>
+      )}
+      {mode === "quiz" ? (
+        <>
+          <Field label="Battle deck">
+            <select
+              value={deck}
+              onChange={(e) => setDeck(e.target.value)}
+              required
+            >
+              <option value="">Choose a deck</option>
+              {decks
+                .filter((d) => d.words >= 4)
+                .map((d) => (
+                  <option value={d.id} key={d.id}>
+                    {d.name} · {d.owner} · {d.words} words
+                  </option>
+                ))}
+            </select>
+          </Field>
+          <p className="footnote">
+            Can't find a deck? Open Study, edit the deck, and enable battles. It
+            needs at least 4 distinct meanings.
+          </p>
+        </>
+      ) : (
+        <div className="notice challenge-invite-rules">
+          <Clock3 size={20} />
+          <div>
+            <strong>Consistency comes first.</strong>
+            <p>
+              Most study days wins. Total words break a tie. Each word counts
+              once per day.
+            </p>
+            <small>
+              Starts when accepted, including that day's study. Both players use{" "}
+              {s.user.timezone.replaceAll("_", " ")}. Only your progress totals
+              are shared.
+            </small>
+          </div>
+        </div>
+      )}
       <ErrorText error={error} />
       <Button
         className="full"
         busy={busy}
-        disabled={!guest || !deck}
+        disabled={!online || !guest || (mode === "quiz" && !deck)}
         onClick={async () => {
           setBusy(true);
           try {
-            await api("/battles", "POST", {
-              id: crypto.randomUUID(),
-              guestId: guest,
-              deckId: deck,
-            });
+            await api(
+              mode === "consistency" ? "/challenges" : "/battles",
+              "POST",
+              {
+                id: invitationId,
+                guestId: guest,
+                ...(mode === "quiz" ? { deckId: deck } : {}),
+              },
+            );
             await refresh();
             onClose();
             toast("Challenge sent.");
