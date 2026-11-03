@@ -1595,31 +1595,68 @@ main {
   font-size: 9px;
   color: var(--muted);
 }
-.definition-options {
-  margin: 15px 0;
+.study-style {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 12px;
   border: 1px solid var(--line);
-  padding: 13px;
-  border-radius: 10px;
-  max-height: 220px;
-  overflow: auto;
-}
-.definition-options > small {
-  color: var(--muted);
-  font-size: 10px;
-}
-.definition-options button {
-  display: block;
-  width: 100%;
-  text-align: left;
+  background: var(--surface);
   font-size: 12px;
-  padding: 10px;
-  border-bottom: 1px solid var(--line);
   line-height: 1.6;
 }
-.definition-options button span {
-  font-size: 10px;
+.study-style strong {
   color: var(--accent);
-  margin-right: 10px;
+}
+.study-style p {
+  margin: 5px 0;
+}
+.study-style summary {
+  cursor: pointer;
+  min-height: 32px;
+  padding-top: 7px;
+}
+.definition-options {
+  margin: 16px 0;
+}
+.definition-options > p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.definition-option {
+  margin: 12px 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.definition-part {
+  color: var(--accent);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.definition-meaning {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+.definition-option blockquote {
+  margin: 12px 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--accent);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.definition-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.definition-actions .button {
+  min-height: 44px;
+  white-space: normal;
 }
 .study-toolbar {
   display: flex;

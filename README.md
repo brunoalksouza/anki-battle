@@ -44,11 +44,14 @@ O service worker armazena apenas a interface; dados privados e mídia ficam no I
 
 ## Fontes gratuitas
 
-- [Tatoeba API](https://api.tatoeba.org/): exemplos reais curtos e traduções, quando disponíveis, em vez de geração por IA. Busca a expressão inteira e prioriza correspondências entre tradução e significado. A escolha de sentido não é garantida: revise o exemplo, edite ou peça outro. Frase e tradução preservam seus próprios créditos/licenças.
-- [Free Dictionary API](https://dictionaryapi.dev/): sugere definições em inglês e conserva atribuição. Para outros idiomas, digite o significado.
+- [Simple English Wiktionary](https://simple.wiktionary.org/) e [Free Dictionary API](https://dictionaryapi.dev/): significados em inglês simples com classe gramatical, prévia do exemplo do mesmo sentido e atribuição. A interface permite aceitar só o significado ou o par significado/frase. O parser do Simple Wiktionary aceita um subconjunto explícito de marcação; ignora linhas com modelos desconhecidos, sem apagar qualificadores. Ajustes gramaticais limitados removem sujeitos redundantes e preservam todo o conteúdo, com crédito de adaptação. Falha de uma fonte permite usar a outra. Para outros idiomas, digite o significado em inglês.
+- [Tatoeba API](https://api.tatoeba.org/): até 100 candidatos variados por consulta, mantidos no cache para que “Find another example” percorra o conjunto. Em inglês, a seleção prefere frases completas, curtas, com uma ocorrência exata da expressão. Exemplos anexados à definição escolhida no dicionário têm prioridade; sem um par confirmado, Tatoeba oferece alternativas com aviso para conferir o sentido. Frase e explicação em inglês conservam seus próprios créditos/licenças.
+
 - [Wikimedia Commons](https://commons.wikimedia.org/w/api.php): grade de imagens, prévia e confirmação explícita. O servidor consulta metadados oficiais, limita o download, converte a WebP e conserva autor, origem e licença. Nunca há raspagem do Google.
 
-Até 100 consultas por usuário/dia em cada fonte, 50 downloads de imagens/dia, cache de consultas por 24h e timeouts. As fontes não exigem cadastro pago nem credenciais. Falha de fonte não impede salvar/estudar; a frase permanece pendente com nova tentativa manual. Não prometemos disponibilidade ou cobertura externa.
+O padrão individual considera todos os cards ativos em inglês da conta: comprimentos típicos de frases e significados (quartis), excluindo significados visuais, fragmentos e valores extremos. O vocabulário já visto ajuda a ordenar exemplos. Verbos descrevem ações; substantivos explicam categoria/uso; adjetivos descrevem qualidades. Os comprimentos são preferências, nunca cortes automáticos. O padrão é recalculado por conta, fora do cache compartilhado; só o termo consultado é enviado às fontes públicas. Os cards existentes não são reescritos. Sugestões são seleção de fontes e ajustes limitados, sem serviço pago de IA e sem garantia de desambiguação semântica.
+
+Até 100 buscas de significados e 100 buscas de frases por usuário/dia (a busca automática de frase consulta ambas as categorias), 50 downloads de imagens/dia, cache de consultas por 24h e timeouts. As fontes não exigem cadastro pago nem credenciais. Falha de fonte não impede salvar/estudar; a frase permanece pendente com nova tentativa manual. Não prometemos disponibilidade ou cobertura externa.
 
 ## Importação e exportação
 

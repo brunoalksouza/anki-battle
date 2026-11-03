@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import type { DefinitionSuggestion, StudyStyle } from "../shared/suggestions";
 import {
   Plus,
   Search,
@@ -321,8 +322,18 @@ export function WordEditor({
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [definitions, setDefinitions] = useState<any[]>([]),
+    [definitions, setDefinitions] = useState<DefinitionSuggestion[]>([]),
+    [style, setStyle] = useState<StudyStyle | null>(null),
+    [showAll, setShowAll] = useState(false),
+    [notice, setNotice] = useState(""),
     [looking, setLooking] = useState(false);
+  const request = useRef(0);
+  useEffect(
+    () => () => {
+      request.current++;
+    },
+    [],
+  );
   const update = (p: Partial<Word>) => setWord((w) => ({ ...w, ...p }));
   async function save(e: FormEvent) {
     e.preventDefault();
@@ -337,7 +348,43 @@ export function WordEditor({
       setBusy(false);
     }
   }
+  function changeLookup(p: Partial<Word>) {
+    request.current++;
+    setDefinitions([]);
+    setLooking(false);
+    setNotice("");
+    setError("");
+    update(p);
+  }
+  function choose(d: DefinitionSuggestion, withExample: boolean) {
+    request.current++;
+    update({
+      meaning: d.meaning,
+      meaningCredit: d.credit,
+      ...(withExample
+        ? {
+            sentence: d.example,
+            sentenceCredit: d.exampleCredit || d.credit,
+            translation: "",
+            translationCredit: null,
+            sentenceStatus: "ready" as const,
+          }
+        : {}),
+    });
+    setDefinitions([]);
+    setNotice(
+      withExample
+        ? "Meaning and example added. You can edit both below."
+        : word.sentence
+          ? "Meaning added. Check that your existing example uses this meaning."
+          : "Meaning added. A short example will be found when you save.",
+    );
+  }
   async function suggest() {
+    const id = ++request.current;
+    setDefinitions([]);
+    setShowAll(false);
+    setNotice("");
     setLooking(true);
     setError("");
     try {
@@ -347,12 +394,14 @@ export function WordEditor({
           "&lang=" +
           word.language,
       );
+      if (request.current !== id) return;
       setDefinitions(r.definitions);
-      if (r.notice) setError(r.notice);
+      setStyle(r.style);
+      if (r.notice) setNotice(r.notice);
     } catch (e) {
-      setError((e as Error).message);
+      if (request.current === id) setError((e as Error).message);
     } finally {
-      setLooking(false);
+      if (request.current === id) setLooking(false);
     }
   }
   return (
@@ -365,7 +414,7 @@ export function WordEditor({
               required
               value={word.term}
               maxLength={160}
-              onChange={(e) => update({ term: e.target.value })}
+              onChange={(e) => changeLookup({ term: e.target.value })}
               placeholder="e.g. horse"
               dir="auto"
             />
@@ -373,7 +422,7 @@ export function WordEditor({
           <Field label="Study language">
             <LanguageSelect
               value={word.language}
-              onChange={(language) => update({ language })}
+              onChange={(language) => changeLookup({ language })}
             />
           </Field>
         </div>
@@ -405,28 +454,83 @@ export function WordEditor({
           <Search size={15} />
           Suggest meaning
         </Button>
+        {style && word.language === "en" && (
+          <div className="study-style">
+            <strong>
+              {style.personalized
+                ? `Your study style · ${style.cards} cards`
+                : "Simple English study style"}
+            </strong>
+            <p>
+              Examples: {style.sentenceWords[0]}–{style.sentenceWords[1]} words
+              · Meanings: {style.meaningWords[0]}–{style.meaningWords[1]} words
+            </p>
+            <details>
+              <summary>How suggestions are picked</summary>
+              <p>
+                One meaning at a time, a concrete situation, and clear English.
+                Verbs describe an action; nouns explain what something is or
+                does; adjectives describe a quality.
+              </p>
+              <p>
+                These lengths are preferences, not limits. Complete meanings are
+                kept.{" "}
+                {style.personalized
+                  ? "Your saved English cards guide the order of suggestions."
+                  : "As you add cards, suggestions adapt to your examples."}
+              </p>
+            </details>
+          </div>
+        )}
+        {notice && (
+          <p className="notice small" role="status">
+            {notice}
+          </p>
+        )}
         {definitions.length > 0 && (
-          <div className="definition-options">
-            <small>Choose the meaning you want to study:</small>
-            {definitions.map((d, i) => (
+          <div className="definition-options" aria-label="Suggested meanings">
+            <p>Choose one meaning. Preview the example before adding it.</p>
+            {(showAll ? definitions : definitions.slice(0, 3)).map((d, i) => (
+              <article className="definition-option" key={i}>
+                <span className="definition-part">{d.part}</span>
+                <p className="definition-meaning">{d.meaning}</p>
+                {d.example && (
+                  <blockquote>
+                    <Highlight text={d.example} word={word} />
+                  </blockquote>
+                )}
+                <Attribution credit={d.credit} />
+                <div className="definition-actions">
+                  {d.example && (
+                    <Button
+                      type="button"
+                      variant="small"
+                      onClick={() => choose(d, true)}
+                    >
+                      Use meaning and example
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="small secondary"
+                    onClick={() => choose(d, false)}
+                  >
+                    {d.example ? "Use meaning only" : "Use this meaning"}
+                  </Button>
+                </div>
+              </article>
+            ))}
+            {definitions.length > 3 && (
               <button
                 type="button"
-                key={i}
-                onClick={() => {
-                  update({
-                    meaning: d.meaning,
-                    meaningCredit: d.credit,
-                    ...(d.example
-                      ? { sentence: d.example, sentenceCredit: d.credit }
-                      : {}),
-                  });
-                  setDefinitions([]);
-                }}
+                className="text-button"
+                onClick={() => setShowAll(!showAll)}
               >
-                <span>{d.part}</span>
-                {d.meaning}
+                {showAll
+                  ? "Show fewer meanings"
+                  : `Show ${definitions.length - 3} more meanings`}
               </button>
-            ))}
+            )}
           </div>
         )}
         <div className="form-grid spaced">
@@ -490,13 +594,21 @@ export function WordEditor({
         </Field>
         <details
           className="form-details"
-          open={!!existing || word.kind === "cloze"}
+          open={!!existing || word.kind === "cloze" || !!word.sentence}
         >
           <summary>Example and English explanation</summary>
           <Field label="Example sentence">
             <textarea
               value={word.sentence}
-              onChange={(e) => update({ sentence: e.target.value })}
+              onChange={(e) =>
+                update({
+                  sentence: e.target.value,
+                  sentenceStatus: "manual",
+                  sentenceCredit: word.sentenceCredit
+                    ? { ...word.sentenceCredit, modified: true }
+                    : null,
+                })
+              }
               maxLength={2000}
               rows={3}
             />
@@ -512,7 +624,7 @@ export function WordEditor({
         </details>
         <div className="notice small">
           {online
-            ? "Save without a sentence to find a free example. Check the meaning before studying."
+            ? "Save without a sentence to find a short example in your study style. Always check that it uses your chosen meaning."
             : "Offline: the word will be saved on this device; the example will stay pending."}
         </div>
         <ErrorText error={error} />

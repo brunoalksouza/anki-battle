@@ -6,6 +6,17 @@ import type { Service } from "./service";
 import { fail } from "./service";
 import { dayKey, languages, type Credit, type Word } from "../shared/model";
 import { termRanges } from "../shared/text";
+import type {
+  DefinitionSuggestion,
+  ExampleSuggestion,
+} from "../shared/suggestions";
+import {
+  learnStyle,
+  rankDefinitions,
+  rankExamples,
+  parseSimpleDictionary,
+  cardDefinition,
+} from "./suggestion-style";
 const ua =
   "AnkiBattle/1.0 (https://anki.aneblober.com; educational flashcards)";
 async function json(url: URL | string) {
@@ -70,51 +81,117 @@ export class Integrations {
     );
     return data;
   }
+  private style(user: string, excludeWord?: string) {
+    return learnStyle(
+      this.svc.list<Word>("words", user).filter((w) => w.id !== excludeWord),
+    );
+  }
+  private async dictionary(
+    term: string,
+  ): Promise<{ definitions: DefinitionSuggestion[]; unavailable: boolean }> {
+    const lookup = term
+      .trim()
+      .toLowerCase()
+      .replace(/^to\s+(?=\S)/, "");
+    const sources = await Promise.allSettled([
+      this.cached("dictionary:english-v2:" + lookup, async () => {
+        const r = await fetch(
+          "https://api.dictionaryapi.dev/api/v2/entries/en/" +
+            encodeURIComponent(lookup),
+          {
+            headers: { "User-Agent": ua },
+            signal: AbortSignal.timeout(8000),
+          },
+        );
+        if (r.status === 404) return [];
+        if (!r.ok) fail(502, "Dictionary temporarily unavailable.");
+        const data = (await r.json()) as any[];
+        return data.flatMap((entry) =>
+          entry.meanings.flatMap((m: any) =>
+            m.definitions.map((d: any) => ({
+              meaning: d.definition,
+              part: m.partOfSpeech,
+              example: "",
+              examples: d.example ? [d.example] : [],
+              credit: {
+                source: "Wiktionary / Free Dictionary",
+                url: entry.sourceUrls?.[0] || "https://dictionaryapi.dev/",
+                author: "Wiktionary contributors",
+                license: entry.license?.name || "CC BY-SA 3.0",
+                licenseUrl: entry.license?.url,
+              },
+            })),
+          ),
+        );
+      }),
+      this.cached("simple-dictionary:v1:" + lookup, async () => {
+        const url = new URL("https://simple.wiktionary.org/w/api.php");
+        url.search = new URLSearchParams({
+          action: "parse",
+          page: lookup,
+          prop: "wikitext|revid",
+          redirects: "1",
+          format: "json",
+        }).toString();
+        const r = await fetch(url, {
+          headers: { "User-Agent": ua },
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!r.ok) fail(502, "Simple dictionary temporarily unavailable.");
+        const data = (await r.json()) as any;
+        if (data.error?.code === "missingtitle") return [];
+        if (!data.parse?.wikitext)
+          fail(502, "Simple dictionary temporarily unavailable.");
+        return parseSimpleDictionary(
+          data.parse.wikitext["*"],
+          data.parse.title,
+          data.parse.revid,
+        );
+      }),
+    ]);
+    const definitions = sources
+      .flatMap((r) =>
+        r.status === "fulfilled" ? (r.value as DefinitionSuggestion[]) : [],
+      )
+      .map((d) => {
+        const meaning = cardDefinition(d.meaning, lookup, d.part);
+        return {
+          ...d,
+          meaning,
+          credit:
+            meaning === d.meaning ? d.credit : { ...d.credit, modified: true },
+          exampleCredit: d.credit,
+        };
+      });
+    return {
+      definitions,
+      unavailable: sources.some((r) => r.status === "rejected"),
+    };
+  }
   async definitions(user: string, term: string, lang: string) {
     this.quota(user, "dictionary", 100);
+    const learned = this.style(user);
     if (lang !== "en")
       return {
         definitions: [],
+        style: learned.style,
         notice:
           "Dictionary suggestions are available for English words. You can write your own meaning in English.",
       };
-    return this.cached(
-      "dictionary:english-v1:" + term.toLowerCase(),
-      async () => {
-        const r = await fetch(
-          "https://api.dictionaryapi.dev/api/v2/entries/en/" +
-            encodeURIComponent(term),
-          { signal: AbortSignal.timeout(12000) },
-        );
-        if (r.status === 404)
-          return {
-            definitions: [],
-            notice: "Word not found. You can write your own meaning.",
-          };
-        if (!r.ok) fail(502, "Dictionary temporarily unavailable.");
-        const data = (await r.json()) as any[];
-        return {
-          definitions: data
-            .flatMap((entry) =>
-              entry.meanings.flatMap((m: any) =>
-                m.definitions.map((d: any) => ({
-                  meaning: d.definition,
-                  part: m.partOfSpeech,
-                  example: d.example || "",
-                  credit: {
-                    source: "Wiktionary / Free Dictionary",
-                    url: entry.sourceUrls?.[0] || "https://dictionaryapi.dev/",
-                    author: "Wiktionary contributors",
-                    license: entry.license?.name || "CC BY-SA 3.0",
-                    licenseUrl: entry.license?.url,
-                  },
-                })),
-              ),
-            )
-            .slice(0, 20),
-        };
-      },
-    );
+    const result = await this.dictionary(term);
+    // Only raw source data is shared in the cache; ranking always uses this account.
+    const definitions = rankDefinitions(result.definitions, term, learned);
+    return {
+      definitions,
+      style: learned.style,
+      notice: definitions.length
+        ? result.unavailable
+          ? "One source is unavailable. Showing suggestions from the other dictionary."
+          : ""
+        : result.unavailable
+          ? "The free dictionaries are unavailable. Try again or write your own meaning."
+          : "No clear definition found. Try the base form or write your own meaning in English.",
+    };
   }
   async examples(user: string, word: Word) {
     this.quota(user, "sentences", 100);
@@ -124,16 +201,16 @@ export class Integrations {
       to = "eng";
     // Keep explanations in English, independent of the user's native language.
     // A new cache namespace also avoids reusing old Portuguese suggestions.
-    return this.cached(`examples:english-v1:${lang}:${word.term}`, async () => {
+    return this.cached(`examples:english-v2:${lang}:${word.term}`, async () => {
       const url = new URL("https://api.tatoeba.org/v1/sentences");
       url.search = new URLSearchParams({
         lang,
         q: '"' + word.term.replace(/["\\]/g, "") + '"',
-        sort: "words",
+        sort: "random",
         ...(lang === to ? {} : { "trans:lang": to }),
-        limit: "30",
+        limit: "100",
         is_unapproved: "no",
-        word_count: "3-18",
+        word_count: word.language === "en" ? "4-20" : "3-18",
       }).toString();
       const data = await json(url);
       return (data.data || [])
@@ -163,49 +240,76 @@ export class Integrations {
               : null,
           };
         })
-        .slice(0, 15);
+        .slice(0, 100);
     });
   }
   async suggest(user: string, wordId: string, another = false) {
-    const before = this.svc.owned<Word>("words", wordId, user),
-      examples = await this.examples(user, before);
-    if (!examples.length)
+    const before = this.svc.owned<Word>("words", wordId, user);
+    if (!another && before.sentence)
       return {
         word: before,
         examples: [],
-        notice:
-          "No example found. Your word is saved. Write your own sentence or try again.",
+        notice: "Your existing example was kept.",
       };
-    const meaningTokens = new Set(
-      before.meaning
-        .toLowerCase()
-        .split(/[^\p{L}]+/u)
-        .filter((s) => s.length > 3),
+    // Exclude the word being changed so each new example cannot reorder its own
+    // candidate pool through the learned vocabulary.
+    const learned = this.style(user, wordId);
+    // Charge once per user action, even when a dictionary example is available.
+    this.quota(user, "dictionary", 100);
+    const [dictionary, source] = await Promise.allSettled([
+      before.language === "en"
+        ? this.dictionary(before.term)
+        : Promise.resolve({ definitions: [], unavailable: false }),
+      this.examples(user, before),
+    ]);
+    // A quota rejection must not be hidden as an upstream outage.
+    if (source.status === "rejected" && source.reason?.statusCode === 429)
+      throw source.reason;
+    const definitions =
+      dictionary.status === "fulfilled" ? dictionary.value.definitions : [];
+    const paired: ExampleSuggestion[] = definitions.flatMap((d) =>
+      d.examples.map((sentence) => ({
+        sentence,
+        translation: "",
+        credit: d.exampleCredit || d.credit,
+        translationCredit: null,
+        meaning: d.meaning,
+      })),
     );
-    const ranked = [...examples].sort((a, b) => {
-      const score = (s: any) =>
-        (s.sentence + " " + s.translation)
-          .toLowerCase()
-          .split(/[^\p{L}]+/u)
-          .filter((t: string) => meaningTokens.has(t)).length;
-      return score(b) - score(a);
-    });
-    const choice = another
-      ? ranked.find((x) => x.sentence !== before.sentence) || ranked[0]
-      : ranked[0];
+    const ranked = rankExamples(
+      [...paired, ...(source.status === "fulfilled" ? source.value : [])],
+      before,
+      learned,
+    );
     const current = this.svc.owned<Word>("words", wordId, user);
     if (current.version !== before.version)
       fail(
         409,
         "The word changed while the example was loading. Please try again.",
       );
-    const credit: Credit = choice.credit;
+    if (!ranked.length)
+      return {
+        word: current,
+        examples: [],
+        notice:
+          "No suitable example found. Your card is unchanged. Try the base form or write a short sentence in Edit.",
+      };
+    const index = ranked.findIndex((e) => e.sentence === before.sentence);
+    const choice =
+      ranked[another && index >= 0 ? (index + 1) % ranked.length : 0];
+    if (choice.sentence === before.sentence)
+      return {
+        word: current,
+        examples: ranked,
+        notice:
+          "No different example is available yet. Your current example was kept.",
+      };
     const next: Word = {
       ...current,
       sentence: choice.sentence,
       translation: choice.translation,
       sentenceStatus: "ready",
-      sentenceCredit: credit,
+      sentenceCredit: choice.credit,
       translationCredit: choice.translationCredit,
       version: current.version + 1,
     };
@@ -213,8 +317,9 @@ export class Integrations {
     return {
       word: next,
       examples: ranked,
-      notice:
-        "A real example from a public source. Check that it matches the meaning you want to study.",
+      notice: choice.meaning
+        ? "A short example from the matching dictionary meaning."
+        : "A short example in your study style. Check that it uses your chosen meaning.",
     };
   }
   private commonsUrl() {
