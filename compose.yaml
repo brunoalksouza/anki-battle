@@ -1,0 +1,65 @@
+name: anki-battle
+services:
+  app:
+    build: .
+    image: anki-battle:local
+    container_name: anki-battle-app
+    restart: unless-stopped
+    init: true
+    read_only: true
+    user: "1000:1000"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:size=32m,mode=1777"]
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3100
+      DATA_DIR: /data
+      APP_ORIGIN: https://anki.aneblober.com
+    volumes:
+      - anki_data:/data
+    networks: [backend, outbound]
+    mem_limit: 384m
+    cpus: 0.7
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "3" }
+  gateway:
+    image: caddy:2.11.4-alpine
+    container_name: anki-battle-gateway
+    restart: unless-stopped
+    read_only: true
+    user: "1000:1000"
+    cap_drop: [ALL]
+    # The official Caddy binary carries this file capability, even on port 8080.
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      [
+        "/data:size=8m,mode=1777",
+        "/config:size=8m,mode=1777",
+        "/tmp:size=8m,mode=1777",
+      ]
+    volumes: ["./deploy/Caddyfile.gateway:/etc/caddy/Caddyfile:ro"]
+    networks:
+      backend:
+      edge:
+        aliases: [anki-gateway]
+    depends_on:
+      app: { condition: service_healthy }
+    mem_limit: 48m
+    cpus: 0.2
+    pids_limit: 64
+    logging:
+      driver: json-file
+      options: { max-size: "2m", max-file: "2" }
+networks:
+  backend: { internal: true }
+  outbound:
+  edge: { external: true, name: docker_default }
+volumes:
+  anki_data:
+    external: true
+    name: anki-battle_anki_data

@@ -1,0 +1,345 @@
+import { randomUUID } from "node:crypto";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import sharp from "sharp";
+import type { Service } from "./service";
+import { fail } from "./service";
+import { dayKey, languages, type Credit, type Word } from "../shared/model";
+import { termRanges } from "../shared/text";
+const ua =
+  "AnkiBattle/1.0 (https://anki.aneblober.com; educational flashcards)";
+async function json(url: URL | string) {
+  const r = await fetch(url, {
+    headers: { "User-Agent": ua },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!r.ok)
+    fail(
+      502,
+      "A fonte gratuita está indisponível. Tente novamente mais tarde.",
+    );
+  return r.json() as Promise<any>;
+}
+const licenseUrl = (license: string) =>
+  license.toUpperCase().includes("CC0")
+    ? "https://creativecommons.org/publicdomain/zero/1.0/"
+    : "https://creativecommons.org/licenses/by/2.0/fr/";
+const plain = (s: string) =>
+  s
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .slice(0, 1000);
+export class Integrations {
+  constructor(
+    private svc: Service,
+    private dataDir: string,
+  ) {}
+  quota(user: string, kind: string, max: number) {
+    const day = dayKey(this.svc.now());
+    const used =
+      this.svc.db.get(
+        "SELECT count FROM usage WHERE user_id=? AND day=? AND kind=?",
+        user,
+        day,
+        kind,
+      )?.count || 0;
+    if (used >= max)
+      fail(
+        429,
+        "Limite diário desta consulta atingido. Você pode continuar estudando e editar o texto.",
+      );
+    this.svc.db.run(
+      "INSERT INTO usage VALUES(?,?,?,1) ON CONFLICT(user_id,day,kind) DO UPDATE SET count=count+1",
+      user,
+      day,
+      kind,
+    );
+  }
+  async cached(key: string, fn: () => Promise<any>) {
+    const cached = this.svc.db.get(
+      "SELECT data FROM provider_cache WHERE key=? AND expires>?",
+      key,
+      this.svc.now().toISOString(),
+    );
+    if (cached) return JSON.parse(cached.data);
+    const data = await fn();
+    this.svc.db.run(
+      "INSERT OR REPLACE INTO provider_cache VALUES(?,?,?)",
+      key,
+      JSON.stringify(data),
+      new Date(+this.svc.now() + 86400000).toISOString(),
+    );
+    return data;
+  }
+  async definitions(user: string, term: string, lang: string) {
+    this.quota(user, "dictionary", 100);
+    if (lang !== "en")
+      return {
+        definitions: [],
+        notice:
+          "As sugestões de significado do dicionário estão disponíveis em inglês. Você pode escrever a tradução em qualquer idioma.",
+      };
+    return this.cached("dictionary:" + term.toLowerCase(), async () => {
+      const r = await fetch(
+        "https://api.dictionaryapi.dev/api/v2/entries/en/" +
+          encodeURIComponent(term),
+        { signal: AbortSignal.timeout(12000) },
+      );
+      if (r.status === 404)
+        return {
+          definitions: [],
+          notice: "Palavra não encontrada. Você pode preencher o significado.",
+        };
+      if (!r.ok) fail(502, "Dicionário temporariamente indisponível.");
+      const data = (await r.json()) as any[];
+      return {
+        definitions: data
+          .flatMap((entry) =>
+            entry.meanings.flatMap((m: any) =>
+              m.definitions.map((d: any) => ({
+                meaning: d.definition,
+                part: m.partOfSpeech,
+                example: d.example || "",
+                credit: {
+                  source: "Wiktionary / Free Dictionary",
+                  url: entry.sourceUrls?.[0] || "https://dictionaryapi.dev/",
+                  author: "Wiktionary contributors",
+                  license: entry.license?.name || "CC BY-SA 3.0",
+                  licenseUrl: entry.license?.url,
+                },
+              })),
+            ),
+          )
+          .slice(0, 20),
+      };
+    });
+  }
+  async examples(user: string, word: Word) {
+    this.quota(user, "sentences", 100);
+    const native = this.svc.user(user).nativeLang,
+      lang =
+        languages.find((l) => l.code === word.language)?.tatoeba ||
+        word.language,
+      to = languages.find((l) => l.code === native)?.tatoeba || native;
+    return this.cached(`examples:${lang}:${to}:${word.term}`, async () => {
+      const url = new URL("https://api.tatoeba.org/v1/sentences");
+      url.search = new URLSearchParams({
+        lang,
+        q: '"' + word.term.replace(/["\\]/g, "") + '"',
+        sort: "words",
+        "trans:lang": to,
+        limit: "30",
+        is_unapproved: "no",
+        word_count: "3-18",
+      }).toString();
+      const data = await json(url);
+      return (data.data || [])
+        .filter((s: any) => termRanges(s.text, word.term, word.language).length)
+        .map((s: any) => {
+          const trans = (s.translations || [])
+            .flat(Infinity)
+            .filter((t: any) => t && t.lang === to);
+          return {
+            sentence: s.text,
+            translation: trans[0]?.text || "",
+            credit: {
+              source: "Tatoeba",
+              url: `https://tatoeba.org/en/sentences/show/${s.id}`,
+              author: s.owner || "Tatoeba contributors",
+              license: s.license || "CC BY 2.0 FR",
+              licenseUrl: licenseUrl(s.license || "CC BY 2.0 FR"),
+            },
+            translationCredit: trans[0]
+              ? {
+                  source: "Tatoeba",
+                  url: `https://tatoeba.org/en/sentences/show/${trans[0].id}`,
+                  author: trans[0].owner || "Tatoeba contributors",
+                  license: trans[0].license || "CC BY 2.0 FR",
+                  licenseUrl: licenseUrl(trans[0].license || "CC BY 2.0 FR"),
+                }
+              : null,
+          };
+        })
+        .slice(0, 15);
+    });
+  }
+  async suggest(user: string, wordId: string, another = false) {
+    const before = this.svc.owned<Word>("words", wordId, user),
+      examples = await this.examples(user, before);
+    if (!examples.length)
+      return {
+        word: before,
+        examples: [],
+        notice:
+          "Nenhum exemplo com tradução encontrado. A palavra está salva. Escreva sua frase ou tente novamente.",
+      };
+    const meaningTokens = new Set(
+      before.meaning
+        .toLowerCase()
+        .split(/[^\p{L}]+/u)
+        .filter((s) => s.length > 3),
+    );
+    const ranked = [...examples].sort((a, b) => {
+      const score = (s: any) =>
+        s.translation
+          .toLowerCase()
+          .split(/[^\p{L}]+/u)
+          .filter((t: string) => meaningTokens.has(t)).length;
+      return score(b) - score(a);
+    });
+    const choice = another
+      ? ranked.find((x) => x.sentence !== before.sentence) || ranked[0]
+      : ranked[0];
+    const current = this.svc.owned<Word>("words", wordId, user);
+    if (current.version !== before.version)
+      fail(
+        409,
+        "A palavra foi editada enquanto a frase era buscada. Tente novamente.",
+      );
+    const credit: Credit = choice.credit;
+    const next: Word = {
+      ...current,
+      sentence: choice.sentence,
+      translation: choice.translation,
+      sentenceStatus: "ready",
+      sentenceCredit: credit,
+      translationCredit: choice.translationCredit,
+      version: current.version + 1,
+    };
+    this.svc.save("words", next);
+    return {
+      word: next,
+      examples: ranked,
+      notice:
+        "Exemplo real de uma fonte pública. Confira se corresponde ao sentido que você quer estudar.",
+    };
+  }
+  private commonsUrl() {
+    return new URL("https://commons.wikimedia.org/w/api.php");
+  }
+  private toImage(p: any) {
+    const i = p.imageinfo?.[0],
+      m = i?.extmetadata;
+    if (!i?.thumburl || !m?.LicenseShortName?.value) return null;
+    return {
+      pageId: p.pageid,
+      title: plain(p.title.replace(/^File:/, "")),
+      url: i.thumburl,
+      credit: {
+        source: "Wikimedia Commons",
+        url: i.descriptionurl,
+        author: plain(
+          m.Artist?.value || m.Credit?.value || "Wikimedia contributors",
+        ),
+        license: plain(m.LicenseShortName.value),
+        licenseUrl: m.LicenseUrl?.value
+          ?.replace(/^\/\//, "https://")
+          .replace(/^http:/, "https:"),
+      },
+    };
+  }
+  async images(user: string, q: string) {
+    this.quota(user, "images", 100);
+    return this.cached("images:" + q, async () => {
+      const url = this.commonsUrl();
+      url.search = new URLSearchParams({
+        action: "query",
+        format: "json",
+        generator: "search",
+        gsrsearch: q + " filetype:bitmap",
+        gsrnamespace: "6",
+        gsrlimit: "12",
+        prop: "imageinfo",
+        iiprop: "url|extmetadata",
+        iiurlwidth: "480",
+      }).toString();
+      const data = await json(url);
+      return Object.values(data.query?.pages || {})
+        .map((p) => this.toImage(p))
+        .filter(Boolean);
+    });
+  }
+  async selectImage(
+    user: string,
+    wordId: string,
+    pageId: number,
+    version: number,
+  ) {
+    const word = this.svc.owned<Word>("words", wordId, user);
+    if (word.version !== version)
+      fail(409, "A palavra mudou. Atualize antes de escolher a imagem.");
+    this.quota(user, "image-download", 50);
+    const url = this.commonsUrl();
+    url.search = new URLSearchParams({
+      action: "query",
+      format: "json",
+      pageids: String(pageId),
+      prop: "imageinfo",
+      iiprop: "url|extmetadata",
+      iiurlwidth: "800",
+    }).toString();
+    const data = await json(url),
+      image = Object.values(data.query?.pages || {})
+        .map((p) => this.toImage(p))
+        .find(Boolean);
+    if (!image) fail(400, "Imagem indisponível para uso.");
+    const source = new URL(image.url);
+    if (
+      source.protocol !== "https:" ||
+      !["upload.wikimedia.org", "thumb.wikimedia.org"].includes(source.hostname)
+    )
+      fail(400, "Origem de imagem inválida.");
+    const r = await fetch(source, {
+      headers: { "User-Agent": ua },
+      redirect: "error",
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!r.ok || !r.headers.get("content-type")?.startsWith("image/"))
+      fail(502, "Não foi possível baixar a imagem.");
+    if (Number(r.headers.get("content-length")) > 6000000)
+      fail(400, "Imagem grande demais.");
+    const chunks: Uint8Array[] = [];
+    let bytes = 0;
+    for await (const chunk of r.body as any) {
+      bytes += chunk.length;
+      if (bytes > 6000000) fail(400, "Imagem grande demais.");
+      chunks.push(chunk);
+    }
+    const buffer = await sharp(Buffer.concat(chunks), {
+      limitInputPixels: 20000000,
+    })
+      .rotate()
+      .resize({
+        width: 800,
+        height: 800,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+    const current = this.svc.owned<Word>("words", wordId, user);
+    if (current.version !== version)
+      fail(409, "A palavra mudou durante o download. Selecione novamente.");
+    const assetId = randomUUID();
+    mkdirSync(join(this.dataDir, "media"), { recursive: true, mode: 0o700 });
+    writeFileSync(join(this.dataDir, "media", assetId + ".webp"), buffer, {
+      mode: 0o600,
+    });
+    this.svc.db.run(
+      "INSERT INTO assets VALUES(?,?,?)",
+      assetId,
+      user,
+      JSON.stringify(image.credit),
+    );
+    const next = {
+      ...current,
+      imageId: assetId,
+      imageCredit: { ...image.credit, modified: true },
+      version: current.version + 1,
+    };
+    this.svc.save("words", next);
+    return next;
+  }
+}

@@ -1,0 +1,20 @@
+import { createContext, useContext } from "react";
+import type { Snapshot, Word, ReviewAction } from "../shared/model";
+import type { Local } from "./offline";
+export type AppContextValue = {
+  s: Snapshot;
+  local: Local;
+  online: boolean;
+  syncing: boolean;
+  refresh: () => Promise<void>;
+  toast: (text: string) => void;
+  saveWord: (word: Word, edit: boolean) => Promise<Word>;
+  review: (r: ReviewAction) => Promise<void>;
+  openWord: (id?: string) => void;
+  openDeck: (id?: string) => void;
+  study: (deckId?: string) => void;
+  navigate: (page: string) => void;
+  detail: (id: string) => void;
+};
+export const AppContext = createContext<AppContextValue>(null!);
+export const useApp = () => useContext(AppContext);
