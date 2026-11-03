@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { X, LoaderCircle, ArrowRight, Plus, BookOpen } from "lucide-react";
-import { termRanges } from "../shared/text";
+import { highlightRanges } from "../shared/highlight";
 import { languages, type Credit, type Word } from "../shared/model";
 import { mediaUrl, profilePhotoUrl } from "./offline";
 import { useApp } from "./context";
@@ -231,7 +231,7 @@ export function Highlight({
   const terms = word ? [word] : words || [];
   const matches = terms
     .flatMap((w) =>
-      termRanges(text, w.term, w.language).map((r) => ({ ...r, w })),
+      highlightRanges(text, w.term, w.language).map((r) => ({ ...r, w })),
     )
     .sort((a, b) => a.start - b.start || b.end - b.start - (a.end - a.start));
   let pos = 0;
