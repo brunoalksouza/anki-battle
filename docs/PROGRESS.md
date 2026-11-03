@@ -55,3 +55,9 @@ Instalação física no celular, cobertura das fontes gratuitas, independência 
 - The reveal button and all four difficulty buttons occupy the same bottom action area, outside the card. Dynamic viewport sizing and safe-area insets account for Safari chrome and the home indicator.
 - Compact card layout automatically adjusts spacing, readable text sizes and contained image height after resizing, image loading or expanding explanations. Imported visual answers show their original image directly; compact audio controls keep playback available.
 - Validated the longest imported definitions and representative image/audio cards at 402×874 and a reduced 402×680 viewport, plus 320×568 and landscape controls. No card or page scrolling for the six representative imported cards at 402×680.
+
+## Stronger color contrast — 2026-11-03
+
+- Strengthened the purple accent, dashboard highlights, semantic icon colors and activity greens while preserving the layout and English copy. Secondary text and panel boundaries are more distinct.
+- Theme-aware semantic colors now also drive rating buttons, notices and status badges. Primary button fills retain readable white labels in both themes; dark ratings use distinct deep backgrounds instead of a brightness filter.
+- No study content, schedules, account preferences or application behavior changed in production.

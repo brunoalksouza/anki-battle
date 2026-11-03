@@ -71,3 +71,9 @@ The current APKG migration is an import, not continuous synchronization. AnkiMob
 A future bridge must map the imported note IDs, avoid duplicate reviews and define which scheduler owns next-review dates before writing to either collection. No Anki credentials, desktop add-ons, official collection or synchronization settings were changed for this UI update.
 
 Sources consulted on 2026-11-03: [AnkiMobile preferences](https://docs.ankiweb.net/ankimobile/preferences), [maintainer statement about third-party API access](https://forums.ankiweb.net/t/github-action-to-upload-anki-add-on/70165), [self-hosted sync and AnkiConnect guidance](https://docs.ankiweb.net/manual/sync-server).
+
+## Stronger color contrast
+
+- 32 existing tests passed, TypeScript/Vite production build and diff checks passed. Changes are CSS only.
+- Browser inspection covered the dashboard in both themes and revealed review cards at 402×680. The document stayed 402×680 and every rating button ended at y=668 in both themes.
+- Final palette contrast ratios: light Again 4.69:1, Hard 5.44:1, Good 4.60:1, Easy 6.31:1; dark ratings 6.03:1–7.05:1. White primary button text is 6.11:1 in light and 5.94:1 in dark. These checks cover these color pairs, not a full accessibility audit or user-defined card colors.
