@@ -1,109 +1,81 @@
-# Anki Battle
+# Study Grove
 
-PWA de estudos com interface em inglês, publicado em **https://anki.aneblober.com**. React/Vite, Fastify, SQLite persistente e FSRS-7 (`ts-fsrs` 6). Interface própria com temas claro/escuro, baralhos privados e batalhas assíncronas entre contas reais.
+A personal study space for your words, your books, and your daily habits. Mobile-first English PWA at **https://anki.aneblober.com**, built with React/Vite, Fastify, persistent SQLite, and FSRS-7 (`ts-fsrs` 6).
 
-## Usar
+Source: [brunoalksouza/study-grove](https://github.com/brunoalksouza/study-grove).
 
-Entre com sua conta. Os quatro usuários existentes do Financeiro foram migrados com seus identificadores e verificadores de senha atuais. É uma migração inicial: alterações posteriores de senha ou novos usuários no Financeiro não são sincronizados. O Anki não lê dados financeiros durante o uso.
+## Use the app
 
-- **Início:** mapa anual de atividade com intensidade verde, seleção de dia, navegação por ano, resumo diário e estatísticas. Média e frequência usam os dias decorridos do ano (sem dias futuros); a maior sequência considera o ano selecionado e a sequência atual considera todo o histórico. Estudo e acessos ficam separados.
-- **Estudar:** crie/edite baralhos, ajuste limites no Perfil e baixe um baralho para revisar sem internet. Revelar → Errei, Difícil, Bom ou Fácil. O FSRS calcula a próxima revisão.
-- **Palavras:** cadastre expressão, significado, idioma e cor; pesquise, filtre e edite. Cards básicos, inversos e lacunas. Detalhes incluem imagens, pronúncia importada, suspensão e histórico.
-- **Batalhas:** o modo principal **Consistency** compara dias de estudo e palavras revisadas por 7 dias, usando os baralhos privados de cada participante. Convide a outra conta e aguarde o aceite. O modo opcional **Card quiz** conserva as perguntas de um baralho compartilhado.
-- **Perfil:** metas, limites, aparência, idiomas, histórico e exportação. Gere e guarde os códigos de recuperação; cada código funciona uma vez. Não há envio de e-mail.
+- **Home:** daily study progress, the reading goal, annual study heatmap, and your decks. Study days and visits are separate. Future days never lower your activity average.
+- **Study:** private decks, spaced repetition, basic/reverse/cloze cards, and offline review. The focused mobile session keeps the card and difficulty buttons within the viewport.
+- **Words:** definitions, examples, pronunciation, images, search, and CSV/JSON import/export. English words and their singular/plural forms are highlighted automatically.
+- **Compete:** invite a friend to a seven-day consistency challenge. Each player studies their own private cards; compare study days first and distinct words reviewed second. Optional card quizzes use an explicitly shared deck.
+- **Reading:** read every day, using confirmed Kindle dates. Access it from Home or Profile. Reading does not change flashcard points, schedules, or challenges.
+- **Profile:** gallery photo, appearance, languages, time zone, limits, goals, history, exports, and recovery codes.
 
-**Instalar:** no iPhone/iPad, Safari → Compartilhar → Adicionar à Tela de Início. No Android, Chrome → menu → Instalar aplicativo. Em Estudar, use **Baixar** para incluir imagens e áudios. O armazenamento offline pertence ao navegador; limpar os dados do site remove a cópia local. Aguarde “Tudo sincronizado” antes de trocar de aparelho ou limpar dados.
+Install on iPhone through Safari → Share → Add to Home Screen, or use the install option in Profile. Download study decks to include their images and audio offline. Wait for **All synced** before clearing browser data or changing devices. Updates wait until you choose **Update now** outside an active review with no pending changes.
 
-## Executar e validar
+Existing Financeiro accounts were migrated once. This is not ongoing SSO: later passwords and new Financeiro users do not sync automatically. The app does not read financial records. Recovery codes are single-use; there is no recovery email service.
 
-Node.js 24+ e npm. Nenhuma chave de IA é necessária.
+## Kindle daily reading
+
+Open **Reading → Connect Kindle**. On a computer, sign in to Amazon Reading Insights and copy the `Cookie` request header from its `/insights/data` request in the browser's Network tools. Paste it into the masked field in Study Grove. The connection is saved only after a successful authenticated response. Never share this value in chat, screenshots, source files, or logs.
+
+This uses an **unofficial Amazon endpoint**, not OAuth or a public Kindle API. The session grants broader Amazon account access. Each account has its own connection, encrypted with AES-256-GCM and account-bound authenticated data. Credentials never appear in snapshots, exports, client storage, or logs. The encryption key is a permission-restricted file in `DATA_DIR`. Disconnect removes the saved session and keeps confirmed reading history.
+
+Once connected, the server checks every 15 minutes even when the phone and Mac are closed. The Kindle must sync with Amazon first. Manual checks are limited to once a minute. Expired authentication asks for reconnection; temporary failures retry and preserve the last successful data. No automatic connection is claimed until a session is verified from the server.
+
+Only calendar days in the returned current daily streak are accumulated. Midnight ISO values retain Amazon's calendar date without shifting to the previous day in a local time zone. Repeated snapshots are idempotent; later streaks do not erase old dates. Blank calendar cells mean **no confirmed data**, not proof of no reading. A record streak or monthly total does not reconstruct the entire historical calendar. Marked-as-read titles are counted by unique ASIN and year; they are not proof a whole book was read. This endpoint does not provide reading minutes or pages.
+
+## Run and validate
+
+Node.js 24+ and npm. Public language sources require no paid AI key.
 
 ```sh
 npm ci
+npm test
 npm run build
 APP_ORIGIN=http://127.0.0.1:3100 npm start
 ```
 
-Abra http://127.0.0.1:3100. O build permite testar o service worker; no desenvolvimento Vite, use `npm run dev` e, em outro terminal, `npm run server` (origem padrão `http://localhost:5173`; Vite encaminha `/api` ao backend).
+Open http://127.0.0.1:3100. For development, run `npm run dev` and `npm run server`; Vite proxies `/api`. `.env.example` documents settings. `server/index.ts` loads an existing `.env`. Database, media, and optional Kindle session key live in `DATA_DIR`, excluded from Git.
 
 ```sh
-npm test
-npm run build
-node --import tsx scripts/verify-backup.ts caminho/do/backup
+bash deploy/publish.sh
+node --import tsx scripts/verify-backup.ts /path/to/backup
 ```
 
-Variáveis em `.env.example` são referência; injete-as pelo ambiente do processo ou Compose. Não há carregamento automático de `.env`. Banco e mídias ficam em `DATA_DIR` (padrão `./data`), excluído do Git.
+The existing domain, Docker resources, database filename, account cookie, and IndexedDB identifiers retain their original names to preserve installed apps, sessions, queued reviews, and persistent data. The product name, PWA metadata, icon, package name, and exported filenames are **Study Grove**. Operational details and restoration instructions are in [docs/OPERATIONS.md](docs/OPERATIONS.md).
 
-## Dados e sincronização
+## Data and offline behavior
 
-SQLite em WAL, transações para revisões/resultados, sessões opacas em cookies HttpOnly, hashes de sessão no banco, scrypt e autorização de cada recurso. CSRF valida origem e cabeçalho da aplicação. Mídias de estudo requerem autenticação e propriedade. Fotos de perfil ficam visíveis aos jogadores autenticados, como os avatares e apelidos. O proxy sobrescreve o IP usado nos limites; a API não publica porta no host.
+SQLite uses WAL and transactions. Opaque HttpOnly sessions, hashed tokens, scrypt password verification, per-resource ownership, origin checks, and client headers protect private resources. Profile photos are visible to authenticated players; study media require ownership. There is no public host port for the API. The proxy supplies the trusted rate-limit IP.
 
-IndexedDB isola os dados de cada conta. Cards baixados, mídias e fila de revisões sobrevivem ao fechamento. Escritas locais são atômicas; `navigator.locks` coordena abas. IDs de ação tornam reenvios idempotentes. Um conflito de conteúdo conserva o rascunho, permite comparar, reaplicar ou exportar e manter a versão do servidor. Revisões concorrentes conservam o histórico, sem aplicar duas vezes o mesmo estado ou conceder pontos em duplicidade. O conteúdo e o agendamento têm versões independentes.
+IndexedDB isolates accounts. Downloaded cards/media and queued reviews survive closing the app. Atomic local writes and browser locks coordinate tabs. Action IDs make retries idempotent. Content conflicts preserve drafts for comparison, reapplication, or export. Concurrent reviews preserve history without duplicating scheduling or rewards. Offline reviews can sync for up to 90 days. The service worker caches only the app shell; private data and media stay in account-specific storage.
 
-O service worker armazena apenas a interface; dados privados e mídia ficam no IndexedDB por conta. Atualizações aguardam uma ação explícita fora da revisão, sem pendências. Uma primeira conexão é necessária. Batalhas, busca externa, mudanças de perfil/baralho e validação de pontos precisam de rede. Revisões offline podem ser sincronizadas por até 90 dias.
+## Free language sources
 
-## Fontes gratuitas
+- [Simple English Wiktionary](https://simple.wiktionary.org/) and [Free Dictionary API](https://dictionaryapi.dev/): short English meanings and same-sense examples with attribution. Preview and accept the meaning or the pair. Supported markup is parsed explicitly; unknown templates are skipped.
+- [Tatoeba](https://api.tatoeba.org/): varied complete examples. The account's existing English cards guide length and vocabulary preferences, without rewriting those cards or sending the collection to providers. Only the looked-up term is sent. “Find another example” cycles cached candidates. Check the meaning when no verified dictionary pair is available.
+- [Wikimedia Commons](https://commons.wikimedia.org/w/api.php): image search, preview, explicit selection, WebP conversion, and attribution. No Google scraping.
 
-- [Simple English Wiktionary](https://simple.wiktionary.org/) e [Free Dictionary API](https://dictionaryapi.dev/): significados em inglês simples com classe gramatical, prévia do exemplo do mesmo sentido e atribuição. A interface permite aceitar só o significado ou o par significado/frase. O parser do Simple Wiktionary aceita um subconjunto explícito de marcação; ignora linhas com modelos desconhecidos, sem apagar qualificadores. Ajustes gramaticais limitados removem sujeitos redundantes e preservam todo o conteúdo, com crédito de adaptação. Falha de uma fonte permite usar a outra. Para outros idiomas, digite o significado em inglês.
-- [Tatoeba API](https://api.tatoeba.org/): até 100 candidatos variados por consulta, mantidos no cache para que “Find another example” percorra o conjunto. Em inglês, a seleção prefere frases completas, curtas, com uma ocorrência exata da expressão. Exemplos anexados à definição escolhida no dicionário têm prioridade; sem um par confirmado, Tatoeba oferece alternativas com aviso para conferir o sentido. Frase e explicação em inglês conservam seus próprios créditos/licenças.
+Provider quotas: 100 meaning and 100 sentence lookups per user/day, 50 image downloads/day, 24-hour query caches, and request timeouts. Failures do not prevent saving or studying. Visual meanings and fragments are excluded from definition style statistics. Personalization is recomputed per account outside shared provider caches. Suggestions use source selection and limited grammatical edits, without a paid generative model or guaranteed disambiguation.
 
-- [Wikimedia Commons](https://commons.wikimedia.org/w/api.php): grade de imagens, prévia e confirmação explícita. O servidor consulta metadados oficiais, limita o download, converte a WebP e conserva autor, origem e licença. Nunca há raspagem do Google.
+## Import and export
 
-O padrão individual considera todos os cards ativos em inglês da conta: comprimentos típicos de frases e significados (quartis), excluindo significados visuais, fragmentos e valores extremos. O vocabulário já visto ajuda a ordenar exemplos. Verbos descrevem ações; substantivos explicam categoria/uso; adjetivos descrevem qualidades. Os comprimentos são preferências, nunca cortes automáticos. O padrão é recalculado por conta, fora do cache compartilhado; só o termo consultado é enviado às fontes públicas. Os cards existentes não são reescritos. Sugestões são seleção de fontes e ajustes limitados, sem serviço pago de IA e sem garantia de desambiguação semântica.
-
-Até 100 buscas de significados e 100 buscas de frases por usuário/dia (a busca automática de frase consulta ambas as categorias), 50 downloads de imagens/dia, cache de consultas por 24h e timeouts. As fontes não exigem cadastro pago nem credenciais. Falha de fonte não impede salvar/estudar; a frase permanece pendente com nova tentativa manual. Não prometemos disponibilidade ou cobertura externa.
-
-## Importação e exportação
-
-Na tela Palavras, importe CSV UTF-8 com cabeçalho ou JSON (lista ou objeto `{"words":[...]}`). Até 2 MB/1.000 palavras por lote. O destino é o baralho selecionado ou o primeiro. Cada importação explícita cria novas palavras; reenvio do mesmo pedido é idempotente.
-
-Campos: `term` e `meaning` obrigatórios; `language` (ex. `en`), `color` (`#8058d8`), `tags` (CSV separadas por `;`, JSON array), `sentence`, `translation` e `kind` (`basic`, `reverse`, `cloze`). O exportador usa os filtros ativos. CSV/JSON de conteúdo não transferem binários, contas nem agendamento. A exportação do Perfil inclui dados/histórico/pendências para consulta; restauração integral usa o backup do servidor.
+Words accepts UTF-8 CSV or JSON (an array or `{ "words": [...] }`), up to 2 MB/1,000 words per batch. Explicit imports create words; retries of the same request are idempotent. Required fields: `term`, `meaning`. Optional fields: `language`, `color`, `tags`, `sentence`, `translation`, `kind` (`basic`, `reverse`, `cloze`). Content exports do not transfer binary media, accounts, or scheduling. Profile export includes personal history and pending changes; full restoration uses a server backup.
 
 ```csv
 term,meaning,language,color,tags,sentence,translation,kind
-horse,cavalo,en,#8058d8,animais,The horse runs.,O cavalo corre.,basic
+horse,A large animal that people ride,en,#8058d8,animals,The horse runs across the field.,,basic
 ```
 
-A migração administrativa de APKG moderno usa `scripts/prepare-apkg.mjs` (Node 24, Python 3, `fflate`) e `scripts/import-anki.ts`. Suporta o modelo Basic de um card usado no arquivo recebido; rejeita modelos incompatíveis. Valida a mídia por SHA-1, conserva o original por SHA-256 e usa IDs determinísticos para evitar duplicação. O HTML original é arquivado como texto, nunca executado. O histórico real reconstrói o estado FSRS e a próxima data original é preservada. Pontos antigos não são criados.
+Administrative APKG migration uses `scripts/prepare-apkg.mjs` and `scripts/import-anki.ts`. It validates media checksums, archives the original, uses deterministic IDs to avoid duplicates, preserves source due dates, and reconstructs FSRS state from real reviews without granting historical points. Unsupported card templates are rejected. Original HTML is archived as text, never executed. Private imports and personal data are not in this repository.
 
-O English.apkg fornecido foi importado apenas no perfil Bruno: **222 palavras, 909 revisões, 81 imagens, 221 áudios**. As 81 definições originalmente visuais mantêm a imagem e a tag `significado-visual`. Elas não entram em perguntas textuais de batalha até receberem um significado escrito. Os originais e dados privados não fazem parte do repositório.
+## Competition
 
-## Regras competitivas
+A consistency challenge requires an accepted invitation and covers seven calendar days including acceptance day. Each participant keeps their own deck private. Only participants can see the other player's aggregate daily counts, avatar, and nickname. One word counts once per study day, even across multiple cards. Study days decide the winner; total reviewed words break a tie.
 
-5 pontos pela primeira revisão válida de cada palavra no dia UTC, com pelo menos 2 segundos ativos; máximo 100 palavras/dia. Todos os botões de autoavaliação valem o mesmo. Login não dá pontos. Reenvios, cards antecipados/suspensos e conflitos não concedem pontos. Tempo ativo pausa em aba oculta e após 30 segundos sem interação, com teto de 120 segundos por resposta. Autoavaliação não é apresentada como acerto objetivo.
+Global points: 5 points for the first valid review of a word on a UTC day, at least 2 active seconds, up to 100 words/day. All self-ratings earn equally. Login, duplicates, early/suspended cards, and conflicts do not earn points. Active time pauses when hidden or idle and is capped at 120 seconds per answer. Self-ratings are not objective accuracy. Competitive weeks start Monday at 00:00 UTC; late offline reviews do not modify closed weeks.
 
-A semana competitiva começa segunda-feira às 00h UTC para todos. Revisões offline antigas permanecem no histórico local, mas não alteram semanas competitivas encerradas. Calendários/tempo de estudo usam o fuso do perfil. Metas semanais são preservadas no banco.
-
-Batalhas exigem aceite e baralho autorizado com ao menos quatro pares distintos. Até dez perguntas, 60 segundos por rodada, prazo total de 48h. O servidor guarda o relógio e o gabarito; reconectar não reinicia a rodada. Acertos vêm primeiro; a soma dos tempos nas respostas corretas desempata. Se ambas as medidas empatam, empate. Abandono/expiração não dão recompensa. Participação válida: 10 pontos; vencedor: 20; ao menos um acerto, até três recompensas/dia e uma por oponente/semana. Batalhas nunca alteram cards pessoais.
-
-## Operação e evidências
-
-- [Implantação, backup e restauração](docs/OPERATIONS.md)
-- [Validação e limites reais](docs/VALIDATION.md)
-- [Registro de execução](docs/PROGRESS.md)
-
-Referências visuais examinadas: [Apple design](https://github.com/topics/apple-design), [Apple Bento Grid](https://github.com/hubeiqiao/apple-bento-grid) e [Simple Liquid Glass](https://github.com/lucaperullo/simple-liquid-glass). Os dois projetos são MIT; usados como inspiração visual, sem copiar implementação. Ícones Lucide, fontes nativas, CSS e arte vetorial próprios.
-
-## Interface language and mobile use
-
-The app interface is English throughout, including validation, server errors, PWA metadata, and date/number formatting. English learning examples do not generate Portuguese translations. Existing imported English content is preserved; legacy importer labels and default deck metadata are migrated idempotently to English. Phone layouts use larger touch targets and text, stacked forms/filters, safe areas, and sticky review and dialog actions.
-
-## Profile photos
-
-Open **Profile → Change photo → Choose from gallery**, check the preview, then tap **Save photo**. JPEG, PNG and WebP files up to 10 MB are accepted. The app prepares a square preview before upload, and the server validates, rotates and resizes the image to 512×512 WebP without EXIF metadata. Choosing or cancelling does not change the saved photo. **Remove photo → Save changes** restores the emoji avatar.
-
-Photos appear in the profile, app header, ranking, battle cards and player search. Upload/removal requires a connection; previously viewed photos are cached per signed-in account for offline display and cleared from that account's cache on sign-out. Replaced photo URLs stop serving the old image. Server backups include photos through the existing media directory and assets table.
-
-## Focused review sessions
-
-Starting a study session hides app navigation and keeps the card and answer controls in the visible screen area. The layout adapts to browser bars, safe areas, rotation and shorter screens. Images retain their aspect ratio, audio remains available and difficulty buttons stay in a stable bottom row. **End session** returns to the deck list. Very large custom content stays accessible inside the card without moving the action row.
-
-## Consistency challenges with independent decks
-
-Open **Battles → Consistency → Challenge a friend**, search for your partner's nickname, and send the invitation. The invited person accepts in their own account. No shared deck or matching vocabulary is required. The challenge covers seven calendar days, including the day of acceptance and both players' study earlier that day. Invitations expire after seven days.
-
-The scoreboard shows each person's words today, study days, total daily word counts and seven-day activity. More study days wins; total words reviewed breaks a tie; equal totals produce a tie. One eligible word makes a study day. The same word counts once per day across reverse cards, duplicate terms and decks; reviewing it again on another day can count again. Ratings have equal value. Only applied reviews of due cards with at least two seconds of active study count; creating/importing content alone does not count.
-
-Both players use the inviter's time zone, fixed when the invitation is created. Offline reviews count if received before the last day ends, even when they crossed a leaderboard week. Server receipt times prevent later sync from changing a completed result. Final and cancelled scores are persisted. Either participant can end an active challenge without a winner; the sender can cancel an unanswered invitation. No extra leaderboard points are awarded.
-
-Only participants can access a challenge. They see names, avatars and daily aggregate counts, never the other person's vocabulary, definitions or review records. Existing scheduling, private decks, quiz battles and global points remain independent.
+Optional card quizzes require an accepted invitation and an authorized deck with four distinct pairs. Up to ten questions, 60 seconds each, 48-hour expiry. The server checks answers and timing. Correct answers rank first, then time on correct answers. Valid participation earns 10 points and a win 20, with caps of three rewards/day and one per opponent/week. Abandoned or expired quizzes give no rewards. Quizzes never alter personal card schedules.

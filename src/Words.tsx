@@ -66,10 +66,10 @@ export default function Words() {
     const words = list.map(({ id, version, imageId, ...w }) => w);
     if (format === "json")
       exportFile(
-        "anki-battle-words.json",
+        "study-grove-words.json",
         JSON.stringify(
           {
-            format: "anki-battle-content-v1",
+            format: "study-grove-content-v1",
             exportedAt: new Date().toISOString(),
             words,
           },
@@ -79,7 +79,7 @@ export default function Words() {
       );
     else
       exportFile(
-        "anki-battle-words.csv",
+        "study-grove-words.csv",
         Papa.unparse(
           words.map((w) => ({
             term: w.term,

@@ -1,11 +1,6 @@
 import { useState, type FormEvent } from "react";
-import {
-  ArrowRight,
-  Layers3,
-  ShieldCheck,
-  Sparkles,
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, ArrowLeft } from "lucide-react";
+import BrandMark from "./BrandMark";
 import { api, exportFile } from "./offline";
 import { Button, Field, LanguageSelect, ErrorText } from "./ui";
 export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
@@ -49,9 +44,9 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
     <div className="auth-page">
       <div className="auth-brand">
         <span className="brand-icon">
-          <Layers3 size={24} />
+          <BrandMark size={42} />
         </span>
-        Anki <b>Battle</b>
+        Study <b>Grove</b>
       </div>
       <div className="auth-layout">
         <div className="auth-story">
@@ -59,12 +54,13 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
             <Sparkles size={14} /> A LITTLE EVERY DAY
           </span>
           <h1>
-            Learning feels good.
+            Make room for learning.
             <br />
-            <span>Remembering feels better.</span>
+            <span>Grow a little every day.</span>
           </h1>
           <p>
-            Your words, your pace. Turn small moments into lasting knowledge.
+            Your words, your books, your pace. Build a study habit that stays
+            with you.
           </p>
           <div className="auth-art" aria-hidden="true">
             <div className="art-card back">あ</div>
@@ -107,7 +103,7 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
                 variant="secondary full"
                 onClick={() =>
                   exportFile(
-                    "anki-battle-recovery.txt",
+                    "study-grove-recovery.txt",
                     codes.join("\n"),
                     "text/plain",
                   )
@@ -122,7 +118,7 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
             </>
           ) : (
             <>
-              <span className="eyebrow">YOUR NEXT LEVEL STARTS HERE</span>
+              <span className="eyebrow">YOUR STUDY SPACE STARTS HERE</span>
               <h2>
                 {mode === "register"
                   ? "Build the habit."
@@ -252,7 +248,7 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
         </div>
       </div>
       <footer className="auth-footer">
-        ANKI BATTLE <span>Made for learning, one day at a time.</span>
+        STUDY GROVE <span>Made for learning, one day at a time.</span>
       </footer>
     </div>
   );

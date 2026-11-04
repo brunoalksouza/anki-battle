@@ -1,7 +1,7 @@
 {
-  "name": "anki-battle",
+  "name": "study-grove",
   "version": "1.0.0",
-  "description": "Mobile study PWA with FSRS, offline learning, and asynchronous battles.",
+  "description": "A mobile study space for flashcards, daily reading, and consistency challenges.",
   "scripts": {
     "test": "tsx --test tests/*.test.ts",
     "dev": "vite --host 127.0.0.1",
@@ -13,13 +13,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brunoalksouza/anki-battle.git"
+    "url": "git+https://github.com/brunoalksouza/study-grove.git"
   },
   "type": "module",
   "bugs": {
-    "url": "https://github.com/brunoalksouza/anki-battle/issues"
+    "url": "https://github.com/brunoalksouza/study-grove/issues"
   },
-  "homepage": "https://github.com/brunoalksouza/anki-battle#readme",
+  "homepage": "https://github.com/brunoalksouza/study-grove#readme",
   "dependencies": {
     "@fastify/cookie": "^11.1.5",
     "@fastify/helmet": "^13.2.0",

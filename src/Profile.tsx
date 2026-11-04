@@ -27,6 +27,7 @@ import {
 } from "./ui";
 import { weekKey, level } from "../shared/model";
 import { api, exportFile } from "./offline";
+import { ReadingGoalCard } from "./Reading";
 import ProfilePhoto from "./ProfilePhoto";
 export default function Profile({
   onLogout,
@@ -77,6 +78,7 @@ export default function Profile({
   }
   return (
     <>
+      <ReadingGoalCard />
       <div className="page-heading">
         <div>
           <span className="eyebrow">THIS JOURNEY IS YOURS</span>
@@ -381,7 +383,7 @@ export default function Profile({
               className="settings-row"
               onClick={() =>
                 exportFile(
-                  "anki-battle-my-data.json",
+                  "study-grove-my-data.json",
                   JSON.stringify(
                     {
                       exportedAt: new Date().toISOString(),
@@ -459,7 +461,7 @@ export default function Profile({
               <Button
                 onClick={() =>
                   exportFile(
-                    "anki-battle-recovery.txt",
+                    "study-grove-recovery.txt",
                     codes.join("\n"),
                     "text/plain",
                   )

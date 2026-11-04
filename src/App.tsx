@@ -22,7 +22,9 @@ import {
 } from "lucide-react";
 import { AppContext } from "./context";
 import Auth from "./Auth";
+import BrandMark from "./BrandMark";
 import Dashboard from "./Dashboard";
+import Reading from "./Reading";
 import Study from "./Study";
 import Words, { WordEditor, DeckEditor, WordDetail } from "./Words";
 import Battles from "./Battles";
@@ -277,9 +279,9 @@ export default function App() {
     return (
       <div className="app-loading">
         <span className="brand-icon">
-          <Layers3 size={30} />
+          <BrandMark size={34} />
         </span>
-        <h2>Your next level is loading.</h2>
+        <h2>Your study space is loading.</h2>
         <RefreshCw className="spin muted" size={20} />
       </div>
     );
@@ -298,7 +300,7 @@ export default function App() {
     { id: "home", label: "Home", icon: Home },
     { id: "study", label: "Study", icon: Layers3 },
     { id: "words", label: "Words", icon: LibraryBig },
-    { id: "battles", label: "Battles", icon: Swords },
+    { id: "battles", label: "Compete", icon: Swords },
     { id: "profile", label: "Profile", icon: UserRound },
   ];
   const context = {
@@ -322,10 +324,10 @@ export default function App() {
         <aside className="sidebar">
           <button className="brand" onClick={() => navigate("home")}>
             <span className="brand-icon">
-              <Layers3 size={23} />
+              <BrandMark size={39} />
             </span>
             <span>
-              Anki <b>Battle</b>
+              Study <b>Grove</b>
               <small>LEARN. REMEMBER. GROW.</small>
             </span>
           </button>
@@ -334,7 +336,11 @@ export default function App() {
             {nav.map((n) => (
               <button
                 key={n.id}
-                className={page === n.id ? "active" : ""}
+                className={
+                  page === n.id || (page === "reading" && n.id === "home")
+                    ? "active"
+                    : ""
+                }
                 onClick={() => navigate(n.id)}
               >
                 <n.icon size={20} />
@@ -372,9 +378,13 @@ export default function App() {
         <div className="main-shell">
           <header className="topbar">
             <div className="breadcrumb">
-              <span>Anki Battle</span>
+              <span>Study Grove</span>
               <ChevronRight size={13} />
-              <strong>{nav.find((n) => n.id === page)?.label}</strong>
+              <strong>
+                {page === "reading"
+                  ? "Reading"
+                  : nav.find((n) => n.id === page)?.label}
+              </strong>
             </div>
             <div className="topbar-right">
               <button
@@ -471,6 +481,8 @@ export default function App() {
           <main id="main-content" key={page}>
             {page === "home" ? (
               <Dashboard />
+            ) : page === "reading" ? (
+              <Reading />
             ) : page === "study" ? (
               <Study initialDeck={studyDeck} />
             ) : page === "words" ? (
@@ -484,7 +496,7 @@ export default function App() {
           <footer className="app-footer">
             <span>Small steps. Lasting knowledge.</span>
             <span>
-              ANKI BATTLE <i>✦</i>
+              STUDY GROVE <i>✦</i>
             </span>
           </footer>
         </div>
@@ -492,7 +504,11 @@ export default function App() {
           {nav.map((n) => (
             <button
               key={n.id}
-              className={page === n.id ? "active" : ""}
+              className={
+                page === n.id || (page === "reading" && n.id === "home")
+                  ? "active"
+                  : ""
+              }
               onClick={() => navigate(n.id)}
               aria-current={page === n.id ? "page" : undefined}
             >
@@ -551,7 +567,7 @@ export default function App() {
                 setInstallPrompt(null);
               }}
             >
-              Install Anki Battle
+              Install Study Grove
               <Download size={17} />
             </Button>
           ) : (
@@ -667,7 +683,7 @@ export default function App() {
             variant="secondary"
             onClick={() =>
               exportFile(
-                "anki-battle-pending.json",
+                "study-grove-pending.json",
                 JSON.stringify(local.pending, null, 2),
               )
             }

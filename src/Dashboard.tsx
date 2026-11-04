@@ -10,6 +10,7 @@ import {
   Target,
   Trophy,
 } from "lucide-react";
+import { ReadingGoalCard } from "./Reading";
 import ActivityCalendar from "./ActivityCalendar";
 import { useApp } from "./context";
 import {
@@ -194,6 +195,7 @@ export default function Dashboard() {
           </span>
         </div>
       </div>
+      <ReadingGoalCard />
       <ActivityCalendar />
       <div className="dashboard-bottom">
         <section>
@@ -307,7 +309,7 @@ export default function Dashboard() {
               variant="secondary full"
               onClick={() => navigate("battles")}
             >
-              {invites.length ? "View my challenges" : "Explore battles"}
+              {invites.length ? "View my challenges" : "Explore challenges"}
               <ArrowRight size={16} />
             </Button>
             {!online && <small>Battles need an internet connection.</small>}

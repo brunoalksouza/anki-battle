@@ -7,7 +7,7 @@ const version = createHash("sha256")
   .slice(0, 12);
 writeFileSync(
   "dist/sw.js",
-  `const CACHE='anki-shell-${version}';
+  `const CACHE='study-grove-shell-${version}';
 const FILES=${JSON.stringify(["/", "/index.html", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/icon-maskable.png", "/icon.svg", "/fonts.css", ...assets])};
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
 // Never skip waiting automatically: an active study session keeps its code.

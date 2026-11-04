@@ -1,4 +1,4 @@
-# Anki Battle — registro de execução
+# Study Grove — registro de execução
 
 ## 2026-11-03
 
@@ -69,3 +69,7 @@ Instalação física no celular, cobertura das fontes gratuitas, independência 
 - Added a separate challenges table and indexes without changing existing tables or schedules. Reviews now retain server receipt time and a normalized word identity; closed scores are frozen and late offline sync does not rewrite results. Challenge dates use the inviter's fixed time zone.
 - Participant-only API reads and actions, idempotent invites/acceptance, duplicate-pair protection, expiration, cancellation and historical results. Only aggregates are shared. Dashboard invitation counts include the new mode.
 - QA invitations, acceptance and study were performed only between synthetic local accounts. No invitation was sent to a production account.
+
+## 2026-11-04 — Study Grove
+
+Rebranded the app, install experience, icons, package, and GitHub repository to Study Grove. Added a daily reading goal with private Kindle connection storage, a confirmed-date calendar, encrypted sessions, periodic server checks, reconnection, and disconnect. The first verified reading snapshot is visible to its owner; automatic Amazon authentication still requires connection setup. Preserved the existing public domain, persistent storage, and focused mobile review layout. Validation: 60 passing tests, successful build, mobile browser checks, healthy production containers, unchanged study-data hashes.

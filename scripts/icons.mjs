@@ -5,7 +5,7 @@ for (const size of [192, 512])
     .png()
     .toFile(`public/icon-${size}.png`);
 await sharp({
-  create: { width: 512, height: 512, channels: 4, background: "#8260cf" },
+  create: { width: 512, height: 512, channels: 4, background: "#6d3fd1" },
 })
   .composite([
     { input: await sharp("public/icon.svg").resize(380).png().toBuffer() },

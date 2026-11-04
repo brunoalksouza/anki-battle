@@ -20,6 +20,7 @@ export type Local = {
   pending: Pending[];
   lastSync: string;
 };
+// Keep the original database name so installed users retain their offline cards and pending reviews.
 const dbPromise = openDB("anki-battle-v1", 1, {
   upgrade(db) {
     db.createObjectStore("accounts");

@@ -18,7 +18,7 @@ import {
   cardDefinition,
 } from "./suggestion-style";
 const ua =
-  "AnkiBattle/1.0 (https://anki.aneblober.com; educational flashcards)";
+  "StudyGrove/1.0 (https://anki.aneblober.com; educational flashcards)";
 async function json(url: URL | string) {
   const r = await fetch(url, {
     headers: { "User-Agent": ua },

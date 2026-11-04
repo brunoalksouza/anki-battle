@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "Anki Battle",
-  "short_name": "Anki Battle",
-  "description": "Your next level, one word at a time.",
+  "name": "Study Grove",
+  "short_name": "Study Grove",
+  "description": "Your words, your books, your daily growth.",
   "lang": "en-US",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f7f7fa",
-  "theme_color": "#8260cf",
+  "theme_color": "#6d3fd1",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -30,5 +30,10 @@
     }
   ],
   "categories": ["education", "productivity"],
-  "shortcuts": [{ "name": "Study", "url": "/" }]
+  "shortcuts": [
+    {
+      "name": "Study",
+      "url": "/"
+    }
+  ]
 }
