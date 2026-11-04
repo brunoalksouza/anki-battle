@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Home,
   Layers3,
-  BookOpen,
   LibraryBig,
   Swords,
   UserRound,
@@ -24,7 +23,6 @@ import { AppContext } from "./context";
 import Auth from "./Auth";
 import BrandMark from "./BrandMark";
 import Dashboard from "./Dashboard";
-import Reading from "./Reading";
 import Study from "./Study";
 import Words, { WordEditor, DeckEditor, WordDetail } from "./Words";
 import Battles from "./Battles";
@@ -299,7 +297,6 @@ export default function App() {
   const nav = [
     { id: "home", label: "Home", icon: Home },
     { id: "study", label: "Cards", icon: Layers3 },
-    { id: "reading", label: "Reading", icon: BookOpen },
     { id: "words", label: "Words", icon: LibraryBig },
     { id: "battles", label: "Compete", icon: Swords },
     { id: "profile", label: "Profile", icon: UserRound },
@@ -475,8 +472,6 @@ export default function App() {
           <main id="main-content" key={page}>
             {page === "home" ? (
               <Dashboard />
-            ) : page === "reading" ? (
-              <Reading />
             ) : page === "study" ? (
               <Study initialDeck={studyDeck} />
             ) : page === "words" ? (
@@ -495,19 +490,17 @@ export default function App() {
           </footer>
         </div>
         <nav className="bottom-nav" aria-label="Mobile navigation">
-          {nav
-            .filter((n) => n.id !== "profile")
-            .map((n) => (
-              <button
-                key={n.id}
-                className={page === n.id ? "active" : ""}
-                onClick={() => navigate(n.id)}
-                aria-current={page === n.id ? "page" : undefined}
-              >
-                <n.icon size={22} />
-                <span>{n.label}</span>
-              </button>
-            ))}
+          {nav.map((n) => (
+            <button
+              key={n.id}
+              className={page === n.id ? "active" : ""}
+              onClick={() => navigate(n.id)}
+              aria-current={page === n.id ? "page" : undefined}
+            >
+              <n.icon size={22} />
+              <span>{n.label}</span>
+            </button>
+          ))}
         </nav>
       </div>
       {dialog?.kind === "word" && (

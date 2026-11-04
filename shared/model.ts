@@ -175,7 +175,6 @@ export type Battle = {
   myAnswered: number;
 };
 export type Snapshot = {
-  reading?: import("./reading").ReadingState;
   user: User;
   decks: Deck[];
   words: Word[];

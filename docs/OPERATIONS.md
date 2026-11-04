@@ -71,12 +71,6 @@ DATA_DIR=./data node --import tsx scripts/import-anki.ts tmp/english-prepared br
 
 No servidor, o arquivo preparado foi passado ao container pelo volume privado. O pacote original fica em `/data/imports/<sha256>.apkg`. A importação confirma destino existente e é idempotente pelo hash do pacote e conta. Não é um importador genérico de todos os tipos de nota do Anki. O container inclui fontes para renderizar texto presente em SVGs importados.
 
-## Study Grove / Kindle (2026-11-04)
+## Study Grove (2026-11-04)
 
-The product and npm package are now Study Grove. Keep the legacy Docker project/container/volume names, database filename, cookie, headers, and IndexedDB keys: they preserve existing accounts and queued offline data. The public address remains `https://anki.aneblober.com`.
-
-`server/index.ts` enables the Kindle worker. Every minute it checks for account connections due for their 15-minute poll; each poll uses the fixed Amazon Reading Insights endpoint, manual redirects, a 15-second timeout, and a 2 MB response limit. It never follows redirects with Amazon cookies. Automatic checks only run for connected/error states with a saved session. Login failures stop polling until reconnect. In-flight results cannot resurrect a disconnected session.
-
-New tables: `kindle_connections` and `reading_days`. They are additive and do not change words, cards, reviews, media, or points. No sessions are preconfigured. Successful connection creates `DATA_DIR/kindle-session.key` (32 bytes, mode 0600). Backups now include this key when it exists. Treat the complete backup as sensitive: it contains both the encrypted database values and their key. Restore the key alongside the database with UID/GID 1000 and mode 0600. A missing key requires reconnecting Amazon. Never print session headers, encrypted blobs, or the key in diagnostics.
-
-Validate normal/error/expired/disconnect states with `tests/kindle.test.ts`. Test fixtures use synthetic credentials and a local provider double. Live server access is a separate check and must not be claimed until a real connection succeeds.
+The app keeps the existing domain, Docker names, data volume, session cookie, and IndexedDB names for compatibility. The product and repository name is Study Grove. The canceled book-reading integration, credentials, metrics, and background service have been removed. Only flashcard study and consistency challenges remain.

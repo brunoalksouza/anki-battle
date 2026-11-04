@@ -4959,313 +4959,13 @@ body:has(.focus-review) .toast {
   }
 }
 
-/* Study Grove: reading lives alongside flashcard study. */
 .brand-mark {
   display: block;
   border-radius: inherit;
 }
-.reading-goal-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  flex-shrink: 0;
-  border-radius: 16px;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.is-complete .reading-goal-icon {
-  color: var(--green);
-  background: color-mix(in srgb, var(--green) 14%, transparent);
-}
-.reading-heading {
-  margin-top: 24px;
-}
-.reading-today {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-.reading-today > div {
-  flex: 1;
-}
-.reading-today h2 {
-  font-size: 23px;
-  margin: 8px 0;
-}
-.reading-today p {
-  color: var(--muted);
-  max-width: 560px;
-  line-height: 1.6;
-  font-size: 13px;
-}
-.reading-badge {
-  padding: 9px 12px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  font-size: 11px;
-  white-space: nowrap;
-  font-weight: 600;
-}
-.is-complete .reading-badge {
-  color: var(--green);
-  border-color: var(--green);
-}
-.reading-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.reading-metrics > div {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: relative;
-}
-.reading-metrics svg {
-  position: absolute;
-  right: 20px;
-  top: 24px;
-  color: var(--green);
-}
-.reading-metrics strong {
-  font-size: 30px;
-  font-weight: 600;
-}
-.reading-metrics strong small {
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 400;
-}
-.reading-metrics span {
-  font-size: 12px;
-  color: var(--muted);
-}
-.reading-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 24px;
-  align-items: start;
-}
-.reading-calendar-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.reading-calendar-head h2 {
-  font-size: 20px;
-  margin-top: 7px;
-}
-.reading-calendar-head > div:last-child {
-  display: flex;
-}
-.reading-calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
-}
-.reading-calendar-grid > small {
-  text-align: center;
-  font-size: 11px;
-  color: var(--muted);
-  padding-bottom: 8px;
-}
-.reading-day {
-  min-height: 42px;
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  border-radius: 9px;
-  background: var(--bg);
-  font-size: 14px;
-  border: 1px solid var(--line);
-}
-.reading-day.confirmed {
-  background: #217346;
-  color: white;
-  border-color: #217346;
-  font-weight: 650;
-}
-.reading-day.today {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.reading-day.future {
-  opacity: 0.4;
-}
-.reading-legend {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  margin-top: 22px;
-  color: var(--muted);
-}
-.reading-legend span,
-.reading-legend i {
-  width: 9px;
-  height: 9px;
-  border-radius: 3px;
-  background: #217346;
-  flex-shrink: 0;
-}
-.reading-legend i {
-  background: var(--bg);
-  border: 1px solid var(--line);
-  margin-left: 8px;
-}
-.reading-note {
-  font-size: 11px;
-  line-height: 1.7;
-  margin-top: 16px;
-}
-.kindle-connection > svg {
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-.kindle-connection h2 {
-  font-size: 18px;
-  margin-bottom: 14px;
-}
-.reading-status {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  padding: 7px 10px;
-  background: var(--bg);
-  border-radius: 7px;
-}
-.reading-status.connected {
-  color: var(--green);
-}
-.reading-status.reconnect,
-.reading-status.error {
-  color: var(--orange);
-}
-.kindle-connection > p {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.7;
-  margin: 16px 0;
-}
-.kindle-connection > small {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-.kindle-connection > .button {
-  width: 100%;
-  margin: 4px 0 16px;
-}
-.kindle-connection > .text-button {
-  margin-bottom: 14px;
-}
-.kindle-connection > .reading-note {
-  font-size: 11px;
-}
-.kindle-connect-form > p,
-.kindle-connect-form li {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.7;
-}
-.kindle-connect-form details {
-  margin: 18px 0;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px;
-}
-.kindle-connect-form summary {
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-}
-.kindle-connect-form ol {
-  padding-left: 20px;
-  margin: 14px 0 0;
-}
-.kindle-connect-form li {
-  margin-bottom: 10px;
-}
-.kindle-connect-form > .button {
-  margin-top: 18px;
-  width: 100%;
-}
-@media (max-width: 767px) {
-  .reading-goal-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 13px;
-  }
-  .reading-today {
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-  .reading-today > div {
-    flex-basis: calc(100% - 60px);
-  }
-  .reading-today h2 {
-    font-size: 20px;
-  }
-  .reading-today .reading-badge {
-    margin-left: 58px;
-  }
-  .reading-metrics {
-    gap: 8px;
-  }
-  .reading-metrics > div {
-    padding: 16px 12px;
-    gap: 8px;
-  }
-  .reading-metrics strong {
-    font-size: 25px;
-  }
-  .reading-metrics strong small {
-    display: block;
-    font-size: 11px;
-    margin-top: 3px;
-  }
-  .reading-metrics span {
-    font-size: 10px;
-    line-height: 1.5;
-  }
-  .reading-metrics svg {
-    width: 15px;
-    right: 10px;
-    top: 20px;
-  }
-  .reading-layout {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-  .reading-calendar-grid {
-    gap: 6px;
-  }
-  .reading-day {
-    min-height: 34px;
-    font-size: 12px;
-  }
-  .reading-legend {
-    font-size: 9px;
-    gap: 5px;
-  }
-}
-
-/* Both study habits are visible first, with one-tap primary navigation. */
 .study-overview {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   margin-bottom: 28px;
 }
@@ -5279,9 +4979,6 @@ body:has(.focus-review) .toast {
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-}
-.overview-reading {
-  border-top-color: var(--green);
 }
 .overview-card-heading {
   display: flex;
@@ -5300,10 +4997,6 @@ body:has(.focus-review) .toast {
 .overview-category > svg {
   color: var(--accent);
   flex-shrink: 0;
-}
-.overview-reading .overview-category > svg,
-.overview-confirmed {
-  color: var(--green);
 }
 .overview-category h2 {
   font-size: 18px;
@@ -5325,9 +5018,6 @@ body:has(.focus-review) .toast {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
-}
-.overview-done > strong {
-  color: var(--green);
 }
 .overview-metrics {
   display: grid;
@@ -5424,7 +5114,6 @@ body:has(.focus-review) .toast {
   }
   .overview-today > span {
     font-size: 11px;
-    min-height: 33px;
   }
   .overview-metrics {
     gap: 8px;

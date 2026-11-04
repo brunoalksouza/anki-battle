@@ -1,7 +1,7 @@
 {
   "name": "study-grove",
   "version": "1.0.0",
-  "description": "A mobile study space for flashcards, daily reading, and consistency challenges.",
+  "description": "A mobile study space for flashcards, vocabulary, and consistency challenges.",
   "scripts": {
     "test": "tsx --test tests/*.test.ts",
     "dev": "vite --host 127.0.0.1",

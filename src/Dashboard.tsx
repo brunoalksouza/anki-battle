@@ -33,7 +33,7 @@ export default function Dashboard() {
         <div>
           <span className="eyebrow">YOUR LEARNING SPACE</span>
           <h1>Your study overview</h1>
-          <p>Flashcards and reading, together.</p>
+          <p>Build your vocabulary, one day at a time.</p>
         </div>
         <button
           className="icon-button"

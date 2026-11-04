@@ -1,31 +1,20 @@
 # Study Grove
 
-A personal study space for your words, your books, and your daily habits. Mobile-first English PWA at **https://anki.aneblober.com**, built with React/Vite, Fastify, persistent SQLite, and FSRS-7 (`ts-fsrs` 6).
+A personal study space for your words, your goals, and your daily habits. Mobile-first English PWA at **https://anki.aneblober.com**, built with React/Vite, Fastify, persistent SQLite, and FSRS-7 (`ts-fsrs` 6).
 
 Source: [brunoalksouza/study-grove](https://github.com/brunoalksouza/study-grove).
 
 ## Use the app
 
-- **Home:** a shared study overview with flashcard and reading metrics side by side: reviews today, card study time, both streaks, the daily reading goal, and books marked as read. The annual flashcard heatmap and decks follow below. Study days and visits are separate. Future days never lower your activity average.
+- **Home:** reviews today, study time, your card streak, and saved words. The annual flashcard heatmap and decks follow below. Study days and visits are separate. Future days never lower your activity average.
 - **Cards:** private decks, spaced repetition, basic/reverse/cloze cards, and offline review. The focused mobile session keeps the card and difficulty buttons within the viewport.
 - **Words:** definitions, examples, pronunciation, images, search, and CSV/JSON import/export. English words and their singular/plural forms are highlighted automatically.
 - **Compete:** invite a friend to a seven-day consistency challenge. Each player studies their own private cards; compare study days first and distinct words reviewed second. Optional card quizzes use an explicitly shared deck.
-- **Reading:** read every day, using confirmed Kindle dates. Open the Reading tab directly or use Reading metrics on Home. Reading does not change flashcard points, schedules, or challenges.
-- **Profile:** open your avatar at the top of the screen for your gallery photo, appearance, languages, time zone, limits, goals, history, exports, and recovery codes.
+- **Profile:** open the Profile tab or your avatar at the top of the screen for your gallery photo, appearance, languages, time zone, limits, goals, history, exports, and recovery codes.
 
 Install on iPhone through Safari → Share → Add to Home Screen, or use the install option in Profile. Download study decks to include their images and audio offline. Wait for **All synced** before clearing browser data or changing devices. Updates wait until you choose **Update now** outside an active review with no pending changes.
 
 Existing Financeiro accounts were migrated once. This is not ongoing SSO: later passwords and new Financeiro users do not sync automatically. The app does not read financial records. Recovery codes are single-use; there is no recovery email service.
-
-## Kindle daily reading
-
-Open **Reading → Connect Kindle**. On a computer, sign in to Amazon Reading Insights and copy the `Cookie` request header from its `/insights/data` request in the browser's Network tools. Paste it into the masked field in Study Grove. The connection is saved only after a successful authenticated response. Never share this value in chat, screenshots, source files, or logs.
-
-This uses an **unofficial Amazon endpoint**, not OAuth or a public Kindle API. The session grants broader Amazon account access. Each account has its own connection, encrypted with AES-256-GCM and account-bound authenticated data. Credentials never appear in snapshots, exports, client storage, or logs. The encryption key is a permission-restricted file in `DATA_DIR`. Disconnect removes the saved session and keeps confirmed reading history.
-
-Once connected, the server checks every 15 minutes even when the phone and Mac are closed. The Kindle must sync with Amazon first. Manual checks are limited to once a minute. Expired authentication asks for reconnection; temporary failures retry and preserve the last successful data. No automatic connection is claimed until a session is verified from the server.
-
-Only calendar days in the returned current daily streak are accumulated. Midnight ISO values retain Amazon's calendar date without shifting to the previous day in a local time zone. Repeated snapshots are idempotent; later streaks do not erase old dates. Blank calendar cells mean **no confirmed data**, not proof of no reading. A record streak or monthly total does not reconstruct the entire historical calendar. Marked-as-read titles are counted by unique ASIN and year; they are not proof a whole book was read. This endpoint does not provide reading minutes or pages.
 
 ## Run and validate
 
@@ -38,7 +27,7 @@ npm run build
 APP_ORIGIN=http://127.0.0.1:3100 npm start
 ```
 
-Open http://127.0.0.1:3100. For development, run `npm run dev` and `npm run server`; Vite proxies `/api`. `.env.example` documents settings. `server/index.ts` loads an existing `.env`. Database, media, and optional Kindle session key live in `DATA_DIR`, excluded from Git.
+Open http://127.0.0.1:3100. For development, run `npm run dev` and `npm run server`; Vite proxies `/api`. `.env.example` documents settings. `server/index.ts` loads an existing `.env`. Database and media live in `DATA_DIR`, excluded from Git.
 
 ```sh
 bash deploy/publish.sh

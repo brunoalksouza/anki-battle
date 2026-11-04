@@ -5,7 +5,6 @@ import {
   readdirSync,
   statSync,
   unlinkSync,
-  copyFileSync,
   existsSync,
   cpSync,
   renameSync,
@@ -42,13 +41,6 @@ try {
       cpSync(join(dataDir, folder), join(temporary, folder), {
         recursive: true,
       });
-  if (existsSync(join(dataDir, "kindle-session.key"))) {
-    copyFileSync(
-      join(dataDir, "kindle-session.key"),
-      join(temporary, "kindle-session.key"),
-    );
-    chmodSync(join(temporary, "kindle-session.key"), 0o600);
-  }
   renameSync(temporary, dest);
   for (const name of readdirSync(target)) {
     if (

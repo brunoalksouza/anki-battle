@@ -72,8 +72,8 @@ Instalação física no celular, cobertura das fontes gratuitas, independência 
 
 ## 2026-11-04 — Study Grove
 
-Rebranded the app, install experience, icons, package, and GitHub repository to Study Grove. Added a daily reading goal with private Kindle connection storage, a confirmed-date calendar, encrypted sessions, periodic server checks, reconnection, and disconnect. The first verified reading snapshot is visible to its owner; automatic Amazon authentication still requires connection setup. Preserved the existing public domain, persistent storage, and focused mobile review layout. Validation: 60 passing tests, successful build, mobile browser checks, healthy production containers, unchanged study-data hashes.
+Rebranded the app, install experience, icons, package, and GitHub repository to Study Grove. Preserved the public domain, persistent study data, and focused mobile review layout.
 
-## 2026-11-04 — Put study metrics first
+## 2026-11-04 — Flashcard study overview
 
-Replaced Home's flashcard-only hero with a combined Flashcards/Reading overview. Reading now has a dedicated primary navigation tab; the Profile shortcut is removed. Kept five mobile navigation buttons and moved Profile access to the existing header avatar. Preserved independent study metrics and explicit Kindle connection state. Published after build, automated checks, mobile/desktop navigation validation, and study-data preservation checks.
+Home shows today's reviews, study time, card streak, saved words, and the annual activity heatmap. Mobile navigation has Home, Cards, Words, Compete, and Profile. The book-reading feature and Kindle integration were removed at the user's request, including the experimental server browser. No Amazon account was connected to the server.

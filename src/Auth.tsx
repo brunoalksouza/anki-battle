@@ -59,7 +59,7 @@ export default function Auth({ onLogin }: { onLogin: (id: string) => void }) {
             <span>Grow a little every day.</span>
           </h1>
           <p>
-            Your words, your books, your pace. Build a study habit that stays
+            Your words, your goals, your pace. Build a study habit that stays
             with you.
           </p>
           <div className="auth-art" aria-hidden="true">

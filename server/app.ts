@@ -18,7 +18,6 @@ import {
   id,
 } from "./service";
 import { Integrations } from "./integrations";
-import { KindleReading, kindleCookie } from "./kindle";
 import { ProfilePhotos } from "./profile-photo";
 import { weekKey, type User, type Word, type Card } from "../shared/model";
 declare module "fastify" {
@@ -33,8 +32,6 @@ export async function buildApp(
     now?: () => Date;
     logger?: boolean;
     origin?: string;
-    kindleFetch?: typeof fetch;
-    kindleWorker?: boolean;
   } = {},
 ) {
   const dataDir = resolve(options.dataDir || process.env.DATA_DIR || "data"),
@@ -43,7 +40,6 @@ export async function buildApp(
   const svc = new Service(db, options.now),
     integrations = new Integrations(svc, dataDir),
     photos = new ProfilePhotos(svc, dataDir),
-    kindle = new KindleReading(db, dataDir, options.now, options.kindleFetch),
     origin =
       options.origin || process.env.APP_ORIGIN || "http://localhost:5173";
   const app = Fastify({
@@ -140,13 +136,8 @@ export async function buildApp(
     req.userId = session.user_id;
   });
   app.addHook("onClose", async () => {
-    await kindle.close();
     db.db.close();
   });
-  if (options.kindleWorker)
-    app.addHook("onReady", async () => {
-      kindle.start();
-    });
   const setSession = (reply: any, userId: string) => {
     const token = randomBytes(32).toString("base64url");
     db.run("DELETE FROM sessions WHERE expires<=?", svc.now().toISOString());
@@ -326,23 +317,7 @@ export async function buildApp(
     });
     return { recoveryCodes: codes };
   });
-  app.get("/api/state", async (req) => ({
-    ...svc.snapshot(req.userId),
-    reading: kindle.state(req.userId),
-  }));
-  app.get("/api/reading", async (req) => kindle.state(req.userId));
-  const kindleLimit = { config: { rateLimit: { max: 6, timeWindow: 60000 } } };
-  app.post("/api/reading/connect", kindleLimit, async (req) => {
-    const body = z.object({ cookie: kindleCookie }).parse(req.body);
-    return kindle.connect(req.userId, body.cookie);
-  });
-  app.post("/api/reading/sync", kindleLimit, async (req) => {
-    await kindle.sync(req.userId);
-    return kindle.state(req.userId);
-  });
-  app.delete("/api/reading/connection", async (req) =>
-    kindle.disconnect(req.userId),
-  );
+  app.get("/api/state", async (req) => svc.snapshot(req.userId));
   app.post("/api/access", async (req) => {
     svc.access(req.userId);
     return { ok: true };
@@ -787,5 +762,5 @@ export async function buildApp(
       .type(types[extname(path)] || "application/octet-stream")
       .send(createReadStream(path));
   });
-  return { app, svc, integrations, kindle };
+  return { app, svc, integrations };
 }

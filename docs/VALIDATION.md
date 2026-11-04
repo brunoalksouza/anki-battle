@@ -85,20 +85,16 @@ Sources consulted on 2026-11-03: [AnkiMobile preferences](https://docs.ankiweb.n
 - Both themes inspected. At 402px, both players remain side by side; at 320px the scoreboard stacks and all four competition tabs fit without page overflow. Touch controls, English text, pending-sync guidance and explicit end-challenge confirmation remain available.
 - Challenge totals measure study activity, not verified vocabulary mastery. The duration is seven days; no automatic rematch, notification delivery or invitation to a particular production partner is claimed.
 
-## Study Grove and daily reading — 2026-11-04
+## Study Grove — 2026-11-04
 
-- Rebranded visible UI, login, PWA/install metadata, Apple home-screen title, SVG/PNG/maskable icons, exported filenames, npm package, README, and repository metadata. Repository: `brunoalksouza/study-grove`. Existing domain and persistence identifiers are intentionally retained.
-- `npm test`: 60 passed, 0 failed. Added Kindle parsing, calendar-date preservation, per-account isolation, encryption, idempotency, polling throttle, outage/expiry history preservation, disconnect races, and authenticated API coverage using synthetic credentials and a mocked provider.
-- `npm run build`: TypeScript and Vite passed. JS `/assets/index-BRsqWpwP.js`, CSS `/assets/index-CbTD3rzj.css`, service worker `f966c82b3974`.
-- Browser: mobile login and reading at 402 × 874, desktop login, calendar navigation, connection dialog, and live PWA update verified. Reading has no horizontal overflow. An answered long study card kept all four ratings inside the viewport (bottom 862 px; document height 874 px), with no review submitted.
-- Production: app and gateway healthy. `/api/health` returned `{"ok":true,"service":"study-grove","schema":1}`; live HTML and manifest serve the new brand and expected assets. Backup succeeded before deployment. Before/after SHA-256 comparisons of words, cards, reviews, and assets were identical.
-- Kindle: the existing browser session successfully returned the current Reading Insights schema. A first verified reading snapshot was imported only into its owner's profile. No Amazon session was copied or activated on the server. Automatic server access remains pending the user's first **Connect Kindle** setup; provider-double tests do not establish live server authentication.
-- Screenshots and private deployment evidence remain in ignored local directories. No Amazon cookies, account exports, or connection keys are committed.
+Rebranded the UI, PWA/install metadata, icons, exports, package, and repository while preserving existing storage identifiers and domain. Earlier deployment checks confirmed study-data hashes were unchanged.
 
-## Combined study overview and direct Reading navigation — 2026-11-04
+## Remove book-reading integration — 2026-11-04
 
-- Home now opens with equally prominent Flashcards and Reading panels, showing today's progress, separate streaks, card study time, collection size, and books marked as read. Sub-minute card study time displays seconds. The flashcard calendar remains below the overview and identifies its Cards/Visits filter explicitly.
-- Reading is a primary tab in the mobile bar and desktop sidebar, with its own selected state. Mobile keeps five targets (Home, Cards, Reading, Words, Compete); Profile remains directly accessible through the header avatar. Removed the reading shortcut from Profile.
-- Validation: 60 automated tests passed; final TypeScript/Vite build passed. Browser checks covered mobile at 402 × 874 and 320 × 740, desktop navigation, both direct reading entry points, Profile access, and retained fixed card-review controls. No horizontal overflow; both overview panels fit above the mobile navigation at the tested sizes. No review was submitted during validation.
-- Production app/gateway healthy; live HTML serves `/assets/index-B-HRKT1r.js` and `/assets/index-CBEvyh_V.css`. Service worker `1f5259ece97e`. Live account metrics and one-tap Reading navigation verified. Pre/post study-data table hashes were identical. No database or Kindle authentication changes.
-- Screenshot: ignored `docs/screenshots/study-overview-production.png`.
+- Removed the reading page, Home metrics, connection dialog, API routes, polling worker, schema declarations, backup-key handling, and related dependencies/prototype infrastructure.
+- Kept the Study Grove brand and flashcard overview; restored Profile as the fifth mobile tab.
+- `npm test`: 54 passed, 0 failed. TypeScript/Vite build passed. The retired integration test suite was removed; the unchanged study/account/offline/challenge suites remain.
+- Verified mobile Home and Profile at 402 × 874, with five navigation tabs and no reading controls or horizontal overflow. Live Home retains 223 words, 7 reviews today, a 3-day streak, and 44 seconds of study.
+- Production app/gateway healthy. Live assets: `/assets/index-WlhNR2_V.js`, `/assets/index-BsB7N6lD.css`; service worker `3ce65fd0618e`.
+- Removed the experimental browser container, dedicated volume/networks, service image/token, and retired source. After a verified backup, removed the two obsolete reading tables; SQLite integrity is `ok`.
+- Before/after hashes of words (223), cards (223), reviews (928), and media assets (301) are identical. No flashcard content, schedules, reviews, or media were changed.
