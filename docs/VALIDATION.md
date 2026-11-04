@@ -94,3 +94,11 @@ Sources consulted on 2026-11-03: [AnkiMobile preferences](https://docs.ankiweb.n
 - Production: app and gateway healthy. `/api/health` returned `{"ok":true,"service":"study-grove","schema":1}`; live HTML and manifest serve the new brand and expected assets. Backup succeeded before deployment. Before/after SHA-256 comparisons of words, cards, reviews, and assets were identical.
 - Kindle: the existing browser session successfully returned the current Reading Insights schema. A first verified reading snapshot was imported only into its owner's profile. No Amazon session was copied or activated on the server. Automatic server access remains pending the user's first **Connect Kindle** setup; provider-double tests do not establish live server authentication.
 - Screenshots and private deployment evidence remain in ignored local directories. No Amazon cookies, account exports, or connection keys are committed.
+
+## Combined study overview and direct Reading navigation — 2026-11-04
+
+- Home now opens with equally prominent Flashcards and Reading panels, showing today's progress, separate streaks, card study time, collection size, and books marked as read. Sub-minute card study time displays seconds. The flashcard calendar remains below the overview and identifies its Cards/Visits filter explicitly.
+- Reading is a primary tab in the mobile bar and desktop sidebar, with its own selected state. Mobile keeps five targets (Home, Cards, Reading, Words, Compete); Profile remains directly accessible through the header avatar. Removed the reading shortcut from Profile.
+- Validation: 60 automated tests passed; final TypeScript/Vite build passed. Browser checks covered mobile at 402 × 874 and 320 × 740, desktop navigation, both direct reading entry points, Profile access, and retained fixed card-review controls. No horizontal overflow; both overview panels fit above the mobile navigation at the tested sizes. No review was submitted during validation.
+- Production app/gateway healthy; live HTML serves `/assets/index-B-HRKT1r.js` and `/assets/index-CBEvyh_V.css`. Service worker `1f5259ece97e`. Live account metrics and one-tap Reading navigation verified. Pre/post study-data table hashes were identical. No database or Kindle authentication changes.
+- Screenshot: ignored `docs/screenshots/study-overview-production.png`.

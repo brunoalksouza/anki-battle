@@ -298,7 +298,8 @@ export default function App() {
     );
   const nav = [
     { id: "home", label: "Home", icon: Home },
-    { id: "study", label: "Study", icon: Layers3 },
+    { id: "study", label: "Cards", icon: Layers3 },
+    { id: "reading", label: "Reading", icon: BookOpen },
     { id: "words", label: "Words", icon: LibraryBig },
     { id: "battles", label: "Compete", icon: Swords },
     { id: "profile", label: "Profile", icon: UserRound },
@@ -336,12 +337,9 @@ export default function App() {
             {nav.map((n) => (
               <button
                 key={n.id}
-                className={
-                  page === n.id || (page === "reading" && n.id === "home")
-                    ? "active"
-                    : ""
-                }
+                className={page === n.id ? "active" : ""}
                 onClick={() => navigate(n.id)}
+                aria-current={page === n.id ? "page" : undefined}
               >
                 <n.icon size={20} />
                 {n.label}
@@ -380,11 +378,7 @@ export default function App() {
             <div className="breadcrumb">
               <span>Study Grove</span>
               <ChevronRight size={13} />
-              <strong>
-                {page === "reading"
-                  ? "Reading"
-                  : nav.find((n) => n.id === page)?.label}
-              </strong>
+              <strong>{nav.find((n) => n.id === page)?.label}</strong>
             </div>
             <div className="topbar-right">
               <button
@@ -501,21 +495,19 @@ export default function App() {
           </footer>
         </div>
         <nav className="bottom-nav" aria-label="Mobile navigation">
-          {nav.map((n) => (
-            <button
-              key={n.id}
-              className={
-                page === n.id || (page === "reading" && n.id === "home")
-                  ? "active"
-                  : ""
-              }
-              onClick={() => navigate(n.id)}
-              aria-current={page === n.id ? "page" : undefined}
-            >
-              <n.icon size={22} />
-              <span>{n.label}</span>
-            </button>
-          ))}
+          {nav
+            .filter((n) => n.id !== "profile")
+            .map((n) => (
+              <button
+                key={n.id}
+                className={page === n.id ? "active" : ""}
+                onClick={() => navigate(n.id)}
+                aria-current={page === n.id ? "page" : undefined}
+              >
+                <n.icon size={22} />
+                <span>{n.label}</span>
+              </button>
+            ))}
         </nav>
       </div>
       {dialog?.kind === "word" && (

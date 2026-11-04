@@ -27,7 +27,6 @@ import {
 } from "./ui";
 import { weekKey, level } from "../shared/model";
 import { api, exportFile } from "./offline";
-import { ReadingGoalCard } from "./Reading";
 import ProfilePhoto from "./ProfilePhoto";
 export default function Profile({
   onLogout,
@@ -78,7 +77,6 @@ export default function Profile({
   }
   return (
     <>
-      <ReadingGoalCard />
       <div className="page-heading">
         <div>
           <span className="eyebrow">THIS JOURNEY IS YOURS</span>

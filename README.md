@@ -6,12 +6,12 @@ Source: [brunoalksouza/study-grove](https://github.com/brunoalksouza/study-grove
 
 ## Use the app
 
-- **Home:** daily study progress, the reading goal, annual study heatmap, and your decks. Study days and visits are separate. Future days never lower your activity average.
-- **Study:** private decks, spaced repetition, basic/reverse/cloze cards, and offline review. The focused mobile session keeps the card and difficulty buttons within the viewport.
+- **Home:** a shared study overview with flashcard and reading metrics side by side: reviews today, card study time, both streaks, the daily reading goal, and books marked as read. The annual flashcard heatmap and decks follow below. Study days and visits are separate. Future days never lower your activity average.
+- **Cards:** private decks, spaced repetition, basic/reverse/cloze cards, and offline review. The focused mobile session keeps the card and difficulty buttons within the viewport.
 - **Words:** definitions, examples, pronunciation, images, search, and CSV/JSON import/export. English words and their singular/plural forms are highlighted automatically.
 - **Compete:** invite a friend to a seven-day consistency challenge. Each player studies their own private cards; compare study days first and distinct words reviewed second. Optional card quizzes use an explicitly shared deck.
-- **Reading:** read every day, using confirmed Kindle dates. Access it from Home or Profile. Reading does not change flashcard points, schedules, or challenges.
-- **Profile:** gallery photo, appearance, languages, time zone, limits, goals, history, exports, and recovery codes.
+- **Reading:** read every day, using confirmed Kindle dates. Open the Reading tab directly or use Reading metrics on Home. Reading does not change flashcard points, schedules, or challenges.
+- **Profile:** open your avatar at the top of the screen for your gallery photo, appearance, languages, time zone, limits, goals, history, exports, and recovery codes.
 
 Install on iPhone through Safari → Share → Add to Home Screen, or use the install option in Profile. Download study decks to include their images and audio offline. Wait for **All synced** before clearing browser data or changing devices. Updates wait until you choose **Update now** outside an active review with no pending changes.
 

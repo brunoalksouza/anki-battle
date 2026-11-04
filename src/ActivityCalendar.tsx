@@ -141,15 +141,21 @@ export default function ActivityCalendar() {
     >
       <div className="heatmap-heading">
         <div>
-          <h2 id="activity-title">Every day counts</h2>
-          <p>A year of small steps.</p>
+          <h2 id="activity-title">
+            {kind === "study" ? "Flashcard activity" : "App visits"}
+          </h2>
+          <p>
+            {kind === "study"
+              ? "Your reviews and study streaks across the year."
+              : "Your visits across the year."}
+          </p>
         </div>
         <select
           aria-label="Activity type"
           value={kind}
           onChange={(e) => setKind(e.target.value as ActivityKind)}
         >
-          <option value="study">Study</option>
+          <option value="study">Cards</option>
           <option value="access">Visits</option>
         </select>
       </div>

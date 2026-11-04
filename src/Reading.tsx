@@ -17,38 +17,6 @@ import { api } from "./offline";
 import { dayKey } from "../shared/model";
 import { emptyReading, readingStreak } from "../shared/reading";
 const INSIGHTS = "https://www.amazon.com/kindle/reading/insights";
-export function ReadingGoalCard() {
-  const { s, navigate } = useApp();
-  const r = s.reading || emptyReading(),
-    today = dayKey(new Date(), s.user.timezone);
-  const done = r.days.includes(today);
-  return (
-    <button
-      className={"reading-goal-card " + (done ? "is-complete" : "")}
-      onClick={() => navigate("reading")}
-    >
-      <span className="reading-goal-icon">
-        {done ? <Check size={23} /> : <BookOpen size={23} />}
-      </span>
-      <span className="reading-goal-copy">
-        <span className="eyebrow">YOUR DAILY READING</span>
-        <strong>
-          {done
-            ? "A little reading. Another day of growth."
-            : "Make room for a few pages."}
-        </strong>
-        <span>
-          {done
-            ? "Today's goal is complete · Confirmed by Kindle"
-            : r.status === "disconnected"
-              ? "Read every day · Connect your Kindle"
-              : "Read every day · Waiting for Kindle confirmation"}
-        </span>
-      </span>
-      <ArrowRight size={19} />
-    </button>
-  );
-}
 export default function Reading() {
   const { s, online, refresh, toast, navigate } = useApp();
   const r = s.reading || emptyReading(),
